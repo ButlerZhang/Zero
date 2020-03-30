@@ -30,3 +30,15 @@
 *.exe
 *.out
 *.app
+
+# Butler
+*.db
+*.opendb
+*.user
+*.pdb
+*.ilk
+
+SourceCode/QEvent/.vs/*
+SourceCode/QEvent/QEvent/obj/*
+SourceCode/QEvent/QEventW/x64/*
+
