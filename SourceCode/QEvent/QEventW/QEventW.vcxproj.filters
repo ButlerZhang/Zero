@@ -29,5 +29,8 @@
     <ClCompile Include="..\QEvent\QWin32Select.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\QEvent\Client.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

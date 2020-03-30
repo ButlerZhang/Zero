@@ -9,6 +9,7 @@
 #include "QEpoll.h"
 #endif
 
+#include <iostream>
 
 
 int main(int argc, char *argv[])
@@ -40,30 +41,28 @@ int main(int argc, char *argv[])
     if (Choose == 1)
     {
 #ifdef _WIN32
-        QWin32Select Test;
+        QWin32Select MyDispatch;
 #else
-        QSelect Test;
-        //QPoll Test;
-        //QEpoll Test;
+        QSelect MyDispatch;
+        //QPoll MyDispatch;
+        //QEpoll MyDispatch;
 #endif
 
-        if (!Test.Init(ServerIP, ServerPort))
+        if (!MyDispatch.Init(ServerIP, ServerPort))
         {
             std::cout << "init failed." << std::endl;
             return -1;
         }
 
-        Test.Dispatch(NULL);
-
-        //QSelect_demo(ServerIP, ServerPort);
-        //QPoll_demo(ServerIP, ServerPort);
-        //QEpoll_demo(ServerIP, ServerPort);
-        //QWin32Select_demo(ServerIP, ServerPort);
-
+        MyDispatch.Dispatch(NULL);
     }
     else
     {
-        Client(ServerIP, ServerPort);
+        Client MyClient;
+        const int ClientCount = FD_SETSIZE;
+        MyClient.Start(ServerIP, ServerPort, ClientCount);
+
+        std::cin >> Choose;
     }
 
 #ifdef _WIN32

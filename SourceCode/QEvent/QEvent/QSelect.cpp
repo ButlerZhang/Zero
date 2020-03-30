@@ -12,6 +12,9 @@ QSelect::QSelect()
 {
     m_ListenFD = -1;
     m_HighestEventFD = -1;
+
+    memset(&m_ReadSetIn, 0, sizeof(m_ReadSetIn));
+    memset(&m_WriteSetIn, 0, sizeof(m_WriteSetIn));
 }
 
 QSelect::~QSelect()

@@ -119,6 +119,7 @@
     <ClInclude Include="..\QEvent\QWin32Select.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\QEvent\Client.cpp" />
     <ClCompile Include="..\QEvent\main.cpp" />
     <ClCompile Include="..\QEvent\QWin32Select.cpp" />
   </ItemGroup>
