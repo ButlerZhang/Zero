@@ -1,31 +1,10 @@
-#ifdef _WIN32
-#include <io.h>
-#include <WS2tcpip.h>
-#include <winsock.h>
-#else
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <unistd.h>
-#endif
-
+#include "Client.h"
+#include "../QLog/QSimpleLog.h"
 #include "Network/QNetwork.h"
 
-#include <sys/types.h>
-#include <assert.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <fcntl.h>
 #include <string.h>
-#include <errno.h>
-#include <string>
-#include <set>
-#include <string>
 #include <iostream>
 #include <thread>
-#include "Client.h"
-
-
 
 
 
@@ -47,38 +26,40 @@ bool Client::Start(const std::string &ServerIP, int Port, int ClientCount)
     m_Port = Port;
     m_ServerIP = ServerIP;
 
+    QLog::g_Log.SetLogFile("Client.txt");
     for (int Count = 0; Count < ClientCount; Count++)
     {
-        std::cout << "Thread = " << Count << " start..." << std::endl << std::endl;
         std::thread SmallClient(Client::ThreadCall_SendMessage, this, Count);
         SmallClient.detach();
+
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+        QLog::g_Log.WriteInfo("Thread = %d start...", Count);
     }
 
+    QLog::g_Log.WriteInfo("Total thread count = %d started", ClientCount);
     return true;
 }
 
 void Client::ThreadCall_SendMessage(void *ClientObject, int ThreadIndex)
 {
-    Client *MyClient = (Client*)ClientObject;
+    QLog::QSimpleLog SmallLog;
+    SmallLog.SetLogFile("Thread" + std::to_string(ThreadIndex) + ".txt");
 
     QNetwork MyNetwork;
+    Client *MyClient = (Client*)ClientObject;
     if (!MyNetwork.Connect(MyClient->m_ServerIP, MyClient->m_Port))
     {
-        //int Error = WSAGetLastError();
-        std::cout << "Thread = " << ThreadIndex << " connect server failed." << std::endl;
+        SmallLog.WriteError("Connected server failed, code = %d", MyNetwork.GetError());
         return;
     }
 
     char MessageBuffer[1024];
     sprintf(MessageBuffer, "(Thread=%d,Socket=%s)", ThreadIndex, std::to_string(MyNetwork.GetSocket()).c_str());
 
-    int MessageLength = (int)strlen(MessageBuffer);
-
     while (true)
     {
-        send(MyNetwork.GetSocket(), MessageBuffer, MessageLength, 0);
-        std::cout << "Send : " << MessageBuffer << std::endl << std::endl;
-
+        int SendSize = (int)send(MyNetwork.GetSocket(), MessageBuffer, (int)strlen(MessageBuffer), 0);
+        SmallLog.WriteInfo("Send size = %d, msg = %s", SendSize, MessageBuffer);
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 }

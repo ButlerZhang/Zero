@@ -3,11 +3,9 @@
 #include "../Network/QNetwork.h"
 
 #include <sys/select.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
 #include <unistd.h>
 #include <string.h>
+
 
 
 QSelect::QSelect()
@@ -22,7 +20,6 @@ QSelect::QSelect()
 
 QSelect::~QSelect()
 {
-    close(m_ListenFD);
 }
 
 bool QSelect::AddEvent(int fd, int Event)
@@ -101,7 +98,7 @@ bool QSelect::Dispatch(timeval *tv)
 
 bool QSelect::Init(const std::string &BindIP, int Port)
 {
-    QNetwork MyNetwork;
+    static QNetwork MyNetwork;
     MyNetwork.Listen(BindIP, Port);
 
     m_ListenFD = MyNetwork.GetSocket();

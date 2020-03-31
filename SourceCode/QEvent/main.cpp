@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
     else
     {
         Client MyClient;
-        const int ClientCount = 1024;// FD_SETSIZE;
+        const int ClientCount = FD_SETSIZE;
         MyClient.Start(ServerIP, ServerPort, ClientCount);
 
         std::cin >> Choose;

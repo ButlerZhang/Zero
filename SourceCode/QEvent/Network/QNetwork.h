@@ -1,23 +1,14 @@
 #pragma once
 #ifdef _WIN32
-#include <io.h>
-#include <WS2tcpip.h>
-#include <winsock.h>
-#else
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <unistd.h>
-#endif
-
-
-#include <string>
-
-#ifdef _WIN32
+#include <WS2tcpip.h>           //SOCKET
 typedef SOCKET QSOCKET;
 #else
+#include <netinet/in.h>         //sockaddr_in
 typedef int QSOCKET;
 #endif
+
+#include "../../QLog/QSimpleLog.h"
+#include <string>
 
 
 
@@ -31,11 +22,17 @@ public:
     bool Listen(const std::string &IP, int Port);
     bool Connect(const std::string &IP, int Port);
 
+    int GetError() const { return m_Error; }
     QSOCKET GetSocket() const { return m_Socket; }
     void InitSockAddress(struct sockaddr_in &ServerAddress, const std::string &IP, int Port);
 
 private:
 
+    void RecordSocketError();
+
+private:
+
+    int                                 m_Error;
     int                                 m_Port;
     std::string                         m_IP;
     QSOCKET                             m_Socket;

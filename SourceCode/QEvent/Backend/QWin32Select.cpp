@@ -2,15 +2,6 @@
 #include "../../QLog/QSimpleLog.h"
 #include "../Network/QNetwork.h"
 
-#include <io.h>
-#include <WS2tcpip.h>
-#include <winsock.h>
-#include <sys/types.h>
-#include <string.h>
-#include <errno.h>
-#include <string>
-#include <set>
-
 
 
 QWin32Select::QWin32Select()
@@ -22,7 +13,6 @@ QWin32Select::QWin32Select()
 
 QWin32Select::~QWin32Select()
 {
-    ::closesocket(m_ListenFD);
 }
 
 bool QWin32Select::AddEvent(int fd, int Event)
@@ -97,7 +87,7 @@ bool QWin32Select::Dispatch(timeval *tv)
 
 bool QWin32Select::Init(const std::string &BindIP, int Port)
 {
-    QNetwork MyNetwork;
+    static QNetwork MyNetwork;
     MyNetwork.Listen(BindIP, Port);
     m_ListenFD = MyNetwork.GetSocket();
 

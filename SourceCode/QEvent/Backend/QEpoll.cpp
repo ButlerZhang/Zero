@@ -2,12 +2,8 @@
 #include "../../QLog/QSimpleLog.h"
 #include "../Network/QNetwork.h"
 
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
 #include <unistd.h>
 #include <string.h>
-#include <errno.h>
 
 
 
@@ -20,7 +16,6 @@ QEpoll::QEpoll()
 QEpoll::~QEpoll()
 {
     close(m_EpollFD);
-    close(m_ListenFD);
 }
 
 bool QEpoll::AddEvent(int fd, int Event)
@@ -97,7 +92,7 @@ bool QEpoll::Dispatch(timeval *tv)
 
 bool QEpoll::Init(const std::string &BindIP, int Port)
 {
-    QNetwork MyNetwork;
+    static QNetwork MyNetwork;
     MyNetwork.Listen(BindIP, Port);
 
     m_ListenFD = MyNetwork.GetSocket();
