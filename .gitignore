@@ -38,7 +38,8 @@
 *.pdb
 *.ilk
 
-SourceCode/QEvent/.vs/*
-SourceCode/QEvent/QEvent/obj/*
-SourceCode/QEvent/QEventW/x64/*
+SourceCode/.vs/*
+SourceCode/QEvent/obj/*
+SourceCode/QEvent/x64/*
+SourceCode/QEventW/x64/*
 
