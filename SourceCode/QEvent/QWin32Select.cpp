@@ -1,4 +1,6 @@
 #include "QWin32Select.h"
+#include "../QLog/QSimpleLog.h"
+
 #include <io.h>
 #include <WS2tcpip.h>
 #include <winsock.h>
@@ -10,7 +12,7 @@
 
 
 
-QWin32Select::QWin32Select()
+QWin32Select::QWin32Select() : m_EngineName("win32select")
 {
     memset(&m_ReadSetIn, 0, sizeof(m_ReadSetIn));
     memset(&m_WriteSetIn, 0, sizeof(m_WriteSetIn));
@@ -35,11 +37,15 @@ bool QWin32Select::Init(const std::string &BindIP, int Port)
     listen(m_ListenFD, 5);
 
     FD_SET(m_ListenFD, &m_ReadSetIn);
+    QLog::g_Log.WriteInfo("Win32Select init: listen = %d.", m_ListenFD);
     return true;
 }
 
 bool QWin32Select::Dispatch(timeval *tv)
 {
+    const int BUFFER_SIZE = 1024;
+    char DataBuffer[BUFFER_SIZE];
+
     while (true)
     {
         memcpy(&m_ReadSetOut, &m_ReadSetIn, sizeof(m_ReadSetIn));
@@ -48,7 +54,7 @@ bool QWin32Select::Dispatch(timeval *tv)
         int Result = select(-1, &m_ReadSetOut, &m_WriteSetOut, NULL, tv);
         if (Result <= 0)
         {
-            printf("win32 select: %d\n", WSAGetLastError());
+            QLog::g_Log.WriteError("Win32Select error : %d", WSAGetLastError());
             return false;
         }
 
@@ -64,12 +70,10 @@ bool QWin32Select::Dispatch(timeval *tv)
                     SOCKET ClientFD = accept(m_ListenFD, (struct sockaddr*)&ClientAddress, &AddLength);
 
                     FD_SET(ClientFD, &m_ReadSetIn);
-                    printf("Client = %lld connected.\n", ClientFD);
+                    QLog::g_Log.WriteInfo("Win32Select: Client = %d connected.", ClientFD);
                 }
                 else
                 {
-                    const int BUFFER_SIZE = 1024;
-                    char DataBuffer[BUFFER_SIZE];
                     memset(DataBuffer, 0, sizeof(DataBuffer));
 
                     int RecvSize = recv(FD, DataBuffer, BUFFER_SIZE - 1, 0);
@@ -77,19 +81,19 @@ bool QWin32Select::Dispatch(timeval *tv)
                     {
                         ::closesocket(FD);
                         FD_CLR(FD, &m_ReadSetIn);
-                        printf("Client = %lld disconnected.\n", FD);
+                        QLog::g_Log.WriteInfo("Win32Select: Client = %d disconnected.", FD);
                     }
                     else
                     {
-                        printf("Received data from client = %lld.\n", FD);
-                        printf("Bytes = %d, Data : %s\n", RecvSize, DataBuffer);
+                        QLog::g_Log.WriteInfo("Win32Select: Received %d bytes data from client = %d, msg = %s",
+                            RecvSize, FD, DataBuffer);
                     }
                 }
             }
 
             if (FD_ISSET(m_WriteSetOut.fd_array[Index], &m_WriteSetOut))
             {
-                printf("Need to finish write set.\n");
+                QLog::g_Log.WriteWarn("Win32Select: write feature not implemented yet.");
             }
         }
     }

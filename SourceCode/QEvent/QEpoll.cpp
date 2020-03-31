@@ -1,5 +1,6 @@
 #include "QEpoll.h"
-#include <sys/epoll.h>
+#include "../QLog/QSimpleLog.h"
+
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -9,8 +10,9 @@
 
 
 
-QEpoll::QEpoll()
+QEpoll::QEpoll() : m_EngineName("epoll")
 {
+    memset(m_EventArray, 0, sizeof(m_EventArray));
 }
 
 QEpoll::~QEpoll()
@@ -23,6 +25,7 @@ bool QEpoll::Init(const std::string &BindIP, int Port)
 {
     struct sockaddr_in BindAddress;
     memset(&BindAddress, 0, sizeof(BindAddress));
+
     BindAddress.sin_family = AF_INET;
     inet_pton(AF_INET, BindIP.c_str(), &BindAddress.sin_addr);
     BindAddress.sin_port = htons(static_cast<uint16_t>(Port));
@@ -31,11 +34,15 @@ bool QEpoll::Init(const std::string &BindIP, int Port)
     bind(m_ListenFD, (struct sockaddr*)&BindAddress, sizeof(BindAddress));
     listen(m_ListenFD, 5);
 
+    QLog::g_Log.WriteInfo("Epoll init: listen = %d.", m_ListenFD);
     return true;
 }
 
 bool QEpoll::Dispatch(timeval *tv)
 {
+    const int BUFFER_SIZE = 1024;
+    char DataBuffer[BUFFER_SIZE];
+
     m_EpollFD = epoll_create(FD_SETSIZE);
 
     epoll_event TempEvent;
@@ -43,50 +50,49 @@ bool QEpoll::Dispatch(timeval *tv)
     TempEvent.data.fd = m_ListenFD;
     epoll_ctl(m_EpollFD, EPOLL_CTL_ADD, m_ListenFD, &TempEvent);
 
-    epoll_event EventArray[FD_SETSIZE];
-    memset(EventArray, 0, sizeof(EventArray));
-
     while (true)
     {
-        int ActiveEventCount = epoll_wait(m_EpollFD, EventArray, FD_SETSIZE, -1);
+        int ActiveEventCount = epoll_wait(m_EpollFD, m_EventArray, FD_SETSIZE, -1);
         for (int Index = 0; Index < ActiveEventCount; Index++)
         {
-            int FD = EventArray[Index].data.fd;
-            if (EventArray[Index].events & EPOLLIN)
+            int FD = m_EventArray[Index].data.fd;
+            if (m_EventArray[Index].events & EPOLLIN)
             {
                 if (FD == m_ListenFD)
                 {
                     struct sockaddr_in ClientAddress;
                     socklen_t AddLength = sizeof(ClientAddress);
                     int ClientFD = accept(m_ListenFD, (struct sockaddr*)&ClientAddress, &AddLength);
-                    printf("Client = %d connected.\n", ClientFD);
+                    QLog::g_Log.WriteInfo("Epoll: Client = %d connected.", ClientFD);
 
                     TempEvent.events = EPOLLIN | EPOLLET;
                     TempEvent.data.fd = ClientFD;
                     int AddResult = epoll_ctl(m_EpollFD, EPOLL_CTL_ADD, ClientFD, &TempEvent);
+                    QLog::g_Log.WriteDebug("Epoll: Add new client fd, result = %d.", AddResult);
                 }
                 else
                 {
-                    const int BUFFER_SIZE = 1024;
-                    char DataBuffer[BUFFER_SIZE];
-
+                    memset(DataBuffer, 0, sizeof(DataBuffer));
                     ssize_t RecvSize = recv(FD, DataBuffer, BUFFER_SIZE - 1, 0);
                     if (RecvSize <= 0)
                     {
                         close(FD);
-                        printf("Client = %d disconnected.\n", FD);
+                        QLog::g_Log.WriteInfo("Epoll: Client = %d disconnected.", FD);
+
                         int DeleteResult = epoll_ctl(m_EpollFD, EPOLL_CTL_DEL, FD, &TempEvent);
+                        QLog::g_Log.WriteDebug("Epoll: Delete client fd, result = %d.", DeleteResult);
                     }
                     else
                     {
-                        printf("Received from client = %d.\n", FD);
-                        printf("Bytes = %d, Data : %s\n", RecvSize, DataBuffer);
+                        QLog::g_Log.WriteInfo("Epoll: Received %d bytes data from client = %d, msg = %s",
+                            RecvSize, FD, DataBuffer);
                     }
                 }
             }
-            else
+
+            if(m_EventArray[Index].events & EPOLLOUT)
             {
-                printf("FD is not ready.\n", FD);
+                QLog::g_Log.WriteWarn("Epoll: EPOLLOUT feature not implemented yet.");
             }
         }
     }

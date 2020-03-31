@@ -1,5 +1,6 @@
 #include <cstdio>
 #include "Client.h"
+#include "../QLog/QSimpleLog.h"
 
 #ifdef _WIN32
 #include "QWin32Select.h"
@@ -31,7 +32,11 @@ int main(int argc, char *argv[])
 
 #else
 
-    int Choose = argc <= 1 ? 1 : 0;
+    //debug server
+    //int Choose = argc <= 1 ? 1 : 0;
+
+    //debug client
+    int Choose = argc > 1 ? 1 : 0;
 
 #endif
 
@@ -43,14 +48,15 @@ int main(int argc, char *argv[])
 #ifdef _WIN32
         QWin32Select MyDispatch;
 #else
-        QSelect MyDispatch;
+        //QSelect MyDispatch;
         //QPoll MyDispatch;
-        //QEpoll MyDispatch;
+        QEpoll MyDispatch;
 #endif
 
+        QLog::g_Log.SetLogFile(MyDispatch.GetEngineName() + ".txt");
         if (!MyDispatch.Init(ServerIP, ServerPort))
         {
-            std::cout << "init failed." << std::endl;
+            QLog::g_Log.WriteError("Dispatch init failed.");
             return -1;
         }
 
@@ -59,7 +65,7 @@ int main(int argc, char *argv[])
     else
     {
         Client MyClient;
-        const int ClientCount = FD_SETSIZE;
+        const int ClientCount = 1024;// FD_SETSIZE;
         MyClient.Start(ServerIP, ServerPort, ClientCount);
 
         std::cin >> Choose;

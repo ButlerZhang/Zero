@@ -23,6 +23,7 @@
     <ClCompile Include="..\QLog\QSimpleLog.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\QLog\QLogBase.h" />
     <ClInclude Include="..\QLog\QSimpleLog.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -48,7 +49,7 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>

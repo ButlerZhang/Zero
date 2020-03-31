@@ -51,10 +51,9 @@ bool Client::Start(const std::string &ServerIP, int Port, int ClientCount)
 
     for (int Count = 0; Count < ClientCount; Count++)
     {
+        std::cout << "Thread = " << Count << " start..." << std::endl << std::endl;
         std::thread SmallClient(Client::ThreadCall_SendMessage, this, Count);
         SmallClient.detach();
-
-        std::cout << "Thread = " << Count << " start..." << std::endl << std::endl;
     }
 
     return true;
@@ -85,12 +84,15 @@ void Client::ThreadCall_SendMessage(void *ClientObject, int ThreadIndex)
         return;
     }
 
-    std::string Message = "Thread = " + std::to_string(ThreadIndex) + ",Socket = " + std::to_string(ClientSocket);
+    char MessageBuffer[1024];
+    sprintf(MessageBuffer, "(Thread=%d,Socket=%s)", ThreadIndex, std::to_string(ClientSocket).c_str());
+
+    int MessageLength = (int)strlen(MessageBuffer);
 
     while (true)
     {
-        send(ClientSocket, Message.c_str(), (int)(Message.length()), 0);
-        std::cout << "Send : " << Message << std::endl << std::endl;
+        send(ClientSocket, MessageBuffer, MessageLength, 0);
+        std::cout << "Send : " << MessageBuffer << std::endl << std::endl;
 
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }

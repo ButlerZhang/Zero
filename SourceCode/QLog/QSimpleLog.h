@@ -1,8 +1,9 @@
 #pragma once
+#include "QLogBase.h"
 #include <stdarg.h>
 #include <string>
 
-
+QLOG_NS_BEGIN
 
 enum LogLevel
 {
@@ -38,3 +39,7 @@ private:
     LogLevel        m_EnableLogLevel;
     FILE            *m_LogFile;
 };
+
+extern QSimpleLog g_Log;
+
+QLOG_NS_END

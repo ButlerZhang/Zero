@@ -1,4 +1,6 @@
 #include "QSelect.h"
+#include "../QLog/QSimpleLog.h"
+
 #include <sys/select.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -8,7 +10,7 @@
 
 
 
-QSelect::QSelect()
+QSelect::QSelect() : m_EngineName("select")
 {
     m_ListenFD = -1;
     m_HighestEventFD = -1;
@@ -37,11 +39,16 @@ bool QSelect::Init(const std::string &BindIP, int Port)
 
     m_HighestEventFD = m_ListenFD + 1;
     FD_SET(m_ListenFD, &m_ReadSetIn);
+
+    QLog::g_Log.WriteInfo("Select init: listen = %d.", m_ListenFD);
     return true;
 }
 
 bool QSelect::Dispatch(timeval *tv)
 {
+    const int BUFFER_SIZE = 1024;
+    char DataBuffer[BUFFER_SIZE];
+
     while (true)
     {
         memcpy(&m_ReadSetOut, &m_ReadSetIn, sizeof(m_ReadSetIn));
@@ -50,7 +57,7 @@ bool QSelect::Dispatch(timeval *tv)
         int Result = select(m_HighestEventFD, &m_ReadSetOut, &m_WriteSetOut, NULL, tv);
         if (Result <= 0)
         {
-            printf("select : %s\n", strerror(errno));
+            QLog::g_Log.WriteError("Select error : %s", strerror(errno));
             return false;
         }
 
@@ -63,36 +70,37 @@ bool QSelect::Dispatch(timeval *tv)
                     struct sockaddr_in ClientAddress;
                     socklen_t AddLength = sizeof(ClientAddress);
                     int ClientFD = accept(m_ListenFD, (struct sockaddr*)&ClientAddress, &AddLength);
-                    printf("Client = %d connected.\n", ClientFD);
+                    QLog::g_Log.WriteInfo("Select: Client = %d connected.", ClientFD);
 
                     FD_SET(ClientFD, &m_ReadSetIn);
                     if (ClientFD >= m_HighestEventFD)
                     {
                         m_HighestEventFD = ClientFD + 1;
+                        QLog::g_Log.WriteDebug("Current highest event fd = %d", m_HighestEventFD);
                     }
                 }
                 else
                 {
-                    const int BUFFER_SIZE = 1024;
-                    char DataBuffer[BUFFER_SIZE];
+                    memset(DataBuffer, 0, sizeof(DataBuffer));
 
                     ssize_t RecvSize = recv(FD, DataBuffer, BUFFER_SIZE - 1, 0);
                     if (RecvSize <= 0)
                     {
                         close(FD);
                         FD_CLR(FD, &m_ReadSetIn);
-                        printf("Client = %d disconnected.\n", FD);
+                        QLog::g_Log.WriteInfo("Select: Client = %d disconnected.", FD);
                     }
                     else
                     {
-                        printf("Received data from client = %d.\n", FD);
-                        printf("Bytes = %d, Data = %s\n", RecvSize, DataBuffer);
+                        QLog::g_Log.WriteInfo("Select: Received %d bytes data from client = %d, msg = %s",
+                            RecvSize, FD, DataBuffer);
                     }
                 }
             }
-            else if (FD_ISSET(FD, &m_WriteSetOut))
+
+            if (FD_ISSET(FD, &m_WriteSetOut))
             {
-                printf("Need to finish write set.\n");
+                QLog::g_Log.WriteWarn("Select: write feature not implemented yet.");
             }
         }
     }

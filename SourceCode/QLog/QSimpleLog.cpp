@@ -2,7 +2,9 @@
 #include <stdio.h>
 #include <chrono>
 
+QLOG_NS_BEGIN
 
+QSimpleLog g_Log;
 
 std::string getCurrentSystemTime()
 {
@@ -129,3 +131,5 @@ void QSimpleLog::WriteLog(LogLevel Level, const char *fmt, va_list ArgList)
         fprintf(m_LogFile, LogFmt, DateTime.c_str(), LevelString, LogBuffer);
     }
 }
+
+QLOG_NS_END

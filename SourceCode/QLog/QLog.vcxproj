@@ -62,6 +62,7 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <ItemGroup>
+    <ClInclude Include="QLogBase.h" />
     <ClInclude Include="QSimpleLog.h" />
   </ItemGroup>
   <ItemGroup>

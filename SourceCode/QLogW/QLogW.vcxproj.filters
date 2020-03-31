@@ -26,5 +26,8 @@
     <ClInclude Include="..\QLog\QSimpleLog.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\QLog\QLogBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

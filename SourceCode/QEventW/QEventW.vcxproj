@@ -83,6 +83,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>WS2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -117,11 +118,14 @@
   <ItemGroup>
     <ClInclude Include="..\QEvent\Client.h" />
     <ClInclude Include="..\QEvent\QWin32Select.h" />
+    <ClInclude Include="..\QLog\QLogBase.h" />
+    <ClInclude Include="..\QLog\QSimpleLog.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\QEvent\Client.cpp" />
     <ClCompile Include="..\QEvent\main.cpp" />
     <ClCompile Include="..\QEvent\QWin32Select.cpp" />
+    <ClCompile Include="..\QLog\QSimpleLog.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

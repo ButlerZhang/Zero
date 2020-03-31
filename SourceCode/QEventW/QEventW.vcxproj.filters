@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Reference">
+      <UniqueIdentifier>{1331ace7-1c74-4cb2-8de7-2418f13e58d4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Reference\QLog">
+      <UniqueIdentifier>{c09d67ed-d869-45dc-a816-453bb3372b97}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\QEvent\Client.h">
@@ -20,6 +26,12 @@
     </ClInclude>
     <ClInclude Include="..\QEvent\QWin32Select.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\QLog\QLogBase.h">
+      <Filter>Reference\QLog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\QLog\QSimpleLog.h">
+      <Filter>Reference\QLog</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -31,6 +43,9 @@
     </ClCompile>
     <ClCompile Include="..\QEvent\Client.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\QLog\QSimpleLog.cpp">
+      <Filter>Reference\QLog</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
