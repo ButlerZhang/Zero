@@ -1,5 +1,6 @@
 #include "QEpoll.h"
-#include "../QLog/QSimpleLog.h"
+#include "../../QLog/QSimpleLog.h"
+#include "../Network/QNetwork.h"
 
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -10,8 +11,9 @@
 
 
 
-QEpoll::QEpoll() : m_EngineName("epoll")
+QEpoll::QEpoll()
 {
+    m_BackendName = "epoll";
     memset(m_EventArray, 0, sizeof(m_EventArray));
 }
 
@@ -21,21 +23,14 @@ QEpoll::~QEpoll()
     close(m_ListenFD);
 }
 
-bool QEpoll::Init(const std::string &BindIP, int Port)
+bool QEpoll::AddEvent(int fd, int Event)
 {
-    struct sockaddr_in BindAddress;
-    memset(&BindAddress, 0, sizeof(BindAddress));
+    return false;
+}
 
-    BindAddress.sin_family = AF_INET;
-    inet_pton(AF_INET, BindIP.c_str(), &BindAddress.sin_addr);
-    BindAddress.sin_port = htons(static_cast<uint16_t>(Port));
-
-    m_ListenFD = socket(PF_INET, SOCK_STREAM, 0);
-    bind(m_ListenFD, (struct sockaddr*)&BindAddress, sizeof(BindAddress));
-    listen(m_ListenFD, 5);
-
-    QLog::g_Log.WriteInfo("Epoll init: listen = %d.", m_ListenFD);
-    return true;
+bool QEpoll::DelEvent(int fd, int Event)
+{
+    return false;
 }
 
 bool QEpoll::Dispatch(timeval *tv)
@@ -97,5 +92,15 @@ bool QEpoll::Dispatch(timeval *tv)
         }
     }
 
+    return true;
+}
+
+bool QEpoll::Init(const std::string &BindIP, int Port)
+{
+    QNetwork MyNetwork;
+    MyNetwork.Listen(BindIP, Port);
+
+    m_ListenFD = MyNetwork.GetSocket();
+    QLog::g_Log.WriteInfo("Epoll init: listen = %d.", m_ListenFD);
     return true;
 }

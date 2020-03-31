@@ -14,10 +14,6 @@ public:
 
 private:
 
-    void InitSockAddress(struct sockaddr_in &ServerAddress);
-
-private:
-
     static void ThreadCall_SendMessage(void *ClientObject, int ThreadIndex);
 
 private:

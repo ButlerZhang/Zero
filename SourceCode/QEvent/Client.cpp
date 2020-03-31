@@ -9,6 +9,8 @@
 #include <unistd.h>
 #endif
 
+#include "Network/QNetwork.h"
+
 #include <sys/types.h>
 #include <assert.h>
 #include <stdio.h>
@@ -23,11 +25,7 @@
 #include <thread>
 #include "Client.h"
 
-#ifdef _WIN32
-typedef SOCKET QSOCKET;
-#else
-typedef int QSOCKET;
-#endif
+
 
 
 
@@ -59,25 +57,12 @@ bool Client::Start(const std::string &ServerIP, int Port, int ClientCount)
     return true;
 }
 
-void Client::InitSockAddress(struct sockaddr_in &ServerAddress)
-{
-    memset(&ServerAddress, 0, sizeof(ServerAddress));
-
-    ServerAddress.sin_family = AF_INET;
-    inet_pton(AF_INET, m_ServerIP.c_str(), &ServerAddress.sin_addr);
-    ServerAddress.sin_port = htons(static_cast<uint16_t>(m_Port));
-}
-
 void Client::ThreadCall_SendMessage(void *ClientObject, int ThreadIndex)
 {
     Client *MyClient = (Client*)ClientObject;
 
-    struct sockaddr_in ServerAddress;
-    MyClient->InitSockAddress(ServerAddress);
-
-    QSOCKET ClientSocket = socket(PF_INET, SOCK_STREAM, 0);
-    int ConnectResult = connect(ClientSocket, (struct sockaddr*)&ServerAddress, sizeof(ServerAddress));
-    if (ConnectResult < 0)
+    QNetwork MyNetwork;
+    if (!MyNetwork.Connect(MyClient->m_ServerIP, MyClient->m_Port))
     {
         //int Error = WSAGetLastError();
         std::cout << "Thread = " << ThreadIndex << " connect server failed." << std::endl;
@@ -85,21 +70,15 @@ void Client::ThreadCall_SendMessage(void *ClientObject, int ThreadIndex)
     }
 
     char MessageBuffer[1024];
-    sprintf(MessageBuffer, "(Thread=%d,Socket=%s)", ThreadIndex, std::to_string(ClientSocket).c_str());
+    sprintf(MessageBuffer, "(Thread=%d,Socket=%s)", ThreadIndex, std::to_string(MyNetwork.GetSocket()).c_str());
 
     int MessageLength = (int)strlen(MessageBuffer);
 
     while (true)
     {
-        send(ClientSocket, MessageBuffer, MessageLength, 0);
+        send(MyNetwork.GetSocket(), MessageBuffer, MessageLength, 0);
         std::cout << "Send : " << MessageBuffer << std::endl << std::endl;
 
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
-
-#ifdef _WIN32
-    ::closesocket(ClientSocket);
-#else
-    close(ClientSocket);
-#endif // _WIN32
 }

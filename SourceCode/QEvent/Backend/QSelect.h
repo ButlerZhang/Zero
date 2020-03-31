@@ -1,19 +1,20 @@
 #pragma once
-#include <string>
+#include "QBackend.h"
 
 
 
-class QSelect
+class QSelect : public QBackend
 {
 public:
 
     QSelect();
-    ~QSelect();
+    virtual ~QSelect();
+
+    virtual bool AddEvent(int fd, int Event);
+    virtual bool DelEvent(int fd, int Event);
+    virtual bool Dispatch(struct timeval *tv);
 
     bool Init(const std::string &BindIP, int Port);
-    bool Dispatch(struct timeval* tv);
-
-    const std::string& GetEngineName() const { return m_EngineName; }
 
 private:
 
@@ -23,5 +24,4 @@ private:
     fd_set                  m_WriteSetIn;
     fd_set                  m_ReadSetOut;
     fd_set                  m_WriteSetOut;
-    std::string             m_EngineName;
 };

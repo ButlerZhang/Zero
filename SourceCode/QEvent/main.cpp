@@ -3,11 +3,11 @@
 #include "../QLog/QSimpleLog.h"
 
 #ifdef _WIN32
-#include "QWin32Select.h"
+#include "Backend/QWin32Select.h"
 #else
-#include "QSelect.h"
-#include "QPoll.h"
-#include "QEpoll.h"
+#include "Backend/QSelect.h"
+#include "Backend/QPoll.h"
+#include "Backend/QEpoll.h"
 #endif
 
 #include <iostream>
@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
         QEpoll MyDispatch;
 #endif
 
-        QLog::g_Log.SetLogFile(MyDispatch.GetEngineName() + ".txt");
+        QLog::g_Log.SetLogFile(MyDispatch.GetBackendName() + ".txt");
         if (!MyDispatch.Init(ServerIP, ServerPort))
         {
             QLog::g_Log.WriteError("Dispatch init failed.");

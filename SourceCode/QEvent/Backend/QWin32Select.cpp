@@ -1,5 +1,6 @@
 #include "QWin32Select.h"
-#include "../QLog/QSimpleLog.h"
+#include "../../QLog/QSimpleLog.h"
+#include "../Network/QNetwork.h"
 
 #include <io.h>
 #include <WS2tcpip.h>
@@ -12,8 +13,9 @@
 
 
 
-QWin32Select::QWin32Select() : m_EngineName("win32select")
+QWin32Select::QWin32Select()
 {
+    m_BackendName = "win32select";
     memset(&m_ReadSetIn, 0, sizeof(m_ReadSetIn));
     memset(&m_WriteSetIn, 0, sizeof(m_WriteSetIn));
 }
@@ -23,22 +25,14 @@ QWin32Select::~QWin32Select()
     ::closesocket(m_ListenFD);
 }
 
-bool QWin32Select::Init(const std::string &BindIP, int Port)
+bool QWin32Select::AddEvent(int fd, int Event)
 {
-    struct sockaddr_in BindAddress;
-    memset(&BindAddress, 0, sizeof(BindAddress));
+    return false;
+}
 
-    BindAddress.sin_family = AF_INET;
-    inet_pton(AF_INET, BindIP.c_str(), &BindAddress.sin_addr);
-    BindAddress.sin_port = htons(static_cast<uint16_t>(Port));
-
-    m_ListenFD = socket(PF_INET, SOCK_STREAM, 0);
-    bind(m_ListenFD, (struct sockaddr*)&BindAddress, sizeof(BindAddress));
-    listen(m_ListenFD, 5);
-
-    FD_SET(m_ListenFD, &m_ReadSetIn);
-    QLog::g_Log.WriteInfo("Win32Select init: listen = %d.", m_ListenFD);
-    return true;
+bool QWin32Select::DelEvent(int fd, int Event)
+{
+    return false;
 }
 
 bool QWin32Select::Dispatch(timeval *tv)
@@ -98,5 +92,16 @@ bool QWin32Select::Dispatch(timeval *tv)
         }
     }
 
+    return true;
+}
+
+bool QWin32Select::Init(const std::string &BindIP, int Port)
+{
+    QNetwork MyNetwork;
+    MyNetwork.Listen(BindIP, Port);
+    m_ListenFD = MyNetwork.GetSocket();
+
+    FD_SET(m_ListenFD, &m_ReadSetIn);
+    QLog::g_Log.WriteInfo("Win32Select init: listen = %d.", m_ListenFD);
     return true;
 }

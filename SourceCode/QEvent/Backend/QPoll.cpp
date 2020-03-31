@@ -1,5 +1,6 @@
 #include "QPoll.h"
-#include "../QLog/QSimpleLog.h"
+#include "../../QLog/QSimpleLog.h"
+#include "../Network/QNetwork.h"
 
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -10,8 +11,9 @@
 
 
 
-QPoll::QPoll() : m_EngineName("poll")
+QPoll::QPoll()
 {
+    m_BackendName = "poll";
     for (int Index = 0; Index < FD_SETSIZE; Index++)
     {
         m_FDArray[Index].fd = -1;
@@ -25,24 +27,14 @@ QPoll::~QPoll()
     close(m_ListenFD);
 }
 
-bool QPoll::Init(const std::string &BindIP, int Port)
+bool QPoll::AddEvent(int fd, int Event)
 {
-    struct sockaddr_in BindAddress;
-    memset(&BindAddress, 0, sizeof(BindAddress));
+    return false;
+}
 
-    BindAddress.sin_family = AF_INET;
-    inet_pton(AF_INET, BindIP.c_str(), &BindAddress.sin_addr);
-    BindAddress.sin_port = htons(static_cast<uint16_t>(Port));
-
-    m_ListenFD = socket(PF_INET, SOCK_STREAM, 0);
-    bind(m_ListenFD, (struct sockaddr*)&BindAddress, sizeof(BindAddress));
-    listen(m_ListenFD, 5);
-
-    m_FDArray[0].fd = m_ListenFD;
-    m_FDArray[0].events = POLLIN;
-
-    QLog::g_Log.WriteInfo("Poll init: listen = %d.", m_ListenFD);
-    return true;
+bool QPoll::DelEvent(int fd, int Event)
+{
+    return false;
 }
 
 bool QPoll::Dispatch(timeval * tv)
@@ -108,5 +100,19 @@ bool QPoll::Dispatch(timeval * tv)
         }
     }
 
+    return true;
+}
+
+bool QPoll::Init(const std::string &BindIP, int Port)
+{
+    QNetwork MyNetwork;
+    MyNetwork.Listen(BindIP, Port);
+
+    m_ListenFD = MyNetwork.GetSocket();
+
+    m_FDArray[0].fd = m_ListenFD;
+    m_FDArray[0].events = POLLIN;
+
+    QLog::g_Log.WriteInfo("Poll init: listen = %d.", m_ListenFD);
     return true;
 }

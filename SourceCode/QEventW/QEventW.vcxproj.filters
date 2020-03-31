@@ -19,12 +19,15 @@
     <Filter Include="Reference\QLog">
       <UniqueIdentifier>{c09d67ed-d869-45dc-a816-453bb3372b97}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Network">
+      <UniqueIdentifier>{ec5900b1-4429-4018-9d04-d96d58e948ef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Backend">
+      <UniqueIdentifier>{4050bec6-383e-4361-b9c6-95bdbb2ed77a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\QEvent\Client.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\QEvent\QWin32Select.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\QLog\QLogBase.h">
@@ -33,12 +36,18 @@
     <ClInclude Include="..\QLog\QSimpleLog.h">
       <Filter>Reference\QLog</Filter>
     </ClInclude>
+    <ClInclude Include="..\QEvent\Network\QNetwork.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\QEvent\Backend\QBackend.h">
+      <Filter>Backend</Filter>
+    </ClInclude>
+    <ClInclude Include="..\QEvent\Backend\QWin32Select.h">
+      <Filter>Backend</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\QEvent\main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\QEvent\QWin32Select.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\QEvent\Client.cpp">
@@ -46,6 +55,15 @@
     </ClCompile>
     <ClCompile Include="..\QLog\QSimpleLog.cpp">
       <Filter>Reference\QLog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\QEvent\Network\QNetwork.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\QEvent\Backend\QBackend.cpp">
+      <Filter>Backend</Filter>
+    </ClCompile>
+    <ClCompile Include="..\QEvent\Backend\QWin32Select.cpp">
+      <Filter>Backend</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

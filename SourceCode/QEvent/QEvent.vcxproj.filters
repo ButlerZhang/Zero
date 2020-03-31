@@ -3,18 +3,27 @@
   <ItemGroup>
     <ClCompile Include="Client.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="QEpoll.cpp" />
-    <ClCompile Include="QPoll.cpp" />
-    <ClCompile Include="QSelect.cpp" />
     <ClCompile Include="..\QLog\QSimpleLog.cpp">
       <Filter>Reference\QLog</Filter>
+    </ClCompile>
+    <ClCompile Include="Network\QNetwork.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="Backend\QBackend.cpp">
+      <Filter>Backend</Filter>
+    </ClCompile>
+    <ClCompile Include="Backend\QEpoll.cpp">
+      <Filter>Backend</Filter>
+    </ClCompile>
+    <ClCompile Include="Backend\QPoll.cpp">
+      <Filter>Backend</Filter>
+    </ClCompile>
+    <ClCompile Include="Backend\QSelect.cpp">
+      <Filter>Backend</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Client.h" />
-    <ClInclude Include="QEpoll.h" />
-    <ClInclude Include="QPoll.h" />
-    <ClInclude Include="QSelect.h" />
     <ClInclude Include="..\QLog\QSimpleLog.h">
       <Filter>Reference\QLog</Filter>
     </ClInclude>
@@ -22,6 +31,21 @@
       <Filter>Reference\QLog</Filter>
     </ClInclude>
     <ClInclude Include="QEventBase.h" />
+    <ClInclude Include="Network\QNetwork.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Backend\QBackend.h">
+      <Filter>Backend</Filter>
+    </ClInclude>
+    <ClInclude Include="Backend\QEpoll.h">
+      <Filter>Backend</Filter>
+    </ClInclude>
+    <ClInclude Include="Backend\QPoll.h">
+      <Filter>Backend</Filter>
+    </ClInclude>
+    <ClInclude Include="Backend\QSelect.h">
+      <Filter>Backend</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Reference">
@@ -29,6 +53,12 @@
     </Filter>
     <Filter Include="Reference\QLog">
       <UniqueIdentifier>{ce13c666-5b1f-40d0-b565-2dc7167f71f4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Network">
+      <UniqueIdentifier>{bd706e9a-44e0-4e2c-9835-cc52da762253}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Backend">
+      <UniqueIdentifier>{d079858f-1adb-49d9-93e2-d3a3703b7c6e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
