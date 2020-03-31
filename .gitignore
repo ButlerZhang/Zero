@@ -38,8 +38,15 @@
 *.pdb
 *.ilk
 
+Deployment/*
+
 SourceCode/.vs/*
 SourceCode/QEvent/obj/*
 SourceCode/QEvent/x64/*
 SourceCode/QEventW/x64/*
+
+SourceCode/QLog/obj/*
+SourceCode/QLog/x64/*
+SourceCode/QLogW/x64/*
+
 
