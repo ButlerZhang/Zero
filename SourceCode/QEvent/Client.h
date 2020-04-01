@@ -1,4 +1,5 @@
 #pragma once
+#include "../QLog/QSimpleLog.h"
 #include <string>
 
 
@@ -14,6 +15,7 @@ public:
 
 private:
 
+    void SendMessage(int ClientIndex, QLog::QSimpleLog &Log);
     static void ThreadCall_SendMessage(void *ClientObject, int ThreadIndex);
 
 private:

@@ -11,15 +11,15 @@ public:
     QWin32Select();
     virtual ~QWin32Select();
 
-    virtual bool AddEvent(int fd, int Event);
-    virtual bool DelEvent(int fd, int Event);
+    virtual bool AddEvent(const QEvent &Event);
+    virtual bool DelEvent(const QEvent &Event);
     virtual bool Dispatch(struct timeval *tv);
 
     bool Init(const std::string &BindIP, int Port);
 
 private:
 
-    SOCKET                     m_ListenFD;
+    QSOCKET                    m_ListenFD;
     fd_set                     m_ReadSetIn;
     fd_set                     m_WriteSetIn;
     fd_set                     m_ReadSetOut;

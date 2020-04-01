@@ -15,12 +15,12 @@ QWin32Select::~QWin32Select()
 {
 }
 
-bool QWin32Select::AddEvent(int fd, int Event)
+bool QWin32Select::AddEvent(const QEvent &Event)
 {
     return false;
 }
 
-bool QWin32Select::DelEvent(int fd, int Event)
+bool QWin32Select::DelEvent(const QEvent &Event)
 {
     return false;
 }

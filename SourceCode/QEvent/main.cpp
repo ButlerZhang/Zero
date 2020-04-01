@@ -1,16 +1,11 @@
 #include <cstdio>
 #include "Client.h"
+#include "Network/QNetwork.h"
+#include "Backend/QReactor.h"
+#include "Backend/QBackend.h"
 #include "../QLog/QSimpleLog.h"
-
-#ifdef _WIN32
-#include "Backend/QWin32Select.h"
-#else
-#include "Backend/QSelect.h"
-#include "Backend/QPoll.h"
-#include "Backend/QEpoll.h"
-#endif
-
 #include <iostream>
+
 
 
 int main(int argc, char *argv[])
@@ -33,39 +28,32 @@ int main(int argc, char *argv[])
 #else
 
     //debug server
-    //int Choose = argc <= 1 ? 1 : 0;
+    int Choose = argc <= 1 ? 1 : 0;
 
     //debug client
-    int Choose = argc > 1 ? 1 : 0;
+    //int Choose = argc > 1 ? 1 : 0;
 
 #endif
 
-    const char *ServerIP = "127.0.0.1";
     const int ServerPort = 9000;
+    const std::string ServerIP("127.0.0.1");
 
     if (Choose == 1)
     {
-#ifdef _WIN32
-        QWin32Select MyDispatch;
-#else
-        QSelect MyDispatch;
-        //QPoll MyDispatch;
-        //QEpoll MyDispatch;
-#endif
+        QReactor Reactor;
+        QLog::g_Log.SetLogFile(Reactor.GetBackend()->GetBackendName() + ".txt");
 
-        QLog::g_Log.SetLogFile(MyDispatch.GetBackendName() + ".txt");
-        if (!MyDispatch.Init(ServerIP, ServerPort))
-        {
-            QLog::g_Log.WriteError("Dispatch init failed.");
-            return -1;
-        }
-
-        MyDispatch.Dispatch(NULL);
+        //QSocketEvent Server;
+        //if (Server.Listen(ServerIP, ServerPort))
+        //{
+        //    Reactor.AddEvent(Server);
+        //    Reactor.Dispatch(NULL);
+        //}
     }
     else
     {
         Client MyClient;
-        const int ClientCount = FD_SETSIZE;
+        const int ClientCount = 1;// FD_SETSIZE;
         MyClient.Start(ServerIP, ServerPort, ClientCount);
 
         std::cin >> Choose;

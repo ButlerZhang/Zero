@@ -1,12 +1,11 @@
 #pragma once
 #ifdef _WIN32
 #include <WS2tcpip.h>           //SOCKET
-typedef SOCKET QSOCKET;
 #else
 #include <netinet/in.h>         //sockaddr_in
-typedef int QSOCKET;
 #endif
 
+#include "../QLibBase.h"
 #include "../../QLog/QSimpleLog.h"
 #include <string>
 

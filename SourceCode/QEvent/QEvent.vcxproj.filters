@@ -21,6 +21,12 @@
     <ClCompile Include="Backend\QSelect.cpp">
       <Filter>Backend</Filter>
     </ClCompile>
+    <ClCompile Include="Event\QEvent.cpp">
+      <Filter>Event</Filter>
+    </ClCompile>
+    <ClCompile Include="Backend\QReactor.cpp">
+      <Filter>Backend</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Client.h" />
@@ -30,7 +36,6 @@
     <ClInclude Include="..\QLog\QLogBase.h">
       <Filter>Reference\QLog</Filter>
     </ClInclude>
-    <ClInclude Include="QEventBase.h" />
     <ClInclude Include="Network\QNetwork.h">
       <Filter>Network</Filter>
     </ClInclude>
@@ -46,6 +51,13 @@
     <ClInclude Include="Backend\QSelect.h">
       <Filter>Backend</Filter>
     </ClInclude>
+    <ClInclude Include="QLibBase.h" />
+    <ClInclude Include="Event\QEvent.h">
+      <Filter>Event</Filter>
+    </ClInclude>
+    <ClInclude Include="Backend\QReactor.h">
+      <Filter>Backend</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Reference">
@@ -59,6 +71,9 @@
     </Filter>
     <Filter Include="Backend">
       <UniqueIdentifier>{d079858f-1adb-49d9-93e2-d3a3703b7c6e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Event">
+      <UniqueIdentifier>{82eae3ff-715e-4aa7-afb0-2f1be1ea365b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

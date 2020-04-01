@@ -22,12 +22,12 @@ QPoll::~QPoll()
 {
 }
 
-bool QPoll::AddEvent(int fd, int Event)
+bool QPoll::AddEvent(const QEvent &Event)
 {
     return false;
 }
 
-bool QPoll::DelEvent(int fd, int Event)
+bool QPoll::DelEvent(const QEvent &Event)
 {
     return false;
 }

@@ -68,18 +68,22 @@
     <ClInclude Include="Backend\QBackend.h" />
     <ClInclude Include="Backend\QEpoll.h" />
     <ClInclude Include="Backend\QPoll.h" />
+    <ClInclude Include="Backend\QReactor.h" />
     <ClInclude Include="Backend\QSelect.h" />
     <ClInclude Include="Client.h" />
+    <ClInclude Include="Event\QEvent.h" />
     <ClInclude Include="Network\QNetwork.h" />
-    <ClInclude Include="QEventBase.h" />
+    <ClInclude Include="QLibBase.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\QLog\QSimpleLog.cpp" />
     <ClCompile Include="Backend\QBackend.cpp" />
     <ClCompile Include="Backend\QEpoll.cpp" />
     <ClCompile Include="Backend\QPoll.cpp" />
+    <ClCompile Include="Backend\QReactor.cpp" />
     <ClCompile Include="Backend\QSelect.cpp" />
     <ClCompile Include="Client.cpp" />
+    <ClCompile Include="Event\QEvent.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Network\QNetwork.cpp" />
   </ItemGroup>

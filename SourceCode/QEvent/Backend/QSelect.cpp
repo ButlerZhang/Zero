@@ -1,48 +1,83 @@
 #include "QSelect.h"
 #include "../../QLog/QSimpleLog.h"
 #include "../Network/QNetwork.h"
+#include "../Event/QEvent.h"
 
 #include <sys/select.h>
-#include <unistd.h>
 #include <string.h>
 
 
 
 QSelect::QSelect()
 {
-    m_ListenFD = -1;
     m_HighestEventFD = -1;
     m_BackendName = "select";
 
-    memset(&m_ReadSetIn, 0, sizeof(m_ReadSetIn));
-    memset(&m_WriteSetIn, 0, sizeof(m_WriteSetIn));
+    FD_ZERO(&m_ReadSetIn);
+    FD_ZERO(&m_WriteSetIn);
 }
 
 QSelect::~QSelect()
 {
 }
 
-bool QSelect::AddEvent(int fd, int Event)
+bool QSelect::AddEvent(const QEvent &Event)
 {
-    return false;
+    if (Event.GetEvents() == 0)
+    {
+        return false;
+    }
+
+    if (Event.GetEvents() & QET_READ)
+    {
+        FD_SET(Event.GetFD(), &m_ReadSetIn);
+    }
+
+    if (Event.GetEvents() & QET_WRITE)
+    {
+        FD_SET(Event.GetFD(), &m_WriteSetIn);
+    }
+
+    if (m_HighestEventFD < Event.GetFD())
+    {
+        m_HighestEventFD = Event.GetFD() + 1;
+    }
+
+    m_CallBackMap[Event.GetFD()] = std::bind(&QEvent::CallBack, Event);
+    return true;
 }
 
-bool QSelect::DelEvent(int fd, int Event)
+bool QSelect::DelEvent(const QEvent &Event)
 {
-    return false;
+    if (Event.GetEvents() == 0)
+    {
+        return false;
+    }
+
+    if (Event.GetEvents() & QET_READ)
+    {
+        FD_CLR(Event.GetFD(), &m_ReadSetIn);
+    }
+
+    if (Event.GetEvents() & QET_WRITE)
+    {
+        FD_CLR(Event.GetFD(), &m_WriteSetIn);
+    }
+
+    return true;
 }
 
 bool QSelect::Dispatch(timeval *tv)
 {
-    const int BUFFER_SIZE = 1024;
-    char DataBuffer[BUFFER_SIZE];
-
-    while (true)
+    while (!m_IsStop)
     {
         memcpy(&m_ReadSetOut, &m_ReadSetIn, sizeof(m_ReadSetIn));
         memcpy(&m_WriteSetOut, &m_WriteSetIn, sizeof(m_WriteSetIn));
 
-        int Result = select(m_HighestEventFD, &m_ReadSetOut, &m_WriteSetOut, NULL, tv);
+        QLog::g_Log.WriteInfo("Start select...");
+        int Result = select(m_HighestEventFD, &m_ReadSetOut, &m_WriteSetOut, NULL, NULL);
+        QLog::g_Log.WriteInfo("Stop select...");
+
         if (Result <= 0)
         {
             QLog::g_Log.WriteError("Select error : %s", strerror(errno));
@@ -53,58 +88,21 @@ bool QSelect::Dispatch(timeval *tv)
         {
             if (FD_ISSET(FD, &m_ReadSetOut))
             {
-                if (FD == m_ListenFD)
+                if (m_CallBackMap[FD] != nullptr)
                 {
-                    struct sockaddr_in ClientAddress;
-                    socklen_t AddLength = sizeof(ClientAddress);
-                    int ClientFD = accept(m_ListenFD, (struct sockaddr*)&ClientAddress, &AddLength);
-                    QLog::g_Log.WriteInfo("Select: Client = %d connected.", ClientFD);
-
-                    FD_SET(ClientFD, &m_ReadSetIn);
-                    if (ClientFD >= m_HighestEventFD)
-                    {
-                        m_HighestEventFD = ClientFD + 1;
-                        QLog::g_Log.WriteDebug("Current highest event fd = %d", m_HighestEventFD);
-                    }
-                }
-                else
-                {
-                    memset(DataBuffer, 0, sizeof(DataBuffer));
-
-                    ssize_t RecvSize = recv(FD, DataBuffer, BUFFER_SIZE - 1, 0);
-                    if (RecvSize <= 0)
-                    {
-                        close(FD);
-                        FD_CLR(FD, &m_ReadSetIn);
-                        QLog::g_Log.WriteInfo("Select: Client = %d disconnected.", FD);
-                    }
-                    else
-                    {
-                        QLog::g_Log.WriteInfo("Select: Received %d bytes data from client = %d, msg = %s",
-                            RecvSize, FD, DataBuffer);
-                    }
+                    m_CallBackMap[FD]();
                 }
             }
 
             if (FD_ISSET(FD, &m_WriteSetOut))
             {
-                QLog::g_Log.WriteWarn("Select: write feature not implemented yet.");
+                if (m_CallBackMap[FD] != nullptr)
+                {
+                    m_CallBackMap[FD]();
+                }
             }
         }
     }
 
-    return true;
-}
-
-bool QSelect::Init(const std::string &BindIP, int Port)
-{
-    static QNetwork MyNetwork;
-    MyNetwork.Listen(BindIP, Port);
-
-    m_ListenFD = MyNetwork.GetSocket();
-    m_HighestEventFD = m_ListenFD + 1;
-    FD_SET(m_ListenFD, &m_ReadSetIn);
-
-    QLog::g_Log.WriteInfo("Select init: listen = %d.", m_ListenFD);
     return true;
 }

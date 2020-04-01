@@ -18,12 +18,12 @@ QEpoll::~QEpoll()
     close(m_EpollFD);
 }
 
-bool QEpoll::AddEvent(int fd, int Event)
+bool QEpoll::AddEvent(const QEvent &Event)
 {
     return false;
 }
 
-bool QEpoll::DelEvent(int fd, int Event)
+bool QEpoll::DelEvent(const QEvent &Event)
 {
     return false;
 }

@@ -11,3 +11,8 @@
 #endif
 
 
+#ifdef _WIN32
+typedef SOCKET QSOCKET;
+#else
+typedef int QSOCKET;
+#endif
