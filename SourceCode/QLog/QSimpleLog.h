@@ -21,7 +21,7 @@ public:
     ~QSimpleLog();
 
     void SetEnableLogLevel(LogLevel Level);
-    void SetLogFile(const std::string &FileName);
+    bool SetLogFile(const std::string &FileName);
     void SetIsOutputConsole(bool IsOutputConsole);
 
     void WriteDebug(const char *fmt, ...);

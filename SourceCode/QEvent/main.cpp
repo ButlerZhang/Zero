@@ -48,9 +48,9 @@ int main(int argc, char *argv[])
 #ifdef _WIN32
         QWin32Select MyDispatch;
 #else
-        //QSelect MyDispatch;
+        QSelect MyDispatch;
         //QPoll MyDispatch;
-        QEpoll MyDispatch;
+        //QEpoll MyDispatch;
 #endif
 
         QLog::g_Log.SetLogFile(MyDispatch.GetBackendName() + ".txt");

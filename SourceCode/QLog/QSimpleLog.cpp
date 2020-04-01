@@ -1,6 +1,7 @@
 #include "QSimpleLog.h"
 #include <stdio.h>
 #include <chrono>
+#include <string.h>
 
 QLOG_NS_BEGIN
 
@@ -51,10 +52,18 @@ void QSimpleLog::SetEnableLogLevel(LogLevel Level)
     m_EnableLogLevel = Level;
 }
 
-void QSimpleLog::SetLogFile(const std::string &FileName)
+bool QSimpleLog::SetLogFile(const std::string &FileName)
 {
     m_LogFile = fopen(FileName.c_str(), "a");
-    setbuf(m_LogFile, NULL);
+    if (m_LogFile != NULL)
+    {
+        setbuf(m_LogFile, NULL);
+        return true;
+    }
+
+    printf("!!!!!Can not open file = %s\n", FileName.c_str());
+    printf("!!!!!errno = %d, description = %s\n", errno, strerror(errno));
+    return false;
 }
 
 void QSimpleLog::SetIsOutputConsole(bool IsOutputConsole)

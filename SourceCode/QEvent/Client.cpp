@@ -43,7 +43,10 @@ bool Client::Start(const std::string &ServerIP, int Port, int ClientCount)
 void Client::ThreadCall_SendMessage(void *ClientObject, int ThreadIndex)
 {
     QLog::QSimpleLog SmallLog;
-    SmallLog.SetLogFile("Thread" + std::to_string(ThreadIndex) + ".txt");
+    if (!SmallLog.SetLogFile("Thread" + std::to_string(ThreadIndex) + ".txt"))
+    {
+        return;
+    }
 
     QNetwork MyNetwork;
     Client *MyClient = (Client*)ClientObject;
