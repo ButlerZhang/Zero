@@ -17,3 +17,5 @@ typedef SOCKET QEventFD;
 #else
 typedef int QEventFD;
 #endif
+
+const int BUFFER_SIZE = 2048;

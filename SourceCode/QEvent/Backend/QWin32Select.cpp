@@ -28,7 +28,7 @@ bool QWin32Select::AddEvent(const QEvent &Event)
     }
 
     m_EventMap[Event.GetFD()] = std::move(Event);
-    QLog::g_Log.WriteInfo("Select : Add new EventFD = %d", Event.GetFD());
+    QLog::g_Log.WriteInfo("Win32Select : Add new EventFD = %d", Event.GetFD());
     return true;
 }
 
@@ -51,7 +51,7 @@ bool QWin32Select::DelEvent(const QEvent &Event)
     }
 
     m_EventMap.erase(it);
-    QLog::g_Log.WriteInfo("Select : Delete EventFD = %d", Event.GetFD());
+    QLog::g_Log.WriteInfo("Win32Select : Delete EventFD = %d", Event.GetFD());
     return true;
 }
 
@@ -62,9 +62,9 @@ bool QWin32Select::Dispatch(timeval *tv)
         memcpy(&m_ReadSetOut, &m_ReadSetIn, sizeof(m_ReadSetIn));
         memcpy(&m_WriteSetOut, &m_WriteSetIn, sizeof(m_WriteSetIn));
 
-        QLog::g_Log.WriteDebug("Start win32select...");
+        QLog::g_Log.WriteDebug("Start Win32Select...");
         int Result = select(-1, &m_ReadSetOut, &m_WriteSetOut, NULL, tv);
-        QLog::g_Log.WriteDebug("Stop win32select...");
+        QLog::g_Log.WriteDebug("Stop Win32Select...");
 
         if (Result <= 0)
         {

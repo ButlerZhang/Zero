@@ -23,8 +23,11 @@ public:
     bool CloseSocket(QEventFD Socket);
 
     int GetError() const { return m_Error; }
-    QEventFD GetSocket() const { return m_Socket; }
+    const QEventFD& GetSocket() const { return m_Socket; }
     void InitSockAddress(struct sockaddr_in &ServerAddress, const std::string &IP, int Port);
+
+    static int SetSocketNonblocking(QEventFD fd);
+    static int SetListenSocketReuseable(QEventFD fd);
 
 private:
 

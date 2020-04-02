@@ -7,6 +7,7 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <fcntl.h>
 #endif
 
 #include <string.h>
@@ -103,5 +104,43 @@ void QNetwork::RecordSocketError()
     m_Error = WSAGetLastError();
 #else
     m_Error = errno;
+#endif // _WIN32
+}
+
+int QNetwork::SetSocketNonblocking(QEventFD fd)
+{
+#ifdef _WIN32
+    unsigned long nonblocking = 1;
+    if (ioctlsocket(fd, FIONBIO, &nonblocking) == SOCKET_ERROR)
+    {
+        return -1;
+    }
+#else
+
+    int OldFlags;
+    if ((OldFlags = fcntl(fd, F_GETFL, NULL)) < 0)
+    {
+        return -1;
+    }
+
+    if (!(OldFlags & O_NONBLOCK))
+    {
+        if (fcntl(fd, F_SETFL, OldFlags | O_NONBLOCK) == -1)
+        {
+            return -1;
+        }
+    }
+
+#endif
+    return 0;
+}
+
+int QNetwork::SetListenSocketReuseable(QEventFD fd)
+{
+#ifdef _WIN32
+    return 0;
+#else
+    int one = 1;
+    return setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (void*)&one, (socklen_t)sizeof(one));
 #endif // _WIN32
 }

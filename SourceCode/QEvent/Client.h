@@ -2,6 +2,8 @@
 #include "../QLog/QSimpleLog.h"
 #include <string>
 
+class QEvent;
+
 
 
 class Client
@@ -15,8 +17,14 @@ public:
 
 private:
 
-    void SendMsg(int ClientIndex, QLog::QSimpleLog &Log);
-    static void ThreadCall_SendMessage(void *ClientObject, int ThreadIndex);
+    bool MultiThread(int ClientCount);
+    bool SingleThread(int ClientCount);
+
+    bool SendMsg(int ClientIndex, QLog::QSimpleLog &Log);
+    static void CallBack_Thread(void *ClientObject, int ThreadIndex);
+
+    void CMDInput(const QEvent &Event);
+    void Recevie(const QEvent &Event);
 
 private:
 

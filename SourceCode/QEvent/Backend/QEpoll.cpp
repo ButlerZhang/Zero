@@ -9,6 +9,7 @@ QEpoll::QEpoll()
 {
     m_BackendName = "epoll";
     m_EpollFD = epoll_create(FD_SETSIZE);
+    QLog::g_Log.WriteInfo("Epoll fd = %d", m_EpollFD);
     memset(m_EventArray, 0, sizeof(m_EventArray));
 }
 
@@ -31,10 +32,10 @@ bool QEpoll::AddEvent(const QEvent &Event)
         TempEvent.events |= EPOLLOUT;
     }
 
-    if (Event.GetWatchEvents() & QET_ET)
-    {
+    //if (Event.GetWatchEvents() & QET_ET)
+    //{
         TempEvent.events |= EPOLLET;
-    }
+    //}
 
     if (epoll_ctl(m_EpollFD, EPOLL_CTL_ADD, Event.GetFD(), &TempEvent) != 0)
     {
@@ -75,6 +76,7 @@ bool QEpoll::Dispatch(timeval *tv)
         QLog::g_Log.WriteDebug("Start Epoll...");
         int ActiveEventCount = epoll_wait(m_EpollFD, m_EventArray, FD_SETSIZE, -1);
         QLog::g_Log.WriteDebug("Stop Epoll...");
+        QLog::g_Log.WriteInfo("Epoll acitve event count = %d", ActiveEventCount);
 
         for (int Index = 0; Index < ActiveEventCount; Index++)
         {

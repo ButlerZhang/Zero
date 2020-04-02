@@ -28,6 +28,9 @@ bool Server::Start(const std::string &BindIP, int Port)
         return false;
     }
 
+    QNetwork::SetSocketNonblocking(m_Network.GetSocket());
+    QNetwork::SetListenSocketReuseable(m_Network.GetSocket());
+
     QEvent ListenEvent(m_Network.GetSocket(), QET_READ);
     ListenEvent.SetCallBack(std::bind(&Server::Accept, this, ListenEvent));
     m_Reactor.AddEvent(ListenEvent);
@@ -41,6 +44,7 @@ void Server::Accept(const QEvent &Event)
     QEventFD ClientFD = accept(m_Network.GetSocket(), (struct sockaddr*)&ClientAddress, &AddLength);
     QLog::g_Log.WriteInfo("Client = %d connected.", ClientFD);
 
+    QNetwork::SetSocketNonblocking(ClientFD);
     QEvent ClientEvent(ClientFD, QET_READ);
     ClientEvent.SetCallBack(std::bind(&Server::Recevie, this, ClientEvent));
     m_Reactor.AddEvent(ClientEvent);
@@ -48,16 +52,18 @@ void Server::Accept(const QEvent &Event)
 
 void Server::Recevie(const QEvent &Event)
 {
-    const int BUFFER_SIZE = 1024;
     char DataBuffer[BUFFER_SIZE];
     memset(DataBuffer, 0, sizeof(DataBuffer));
 
     int RecvSize = (int)recv(Event.GetFD(), DataBuffer, BUFFER_SIZE - 1, 0);
     if (RecvSize <= 0)
     {
-        m_Network.CloseSocket(Event.GetFD());
-        m_Reactor.DelEvent(Event);
-        QLog::g_Log.WriteInfo("Client = %d disconnected.", Event.GetFD());
+        if (errno != EAGAIN)
+        {
+            m_Reactor.DelEvent(Event);
+            m_Network.CloseSocket(Event.GetFD());
+            QLog::g_Log.WriteInfo("Client = %d disconnected", Event.GetFD());
+        }
     }
     else
     {
