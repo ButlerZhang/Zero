@@ -1,8 +1,6 @@
 #include "QSelect.h"
 #include "../../QLog/QSimpleLog.h"
-
-#include <sys/select.h>
-#include <string.h>
+#include <string.h>                     //strerror
 
 
 
@@ -21,17 +19,12 @@ QSelect::~QSelect()
 
 bool QSelect::AddEvent(const QEvent &Event)
 {
-    if (Event.GetEvents() == 0)
-    {
-        return false;
-    }
-
-    if (Event.GetEvents() & QET_READ)
+    if (Event.GetWatchEvents() & QET_READ)
     {
         FD_SET(Event.GetFD(), &m_ReadSetIn);
     }
 
-    if (Event.GetEvents() & QET_WRITE)
+    if (Event.GetWatchEvents() & QET_WRITE)
     {
         FD_SET(Event.GetFD(), &m_WriteSetIn);
     }
@@ -42,27 +35,30 @@ bool QSelect::AddEvent(const QEvent &Event)
     }
 
     m_EventMap[Event.GetFD()] = std::move(Event);
-    QLog::g_Log.WriteInfo("Select : Add new fd = %d, HighestFD = %d", Event.GetFD(), m_HighestEventFD);
+    QLog::g_Log.WriteInfo("Select : Add new EventFD = %d, HighestFD = %d", Event.GetFD(), m_HighestEventFD);
     return true;
 }
 
 bool QSelect::DelEvent(const QEvent &Event)
 {
-    if (Event.GetEvents() == 0)
+    std::map<QEventFD, QEvent>::const_iterator it = m_EventMap.find(Event.GetFD());
+    if (it == m_EventMap.end())
     {
         return false;
     }
 
-    if (Event.GetEvents() & QET_READ)
+    if (Event.GetWatchEvents() & QET_READ)
     {
         FD_CLR(Event.GetFD(), &m_ReadSetIn);
     }
 
-    if (Event.GetEvents() & QET_WRITE)
+    if (Event.GetWatchEvents() & QET_WRITE)
     {
         FD_CLR(Event.GetFD(), &m_WriteSetIn);
     }
 
+    m_EventMap.erase(it);
+    QLog::g_Log.WriteInfo("Select : Delete EventFD = %d", Event.GetFD());
     return true;
 }
 
@@ -73,9 +69,9 @@ bool QSelect::Dispatch(timeval *tv)
         memcpy(&m_ReadSetOut, &m_ReadSetIn, sizeof(m_ReadSetIn));
         memcpy(&m_WriteSetOut, &m_WriteSetIn, sizeof(m_WriteSetIn));
 
-        QLog::g_Log.WriteInfo("Start select...");
-        int Result = select(m_HighestEventFD, &m_ReadSetOut, &m_WriteSetOut, NULL, NULL);
-        QLog::g_Log.WriteInfo("Stop select...");
+        QLog::g_Log.WriteDebug("Start select...");
+        int Result = select(m_HighestEventFD, &m_ReadSetOut, &m_WriteSetOut, NULL, tv);
+        QLog::g_Log.WriteDebug("Stop select...");
 
         if (Result <= 0)
         {

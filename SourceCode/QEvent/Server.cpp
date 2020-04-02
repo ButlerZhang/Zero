@@ -38,8 +38,8 @@ void Server::Accept(const QEvent &Event)
 {
     struct sockaddr_in ClientAddress;
     socklen_t AddLength = sizeof(ClientAddress);
-    QSOCKET ClientFD = accept(m_Network.GetSocket(), (struct sockaddr*)&ClientAddress, &AddLength);
-    QLog::g_Log.WriteInfo("Select: Client = %d connected.", ClientFD);
+    QEventFD ClientFD = accept(m_Network.GetSocket(), (struct sockaddr*)&ClientAddress, &AddLength);
+    QLog::g_Log.WriteInfo("Client = %d connected.", ClientFD);
 
     QEvent ClientEvent(ClientFD, QET_READ);
     ClientEvent.SetCallBack(std::bind(&Server::Recevie, this, ClientEvent));
@@ -57,11 +57,11 @@ void Server::Recevie(const QEvent &Event)
     {
         m_Network.CloseSocket(Event.GetFD());
         m_Reactor.DelEvent(Event);
-        QLog::g_Log.WriteInfo("Select: Client = %d disconnected.", Event.GetFD());
+        QLog::g_Log.WriteInfo("Client = %d disconnected.", Event.GetFD());
     }
     else
     {
-        QLog::g_Log.WriteInfo("Select: Received %d bytes data from client = %d, msg = %s",
+        QLog::g_Log.WriteInfo("Received %d bytes data from client = %d, msg = %s",
             RecvSize, Event.GetFD(), DataBuffer);
     }
 }

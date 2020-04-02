@@ -1,15 +1,14 @@
 #include "QEpoll.h"
 #include "../../QLog/QSimpleLog.h"
-#include "../Network/QNetwork.h"
-
-#include <unistd.h>
-#include <string.h>
+#include <unistd.h>                 //close
+#include <string.h>                 //strerror
 
 
 
 QEpoll::QEpoll()
 {
     m_BackendName = "epoll";
+    m_EpollFD = epoll_create(FD_SETSIZE);
     memset(m_EventArray, 0, sizeof(m_EventArray));
 }
 
@@ -20,82 +19,77 @@ QEpoll::~QEpoll()
 
 bool QEpoll::AddEvent(const QEvent &Event)
 {
-    return false;
+    epoll_event TempEvent;
+    TempEvent.data.fd = Event.GetFD();
+    if (Event.GetWatchEvents() & QET_READ)
+    {
+        TempEvent.events |= EPOLLIN;
+    }
+
+    if (Event.GetWatchEvents() & QET_WRITE)
+    {
+        TempEvent.events |= EPOLLOUT;
+    }
+
+    if (Event.GetWatchEvents() & QET_ET)
+    {
+        TempEvent.events |= EPOLLET;
+    }
+
+    if (epoll_ctl(m_EpollFD, EPOLL_CTL_ADD, Event.GetFD(), &TempEvent) != 0)
+    {
+        QLog::g_Log.WriteError("Epoll: Add new EventFD = %d failed.", Event.GetFD());
+        return false;
+    }
+
+    m_EventMap[Event.GetFD()] = std::move(Event);
+    QLog::g_Log.WriteInfo("Epoll : Add new EventFD = %d", Event.GetFD());
+    return true;
 }
 
 bool QEpoll::DelEvent(const QEvent &Event)
 {
-    return false;
+    std::map<QEventFD, QEvent>::const_iterator it = m_EventMap.find(Event.GetFD());
+    if (it == m_EventMap.end())
+    {
+        return false;
+    }
+
+    epoll_event TempEvent;
+    TempEvent.data.fd = Event.GetFD();
+    if (epoll_ctl(m_EpollFD, EPOLL_CTL_DEL, Event.GetFD(), &TempEvent) != 0)
+    {
+        QLog::g_Log.WriteInfo("Epoll : Delete EventFD = %d failed.", Event.GetFD());
+        return false;
+    }
+
+    m_EventMap.erase(it);
+    QLog::g_Log.WriteInfo("Epoll : Delete EventFD = %d", Event.GetFD());
+    return true;
 }
 
 bool QEpoll::Dispatch(timeval *tv)
 {
-    const int BUFFER_SIZE = 1024;
-    char DataBuffer[BUFFER_SIZE];
-
-    m_EpollFD = epoll_create(FD_SETSIZE);
-
-    epoll_event TempEvent;
-    TempEvent.events = EPOLLIN | EPOLLET;
-    TempEvent.data.fd = m_ListenFD;
-    epoll_ctl(m_EpollFD, EPOLL_CTL_ADD, m_ListenFD, &TempEvent);
-
-    while (true)
+    while (!m_IsStop)
     {
+        QLog::g_Log.WriteDebug("Start Epoll...");
         int ActiveEventCount = epoll_wait(m_EpollFD, m_EventArray, FD_SETSIZE, -1);
+        QLog::g_Log.WriteDebug("Stop Epoll...");
+
         for (int Index = 0; Index < ActiveEventCount; Index++)
         {
             int FD = m_EventArray[Index].data.fd;
             if (m_EventArray[Index].events & EPOLLIN)
             {
-                if (FD == m_ListenFD)
-                {
-                    struct sockaddr_in ClientAddress;
-                    socklen_t AddLength = sizeof(ClientAddress);
-                    int ClientFD = accept(m_ListenFD, (struct sockaddr*)&ClientAddress, &AddLength);
-                    QLog::g_Log.WriteInfo("Epoll: Client = %d connected.", ClientFD);
-
-                    TempEvent.events = EPOLLIN | EPOLLET;
-                    TempEvent.data.fd = ClientFD;
-                    int AddResult = epoll_ctl(m_EpollFD, EPOLL_CTL_ADD, ClientFD, &TempEvent);
-                    QLog::g_Log.WriteDebug("Epoll: Add new client fd, result = %d.", AddResult);
-                }
-                else
-                {
-                    memset(DataBuffer, 0, sizeof(DataBuffer));
-                    ssize_t RecvSize = recv(FD, DataBuffer, BUFFER_SIZE - 1, 0);
-                    if (RecvSize <= 0)
-                    {
-                        close(FD);
-                        QLog::g_Log.WriteInfo("Epoll: Client = %d disconnected.", FD);
-
-                        int DeleteResult = epoll_ctl(m_EpollFD, EPOLL_CTL_DEL, FD, &TempEvent);
-                        QLog::g_Log.WriteDebug("Epoll: Delete client fd, result = %d.", DeleteResult);
-                    }
-                    else
-                    {
-                        QLog::g_Log.WriteInfo("Epoll: Received %d bytes data from client = %d, msg = %s",
-                            RecvSize, FD, DataBuffer);
-                    }
-                }
+                m_EventMap[FD].CallBack();
             }
 
-            if(m_EventArray[Index].events & EPOLLOUT)
+            if (m_EventArray[Index].events & EPOLLOUT)
             {
-                QLog::g_Log.WriteWarn("Epoll: EPOLLOUT feature not implemented yet.");
+                m_EventMap[FD].CallBack();
             }
         }
     }
 
-    return true;
-}
-
-bool QEpoll::Init(const std::string &BindIP, int Port)
-{
-    static QNetwork MyNetwork;
-    MyNetwork.Listen(BindIP, Port);
-
-    m_ListenFD = MyNetwork.GetSocket();
-    QLog::g_Log.WriteInfo("Epoll init: listen = %d.", m_ListenFD);
     return true;
 }

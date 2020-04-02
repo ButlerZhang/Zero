@@ -1,6 +1,5 @@
 #pragma once
 #include <memory>
-#include <functional>
 
 class QEvent;
 class QBackend;

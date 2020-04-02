@@ -14,7 +14,8 @@ enum QEventType
     QET_READ        = 0x02,
     QET_WRITE       = 0x04,
     QET_SIGNAL      = 0x08,
-    QET_PERSIST     = 0x10
+    QET_PERSIST     = 0x10,
+    QET_ET          = 0x20
 };
 
 
@@ -23,15 +24,17 @@ class QEvent
 {
 public:
 
-    QEvent() {}
-    QEvent(QSOCKET EventFD, int Events);
+    QEvent();
+    QEvent(QEventFD EventFD, int WatchEvents);
+    QEvent(QEventFD EventFD, int WatchEvents, CallBackFunction CallBack);
+
     virtual ~QEvent();
 
-    inline int GetEvents() const { return m_Events; }
+    inline QEventFD GetFD() const { return m_EventFD; }
+    inline int GetWatchEvents() const { return m_WatchEvents; }
     inline int GetResultEvents() const { return m_ResultEvents; }
-
-    inline QSOCKET GetFD() const { return m_EventFD; }
     inline struct timeval GetTimeOut() const { return m_TimeOut; }
+    inline std::shared_ptr<QBackend> GetBackend() const { return m_Backend; }
 
     void CallBack();
     void SetCallBack(CallBackFunction CallBack) { m_CallBack = std::move(CallBack); }
@@ -39,9 +42,9 @@ public:
 
 protected:
 
-    int                                     m_Events;
+    int                                     m_WatchEvents;
     int                                     m_ResultEvents;
-    QSOCKET                                 m_EventFD;
+    QEventFD                                m_EventFD;
     struct timeval                          m_TimeOut;
     CallBackFunction                        m_CallBack;
     std::shared_ptr<QBackend>               m_Backend;

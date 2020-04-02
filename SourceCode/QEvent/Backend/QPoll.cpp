@@ -1,14 +1,12 @@
 #include "QPoll.h"
 #include "../../QLog/QSimpleLog.h"
-#include "../Network/QNetwork.h"
-
-#include <unistd.h>
-#include <string.h>
+#include <string.h>                  //strerror
 
 
 
 QPoll::QPoll()
 {
+    m_FDMaxIndex = 0;
     m_BackendName = "poll";
     for (int Index = 0; Index < FD_SETSIZE; Index++)
     {
@@ -24,90 +22,90 @@ QPoll::~QPoll()
 
 bool QPoll::AddEvent(const QEvent &Event)
 {
+    for (int Index = 0; Index < FD_SETSIZE; Index++)
+    {
+        if (m_FDArray[Index].fd < 0)
+        {
+            m_FDArray[Index].revents = 0;
+            m_FDArray[Index].fd = Event.GetFD();
+
+            if (Event.GetWatchEvents() & QET_READ)
+            {
+                m_FDArray[Index].events |= POLLIN;
+            }
+
+            if (Event.GetWatchEvents() & QET_WRITE)
+            {
+                m_FDArray[Index].events |= POLLOUT;
+            }
+
+            if (m_FDMaxIndex <= Index)
+            {
+                m_FDMaxIndex = Index + 1;
+            }
+
+            m_EventMap[Event.GetFD()] = std::move(Event);
+            QLog::g_Log.WriteInfo("Poll : Add new EventFD = %d, max index = %d", Event.GetFD(), m_FDMaxIndex);
+            return true;
+        }
+    }
+
+    QLog::g_Log.WriteError("Poll: Add event failed.");
     return false;
 }
 
 bool QPoll::DelEvent(const QEvent &Event)
 {
+    std::map<QEventFD, QEvent>::const_iterator it = m_EventMap.find(Event.GetFD());
+    if (it == m_EventMap.end())
+    {
+        return false;
+    }
+
+    for (int Index = 0; Index < FD_SETSIZE; Index++)
+    {
+        if (m_FDArray[Index].fd == Event.GetFD())
+        {
+            m_FDArray[Index].fd = -1;
+            m_FDArray[Index].events = 0;
+            m_FDArray[Index].revents = 0;
+
+            m_EventMap.erase(it);
+            QLog::g_Log.WriteInfo("Poll : Delete EventFD = %d", Event.GetFD());
+            return true;
+        }
+    }
+
     return false;
 }
 
-bool QPoll::Dispatch(timeval * tv)
+bool QPoll::Dispatch(timeval *tv)
 {
-    const int BUFFER_SIZE = 1024;
-    char DataBuffer[BUFFER_SIZE];
-
-    while (true)
+    while (!m_IsStop)
     {
-        int Result = poll(m_FDArray, FD_SETSIZE, -1);
+        QLog::g_Log.WriteDebug("Start poll...");
+        int Result = poll(m_FDArray, m_FDMaxIndex, -1);
+        QLog::g_Log.WriteDebug("Stop poll...");
+
         if (Result <= 0)
         {
             QLog::g_Log.WriteError("Poll error : %s", strerror(errno));
             return false;
         }
 
-        for (int FDIndex = 0; FDIndex < FD_SETSIZE; FDIndex++)
+        for (int FDIndex = 0; FDIndex < m_FDMaxIndex; FDIndex++)
         {
             if (m_FDArray[FDIndex].revents & POLLIN)
             {
-                if (m_FDArray[FDIndex].fd == m_ListenFD)
-                {
-                    struct sockaddr_in ClientAddress;
-                    socklen_t AddLength = sizeof(ClientAddress);
-                    int ClientFD = accept(m_ListenFD, (struct sockaddr*)&ClientAddress, &AddLength);
-                    QLog::g_Log.WriteInfo("Poll: Client = %d connected.", ClientFD);
-
-                    for (int Index = 0; Index < FD_SETSIZE; Index++)
-                    {
-                        if (m_FDArray[Index].fd < 0)
-                        {
-                            m_FDArray[Index].fd = ClientFD;
-                            m_FDArray[Index].events = POLLIN;
-                            m_FDArray[Index].revents = 0;
-                            break;
-                        }
-                    }
-                }
-                else
-                {
-                    memset(DataBuffer, 0, sizeof(DataBuffer));
-
-                    ssize_t RecvSize = recv(m_FDArray[FDIndex].fd, DataBuffer, BUFFER_SIZE - 1, 0);
-                    if (RecvSize <= 0)
-                    {
-                        QLog::g_Log.WriteInfo("Poll: Client = %d disconnected.", m_FDArray[FDIndex].fd);
-                        close(m_FDArray[FDIndex].fd);
-                        m_FDArray[FDIndex].events = 0;
-                        m_FDArray[FDIndex].fd = -1;
-                    }
-                    else
-                    {
-                        QLog::g_Log.WriteInfo("Poll: Received %d bytes data from client = %d, msg = %s",
-                            RecvSize, m_FDArray[FDIndex].fd, DataBuffer);
-                    }
-                }
+                m_EventMap[m_FDArray[FDIndex].fd].CallBack();
             }
 
             if(m_FDArray[FDIndex].revents & POLLOUT)
             {
-                QLog::g_Log.WriteWarn("Poll: POLLOUT feature not implemented yet.");
+                m_EventMap[m_FDArray[FDIndex].fd].CallBack();
             }
         }
     }
 
-    return true;
-}
-
-bool QPoll::Init(const std::string &BindIP, int Port)
-{
-    static QNetwork MyNetwork;
-    MyNetwork.Listen(BindIP, Port);
-
-    m_ListenFD = MyNetwork.GetSocket();
-
-    m_FDArray[0].fd = m_ListenFD;
-    m_FDArray[0].events = POLLIN;
-
-    QLog::g_Log.WriteInfo("Poll init: listen = %d.", m_ListenFD);
     return true;
 }

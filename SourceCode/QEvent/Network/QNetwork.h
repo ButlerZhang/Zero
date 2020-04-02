@@ -20,10 +20,10 @@ public:
 
     bool Listen(const std::string &IP, int Port);
     bool Connect(const std::string &IP, int Port);
-    bool CloseSocket(QSOCKET Socket);
+    bool CloseSocket(QEventFD Socket);
 
     int GetError() const { return m_Error; }
-    QSOCKET GetSocket() const { return m_Socket; }
+    QEventFD GetSocket() const { return m_Socket; }
     void InitSockAddress(struct sockaddr_in &ServerAddress, const std::string &IP, int Port);
 
 private:
@@ -35,6 +35,6 @@ private:
     int                                 m_Error;
     int                                 m_Port;
     std::string                         m_IP;
-    QSOCKET                             m_Socket;
+    QEventFD                             m_Socket;
     struct sockaddr_in                  m_SockAddress;
 };

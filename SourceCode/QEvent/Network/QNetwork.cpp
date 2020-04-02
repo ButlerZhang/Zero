@@ -77,7 +77,7 @@ bool QNetwork::Connect(const std::string &IP, int Port)
     return true;
 }
 
-bool QNetwork::CloseSocket(QSOCKET Socket)
+bool QNetwork::CloseSocket(QEventFD Socket)
 {
 #ifdef _WIN32
     ::closesocket(Socket);

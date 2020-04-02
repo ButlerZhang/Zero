@@ -15,10 +15,8 @@ public:
     virtual bool DelEvent(const QEvent &Event);
     virtual bool Dispatch(struct timeval *tv);
 
-    bool Init(const std::string &BindIP, int Port);
-
 private:
 
-    int                     m_ListenFD;
+    int                     m_FDMaxIndex;
     struct pollfd           m_FDArray[FD_SETSIZE];
 };

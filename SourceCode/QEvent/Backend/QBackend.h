@@ -24,5 +24,5 @@ protected:
 
     bool                                        m_IsStop;
     std::string                                 m_BackendName;
-    std::map<QSOCKET, QEvent>                   m_EventMap;
+    std::map<QEventFD, QEvent>                  m_EventMap;
 };

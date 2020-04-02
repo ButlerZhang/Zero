@@ -14,11 +14,8 @@ public:
     virtual bool DelEvent(const QEvent &Event);
     virtual bool Dispatch(struct timeval *tv);
 
-    bool Init(const std::string &BindIP, int Port);
-
 private:
 
-    QSOCKET                    m_ListenFD;
     fd_set                     m_ReadSetIn;
     fd_set                     m_WriteSetIn;
     fd_set                     m_ReadSetOut;

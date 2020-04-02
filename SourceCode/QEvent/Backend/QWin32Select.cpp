@@ -17,25 +17,55 @@ QWin32Select::~QWin32Select()
 
 bool QWin32Select::AddEvent(const QEvent &Event)
 {
-    return false;
+    if (Event.GetWatchEvents() & QET_READ)
+    {
+        FD_SET(Event.GetFD(), &m_ReadSetIn);
+    }
+
+    if (Event.GetWatchEvents() & QET_WRITE)
+    {
+        FD_SET(Event.GetFD(), &m_WriteSetIn);
+    }
+
+    m_EventMap[Event.GetFD()] = std::move(Event);
+    QLog::g_Log.WriteInfo("Select : Add new EventFD = %d", Event.GetFD());
+    return true;
 }
 
 bool QWin32Select::DelEvent(const QEvent &Event)
 {
-    return false;
+    std::map<QEventFD, QEvent>::const_iterator it = m_EventMap.find(Event.GetFD());
+    if (it == m_EventMap.end())
+    {
+        return false;
+    }
+
+    if (Event.GetWatchEvents() & QET_READ)
+    {
+        FD_CLR(Event.GetFD(), &m_ReadSetIn);
+    }
+
+    if (Event.GetWatchEvents() & QET_WRITE)
+    {
+        FD_CLR(Event.GetFD(), &m_WriteSetIn);
+    }
+
+    m_EventMap.erase(it);
+    QLog::g_Log.WriteInfo("Select : Delete EventFD = %d", Event.GetFD());
+    return true;
 }
 
 bool QWin32Select::Dispatch(timeval *tv)
 {
-    const int BUFFER_SIZE = 1024;
-    char DataBuffer[BUFFER_SIZE];
-
-    while (true)
+    while (!m_IsStop)
     {
         memcpy(&m_ReadSetOut, &m_ReadSetIn, sizeof(m_ReadSetIn));
         memcpy(&m_WriteSetOut, &m_WriteSetIn, sizeof(m_WriteSetIn));
 
+        QLog::g_Log.WriteDebug("Start win32select...");
         int Result = select(-1, &m_ReadSetOut, &m_WriteSetOut, NULL, tv);
+        QLog::g_Log.WriteDebug("Stop win32select...");
+
         if (Result <= 0)
         {
             QLog::g_Log.WriteError("Win32Select error : %d", WSAGetLastError());
@@ -46,52 +76,15 @@ bool QWin32Select::Dispatch(timeval *tv)
         {
             if (FD_ISSET(m_ReadSetOut.fd_array[Index], &m_ReadSetOut))
             {
-                SOCKET FD = m_ReadSetOut.fd_array[Index];
-                if (FD == m_ListenFD)
-                {
-                    struct sockaddr_in ClientAddress;
-                    socklen_t AddLength = sizeof(ClientAddress);
-                    SOCKET ClientFD = accept(m_ListenFD, (struct sockaddr*)&ClientAddress, &AddLength);
-
-                    FD_SET(ClientFD, &m_ReadSetIn);
-                    QLog::g_Log.WriteInfo("Win32Select: Client = %d connected.", ClientFD);
-                }
-                else
-                {
-                    memset(DataBuffer, 0, sizeof(DataBuffer));
-
-                    int RecvSize = recv(FD, DataBuffer, BUFFER_SIZE - 1, 0);
-                    if (RecvSize <= 0)
-                    {
-                        ::closesocket(FD);
-                        FD_CLR(FD, &m_ReadSetIn);
-                        QLog::g_Log.WriteInfo("Win32Select: Client = %d disconnected.", FD);
-                    }
-                    else
-                    {
-                        QLog::g_Log.WriteInfo("Win32Select: Received %d bytes data from client = %d, msg = %s",
-                            RecvSize, FD, DataBuffer);
-                    }
-                }
+                m_EventMap[m_ReadSetOut.fd_array[Index]].CallBack();
             }
 
             if (FD_ISSET(m_WriteSetOut.fd_array[Index], &m_WriteSetOut))
             {
-                QLog::g_Log.WriteWarn("Win32Select: write feature not implemented yet.");
+                m_EventMap[m_WriteSetOut.fd_array[Index]].CallBack();
             }
         }
     }
 
-    return true;
-}
-
-bool QWin32Select::Init(const std::string &BindIP, int Port)
-{
-    static QNetwork MyNetwork;
-    MyNetwork.Listen(BindIP, Port);
-    m_ListenFD = MyNetwork.GetSocket();
-
-    FD_SET(m_ListenFD, &m_ReadSetIn);
-    QLog::g_Log.WriteInfo("Win32Select init: listen = %d.", m_ListenFD);
     return true;
 }
