@@ -14,7 +14,7 @@ public:
     QReactor();
     ~QReactor();
 
-    bool AddEvent(const QEvent &Event, std::function<void(const QEvent &Event)> CallBack);
+    bool AddEvent(const QEvent &Event);
     bool DelEvent(const QEvent &Event);
     bool Dispatch(struct timeval *tv);
 

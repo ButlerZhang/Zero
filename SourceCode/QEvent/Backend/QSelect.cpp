@@ -1,7 +1,5 @@
 #include "QSelect.h"
 #include "../../QLog/QSimpleLog.h"
-#include "../Network/QNetwork.h"
-#include "../Event/QEvent.h"
 
 #include <sys/select.h>
 #include <string.h>
@@ -21,7 +19,7 @@ QSelect::~QSelect()
 {
 }
 
-bool QSelect::AddEvent(const QEvent &Event, CallBackFunction CallBack)
+bool QSelect::AddEvent(const QEvent &Event)
 {
     if (Event.GetEvents() == 0)
     {
@@ -43,8 +41,7 @@ bool QSelect::AddEvent(const QEvent &Event, CallBackFunction CallBack)
         m_HighestEventFD = Event.GetFD() + 1;
     }
 
-    m_EventMap[Event.GetFD()] = Event;
-    m_CallBackMap[Event.GetFD()] = std::move(CallBack);
+    m_EventMap[Event.GetFD()] = std::move(Event);
     QLog::g_Log.WriteInfo("Select : Add new fd = %d, HighestFD = %d", Event.GetFD(), m_HighestEventFD);
     return true;
 }
@@ -90,18 +87,12 @@ bool QSelect::Dispatch(timeval *tv)
         {
             if (FD_ISSET(FD, &m_ReadSetOut))
             {
-                if (m_CallBackMap[FD] != nullptr)
-                {
-                    m_CallBackMap[FD](m_EventMap[FD]);
-                }
+                m_EventMap[FD].CallBack();
             }
 
             if (FD_ISSET(FD, &m_WriteSetOut))
             {
-                if (m_CallBackMap[FD] != nullptr)
-                {
-                    m_CallBackMap[FD](m_EventMap[FD]);
-                }
+                m_EventMap[FD].CallBack();
             }
         }
     }

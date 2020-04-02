@@ -28,8 +28,9 @@ bool Server::Start(const std::string &BindIP, int Port)
         return false;
     }
 
-    m_ListenEvent = std::make_shared<QEvent>(m_Network.GetSocket(), QET_READ);
-    m_Reactor.AddEvent(*m_ListenEvent, std::bind(&Server::Accept, this, *m_ListenEvent));
+    QEvent ListenEvent(m_Network.GetSocket(), QET_READ);
+    ListenEvent.SetCallBack(std::bind(&Server::Accept, this, ListenEvent));
+    m_Reactor.AddEvent(ListenEvent);
     return m_Reactor.Dispatch(NULL);
 }
 
@@ -41,7 +42,8 @@ void Server::Accept(const QEvent &Event)
     QLog::g_Log.WriteInfo("Select: Client = %d connected.", ClientFD);
 
     QEvent ClientEvent(ClientFD, QET_READ);
-    m_Reactor.AddEvent(ClientEvent, std::bind(&Server::Recevie, this, ClientEvent));
+    ClientEvent.SetCallBack(std::bind(&Server::Recevie, this, ClientEvent));
+    m_Reactor.AddEvent(ClientEvent);
 }
 
 void Server::Recevie(const QEvent &Event)

@@ -15,7 +15,7 @@ QWin32Select::~QWin32Select()
 {
 }
 
-bool QWin32Select::AddEvent(const QEvent &Event, CallBackFunction CallBack)
+bool QWin32Select::AddEvent(const QEvent &Event)
 {
     return false;
 }

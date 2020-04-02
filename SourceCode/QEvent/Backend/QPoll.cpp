@@ -22,7 +22,7 @@ QPoll::~QPoll()
 {
 }
 
-bool QPoll::AddEvent(const QEvent &Event, CallBackFunction CallBack)
+bool QPoll::AddEvent(const QEvent &Event)
 {
     return false;
 }

@@ -11,7 +11,7 @@ public:
     QEpoll();
     virtual ~QEpoll();
 
-    virtual bool AddEvent(const QEvent &Event, CallBackFunction CallBack);
+    virtual bool AddEvent(const QEvent &Event);
     virtual bool DelEvent(const QEvent &Event);
     virtual bool Dispatch(struct timeval *tv);
 

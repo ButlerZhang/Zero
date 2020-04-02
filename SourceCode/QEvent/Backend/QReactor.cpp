@@ -26,9 +26,9 @@ QReactor::~QReactor()
 {
 }
 
-bool QReactor::AddEvent(const QEvent &Event, std::function<void(const QEvent &Event)> CallBack)
+bool QReactor::AddEvent(const QEvent &Event)
 {
-    return m_Backend->AddEvent(Event, CallBack);
+    return m_Backend->AddEvent(Event);
 }
 
 bool QReactor::DelEvent(const QEvent &Event)

@@ -25,5 +25,4 @@ private:
 
     QNetwork                        m_Network;
     QReactor                        m_Reactor;
-    std::shared_ptr<QEvent>         m_ListenEvent;
 };
