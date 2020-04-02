@@ -117,18 +117,24 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\QEvent\Backend\QBackend.h" />
+    <ClInclude Include="..\QEvent\Backend\QReactor.h" />
     <ClInclude Include="..\QEvent\Backend\QWin32Select.h" />
     <ClInclude Include="..\QEvent\Client.h" />
+    <ClInclude Include="..\QEvent\Event\QEvent.h" />
     <ClInclude Include="..\QEvent\Network\QNetwork.h" />
+    <ClInclude Include="..\QEvent\Server.h" />
     <ClInclude Include="..\QLog\QLogBase.h" />
     <ClInclude Include="..\QLog\QSimpleLog.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\QEvent\Backend\QBackend.cpp" />
+    <ClCompile Include="..\QEvent\Backend\QReactor.cpp" />
     <ClCompile Include="..\QEvent\Backend\QWin32Select.cpp" />
     <ClCompile Include="..\QEvent\Client.cpp" />
+    <ClCompile Include="..\QEvent\Event\QEvent.cpp" />
     <ClCompile Include="..\QEvent\main.cpp" />
     <ClCompile Include="..\QEvent\Network\QNetwork.cpp" />
+    <ClCompile Include="..\QEvent\Server.cpp" />
     <ClCompile Include="..\QLog\QSimpleLog.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

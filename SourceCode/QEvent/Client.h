@@ -15,7 +15,7 @@ public:
 
 private:
 
-    void SendMessage(int ClientIndex, QLog::QSimpleLog &Log);
+    void SendMsg(int ClientIndex, QLog::QSimpleLog &Log);
     static void ThreadCall_SendMessage(void *ClientObject, int ThreadIndex);
 
 private:

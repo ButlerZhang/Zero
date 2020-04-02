@@ -20,6 +20,7 @@ public:
 
     bool Listen(const std::string &IP, int Port);
     bool Connect(const std::string &IP, int Port);
+    bool CloseSocket(QSOCKET Socket);
 
     int GetError() const { return m_Error; }
     QSOCKET GetSocket() const { return m_Socket; }

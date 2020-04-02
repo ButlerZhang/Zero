@@ -1,6 +1,5 @@
 #pragma once
 #include "QBackend.h"
-#include <WinSock2.h>
 
 
 
@@ -11,7 +10,7 @@ public:
     QWin32Select();
     virtual ~QWin32Select();
 
-    virtual bool AddEvent(const QEvent &Event);
+    virtual bool AddEvent(const QEvent &Event, CallBackFunction CallBack);
     virtual bool DelEvent(const QEvent &Event);
     virtual bool Dispatch(struct timeval *tv);
 

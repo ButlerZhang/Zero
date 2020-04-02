@@ -27,6 +27,7 @@
     <ClCompile Include="Backend\QReactor.cpp">
       <Filter>Backend</Filter>
     </ClCompile>
+    <ClCompile Include="Server.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Client.h" />
@@ -58,6 +59,7 @@
     <ClInclude Include="Backend\QReactor.h">
       <Filter>Backend</Filter>
     </ClInclude>
+    <ClInclude Include="Server.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Reference">

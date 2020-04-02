@@ -1,12 +1,12 @@
 #pragma once
 #include "../QLibBase.h"
+#include "../Event/QEvent.h"
+
 #include <map>
-#include <vector>
 #include <string>
-#include <memory>
 #include <functional>
 
-class QEvent;
+typedef std::function<void(const QEvent &Event)> CallBackFunction;
 
 
 
@@ -17,7 +17,7 @@ public:
     QBackend();
     virtual ~QBackend();
 
-    virtual bool AddEvent(const QEvent &Event) = 0;
+    virtual bool AddEvent(const QEvent &Event, CallBackFunction CallBack) = 0;
     virtual bool DelEvent(const QEvent &Event) = 0;
     virtual bool Dispatch(struct timeval *tv)  = 0;
 
@@ -25,7 +25,8 @@ public:
 
 protected:
 
-    bool                                                                m_IsStop;
-    std::string                                                         m_BackendName;
-    std::map<QSOCKET, std::function<void(void)>>                        m_CallBackMap;
+    bool                                        m_IsStop;
+    std::string                                 m_BackendName;
+    std::map<QSOCKET, QEvent>                   m_EventMap;
+    std::map<QSOCKET, CallBackFunction>         m_CallBackMap;
 };

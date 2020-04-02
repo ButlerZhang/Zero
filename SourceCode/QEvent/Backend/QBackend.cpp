@@ -9,5 +9,6 @@ QBackend::QBackend()
 
 QBackend::~QBackend()
 {
+    m_EventMap.clear();
     m_CallBackMap.clear();
 }

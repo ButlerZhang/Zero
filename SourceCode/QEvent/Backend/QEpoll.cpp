@@ -18,7 +18,7 @@ QEpoll::~QEpoll()
     close(m_EpollFD);
 }
 
-bool QEpoll::AddEvent(const QEvent &Event)
+bool QEpoll::AddEvent(const QEvent &Event, CallBackFunction CallBack)
 {
     return false;
 }

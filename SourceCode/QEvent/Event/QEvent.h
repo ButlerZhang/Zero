@@ -19,9 +19,9 @@ class QEvent
 {
 public:
 
+    QEvent() {}
     QEvent(QSOCKET EventFD, int Events);
     virtual ~QEvent();
-    virtual void CallBack();
 
     int GetEvents() const { return m_Events; }
     int GetResultEvents() const { return m_ResultEvents; }

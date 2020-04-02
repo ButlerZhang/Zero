@@ -1,5 +1,6 @@
 #pragma once
 #include <memory>
+#include <functional>
 
 class QEvent;
 class QBackend;
@@ -13,7 +14,7 @@ public:
     QReactor();
     ~QReactor();
 
-    bool AddEvent(const QEvent &Event);
+    bool AddEvent(const QEvent &Event, std::function<void(const QEvent &Event)> CallBack);
     bool DelEvent(const QEvent &Event);
     bool Dispatch(struct timeval *tv);
 
@@ -23,4 +24,3 @@ private:
 
     std::shared_ptr<QBackend>           m_Backend;
 };
-

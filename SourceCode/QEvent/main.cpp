@@ -1,9 +1,6 @@
 #include <cstdio>
 #include "Client.h"
-#include "Network/QNetwork.h"
-#include "Backend/QReactor.h"
-#include "Backend/QBackend.h"
-#include "../QLog/QSimpleLog.h"
+#include "Server.h"
 #include <iostream>
 
 
@@ -40,20 +37,13 @@ int main(int argc, char *argv[])
 
     if (Choose == 1)
     {
-        QReactor Reactor;
-        QLog::g_Log.SetLogFile(Reactor.GetBackend()->GetBackendName() + ".txt");
-
-        //QSocketEvent Server;
-        //if (Server.Listen(ServerIP, ServerPort))
-        //{
-        //    Reactor.AddEvent(Server);
-        //    Reactor.Dispatch(NULL);
-        //}
+        Server MyServer;
+        MyServer.Start(ServerIP, ServerPort);
     }
     else
     {
         Client MyClient;
-        const int ClientCount = 1;// FD_SETSIZE;
+        const int ClientCount = 100;// FD_SETSIZE;
         MyClient.Start(ServerIP, ServerPort, ClientCount);
 
         std::cin >> Choose;

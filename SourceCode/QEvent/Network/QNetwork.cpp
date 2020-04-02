@@ -77,6 +77,17 @@ bool QNetwork::Connect(const std::string &IP, int Port)
     return true;
 }
 
+bool QNetwork::CloseSocket(QSOCKET Socket)
+{
+#ifdef _WIN32
+    ::closesocket(Socket);
+#else
+    close(Socket);
+#endif // _WIN32
+
+    return true;
+}
+
 void QNetwork::InitSockAddress(sockaddr_in & ServerAddress, const std::string &IP, int Port)
 {
     memset(&ServerAddress, 0, sizeof(ServerAddress));

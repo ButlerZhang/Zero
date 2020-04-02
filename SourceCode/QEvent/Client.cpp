@@ -28,7 +28,7 @@ bool Client::Start(const std::string &ServerIP, int Port, int ClientCount)
 
     if (ClientCount == 1)
     {
-        SendMessage(1, QLog::g_Log);
+        SendMsg(1, QLog::g_Log);
     }
     else
     {
@@ -47,7 +47,7 @@ bool Client::Start(const std::string &ServerIP, int Port, int ClientCount)
     return true;
 }
 
-void Client::SendMessage(int ClientIndex, QLog::QSimpleLog &Log)
+void Client::SendMsg(int ClientIndex, QLog::QSimpleLog &Log)
 {
     QNetwork MyNetwork;
     if (!MyNetwork.Connect(m_ServerIP, m_Port))
@@ -73,6 +73,6 @@ void Client::ThreadCall_SendMessage(void *ClientObject, int ThreadIndex)
     if (SmallLog.SetLogFile("Thread" + std::to_string(ThreadIndex) + ".txt"))
     {
         Client *MyClient = (Client*)ClientObject;
-        MyClient->SendMessage(ThreadIndex, SmallLog);
+        MyClient->SendMsg(ThreadIndex, SmallLog);
     }
 }

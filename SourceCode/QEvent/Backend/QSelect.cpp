@@ -21,7 +21,7 @@ QSelect::~QSelect()
 {
 }
 
-bool QSelect::AddEvent(const QEvent &Event)
+bool QSelect::AddEvent(const QEvent &Event, CallBackFunction CallBack)
 {
     if (Event.GetEvents() == 0)
     {
@@ -38,12 +38,14 @@ bool QSelect::AddEvent(const QEvent &Event)
         FD_SET(Event.GetFD(), &m_WriteSetIn);
     }
 
-    if (m_HighestEventFD < Event.GetFD())
+    if (m_HighestEventFD <= Event.GetFD())
     {
         m_HighestEventFD = Event.GetFD() + 1;
     }
 
-    m_CallBackMap[Event.GetFD()] = std::bind(&QEvent::CallBack, Event);
+    m_EventMap[Event.GetFD()] = Event;
+    m_CallBackMap[Event.GetFD()] = std::move(CallBack);
+    QLog::g_Log.WriteInfo("Select : Add new fd = %d, HighestFD = %d", Event.GetFD(), m_HighestEventFD);
     return true;
 }
 
@@ -90,7 +92,7 @@ bool QSelect::Dispatch(timeval *tv)
             {
                 if (m_CallBackMap[FD] != nullptr)
                 {
-                    m_CallBackMap[FD]();
+                    m_CallBackMap[FD](m_EventMap[FD]);
                 }
             }
 
@@ -98,7 +100,7 @@ bool QSelect::Dispatch(timeval *tv)
             {
                 if (m_CallBackMap[FD] != nullptr)
                 {
-                    m_CallBackMap[FD]();
+                    m_CallBackMap[FD](m_EventMap[FD]);
                 }
             }
         }

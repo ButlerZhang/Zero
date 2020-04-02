@@ -25,6 +25,9 @@
     <Filter Include="Backend">
       <UniqueIdentifier>{4050bec6-383e-4361-b9c6-95bdbb2ed77a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Event">
+      <UniqueIdentifier>{6e075f06-7b27-49e0-a10c-92035ad30e6a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\QEvent\Client.h">
@@ -45,6 +48,15 @@
     <ClInclude Include="..\QEvent\Backend\QWin32Select.h">
       <Filter>Backend</Filter>
     </ClInclude>
+    <ClInclude Include="..\QEvent\Event\QEvent.h">
+      <Filter>Event</Filter>
+    </ClInclude>
+    <ClInclude Include="..\QEvent\Server.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\QEvent\Backend\QReactor.h">
+      <Filter>Backend</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\QEvent\main.cpp">
@@ -63,6 +75,15 @@
       <Filter>Backend</Filter>
     </ClCompile>
     <ClCompile Include="..\QEvent\Backend\QWin32Select.cpp">
+      <Filter>Backend</Filter>
+    </ClCompile>
+    <ClCompile Include="..\QEvent\Event\QEvent.cpp">
+      <Filter>Event</Filter>
+    </ClCompile>
+    <ClCompile Include="..\QEvent\Server.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\QEvent\Backend\QReactor.cpp">
       <Filter>Backend</Filter>
     </ClCompile>
   </ItemGroup>

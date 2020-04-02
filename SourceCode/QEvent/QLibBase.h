@@ -12,6 +12,7 @@
 
 
 #ifdef _WIN32
+#include <WinSock2.h>
 typedef SOCKET QSOCKET;
 #else
 typedef int QSOCKET;

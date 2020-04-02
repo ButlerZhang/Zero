@@ -74,6 +74,7 @@
     <ClInclude Include="Event\QEvent.h" />
     <ClInclude Include="Network\QNetwork.h" />
     <ClInclude Include="QLibBase.h" />
+    <ClInclude Include="Server.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\QLog\QSimpleLog.cpp" />
@@ -86,6 +87,7 @@
     <ClCompile Include="Event\QEvent.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Network\QNetwork.cpp" />
+    <ClCompile Include="Server.cpp" />
   </ItemGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Link>
