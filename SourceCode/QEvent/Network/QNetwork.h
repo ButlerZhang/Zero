@@ -1,12 +1,12 @@
 #pragma once
+#include "../QLibBase.h"
+
 #ifdef _WIN32
 #include <WS2tcpip.h>           //SOCKET
 #else
 #include <netinet/in.h>         //sockaddr_in
 #endif
 
-#include "../QLibBase.h"
-#include "../../QLog/QSimpleLog.h"
 #include <string>
 
 
@@ -20,24 +20,22 @@ public:
 
     bool Listen(const std::string &IP, int Port);
     bool Connect(const std::string &IP, int Port);
-    bool CloseSocket(QEventFD Socket);
 
-    int GetError() const { return m_Error; }
-    const QEventFD& GetSocket() const { return m_Socket; }
-    void InitSockAddress(struct sockaddr_in &ServerAddress, const std::string &IP, int Port);
+    inline QEventFD GetSocket() const { return m_Socket; }
 
-    static int SetSocketNonblocking(QEventFD fd);
-    static int SetListenSocketReuseable(QEventFD fd);
-
-private:
-
-    void RecordSocketError();
+    static bool CloseSocket(QEventFD Socket);
+    static bool SetSocketNonblocking(QEventFD Socket);
+    static bool SetListenSocketReuseable(QEventFD Socket);
+    static void InitSockAddress(struct sockaddr_in &ServerAddress, const std::string &IP, int Port);
 
 private:
 
-    int                                 m_Error;
+    void WriteSocketErrorLog(const std::string &Operation);
+
+private:
+
     int                                 m_Port;
     std::string                         m_IP;
-    QEventFD                             m_Socket;
+    QEventFD                            m_Socket;
     struct sockaddr_in                  m_SockAddress;
 };

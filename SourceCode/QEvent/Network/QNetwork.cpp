@@ -1,4 +1,5 @@
 #include "QNetwork.h"
+#include "../../QLog/QSimpleLog.h"
 
 #ifdef _WIN32
 #include <io.h>
@@ -10,7 +11,7 @@
 #include <fcntl.h>
 #endif
 
-#include <string.h>
+#include <string.h>     //strerrno
 
 
 
@@ -22,14 +23,7 @@ QNetwork::QNetwork()
 
 QNetwork::~QNetwork()
 {
-    if (m_Socket > 0)
-    {
-#ifdef _WIN32
-        ::closesocket(m_Socket);
-#else
-        close(m_Socket);
-#endif // _WIN32
-    }
+    CloseSocket(m_Socket);
 }
 
 bool QNetwork::Listen(const std::string &IP, int Port)
@@ -37,7 +31,7 @@ bool QNetwork::Listen(const std::string &IP, int Port)
     m_Socket = socket(PF_INET, SOCK_STREAM, 0);
     if (m_Socket <= 0)
     {
-        RecordSocketError();
+        WriteSocketErrorLog("Socket");
         return false;
     }
 
@@ -45,16 +39,17 @@ bool QNetwork::Listen(const std::string &IP, int Port)
     InitSockAddress(BindAddress, IP, Port);
     if (bind(m_Socket, (struct sockaddr*)&BindAddress, sizeof(BindAddress)) < 0)
     {
-        RecordSocketError();
+        WriteSocketErrorLog("Bind");
         return false;
     }
 
     if (listen(m_Socket, 5) < 0)
     {
-        RecordSocketError();
+        WriteSocketErrorLog("Listen");
         return false;
     }
 
+    QLog::g_Log.WriteInfo("Network: Start listen, bind IP = %s, port = %d.", IP.c_str(), Port);
     return true;
 }
 
@@ -63,7 +58,7 @@ bool QNetwork::Connect(const std::string &IP, int Port)
     m_Socket = socket(PF_INET, SOCK_STREAM, 0);
     if (m_Socket <= 0)
     {
-        RecordSocketError();
+        WriteSocketErrorLog("Socket");
         return false;
     }
 
@@ -71,76 +66,100 @@ bool QNetwork::Connect(const std::string &IP, int Port)
     InitSockAddress(ServerAddress, IP, Port);
     if (connect(m_Socket, (struct sockaddr*)&ServerAddress, sizeof(ServerAddress)) < 0)
     {
-        RecordSocketError();
+        WriteSocketErrorLog("Connect");
         return false;
     }
 
+    QLog::g_Log.WriteInfo("Network: Start connect, server IP = %s, port = %d.", IP.c_str(), Port);
     return true;
+}
+
+void QNetwork::WriteSocketErrorLog(const std::string &Operation)
+{
+#ifdef _WIN32
+    QLog::g_Log.WriteError("Network: %s failed, errno = %d.",
+        Operation.c_str(),
+        WSAGetLastError());
+#else
+    QLog::g_Log.WriteError("Network: %s failed, errno = %d, msg = %s.",
+        Operation.c_str(),
+        errno,
+        strerror(errno));
+#endif // _WIN32
 }
 
 bool QNetwork::CloseSocket(QEventFD Socket)
 {
+    if (Socket < 0)
+    {
+        return false;
+    }
+
 #ifdef _WIN32
     ::closesocket(Socket);
 #else
     close(Socket);
 #endif // _WIN32
 
+    QLog::g_Log.WriteDebug("Network: Close socket = %d.", Socket);
     return true;
 }
 
-void QNetwork::InitSockAddress(sockaddr_in & ServerAddress, const std::string &IP, int Port)
+bool QNetwork::SetSocketNonblocking(QEventFD Socket)
+{
+#ifdef _WIN32
+    unsigned long nonblocking = 1;
+    if (ioctlsocket(Socket, FIONBIO, &nonblocking) == SOCKET_ERROR)
+    {
+        QLog::g_Log.WriteDebug("Network: Can not set socket = %d nonblocking.", Socket);
+        return false;
+    }
+#else
+
+    int OldFlags;
+    if ((OldFlags = fcntl(Socket, F_GETFL, NULL)) < 0)
+    {
+        QLog::g_Log.WriteDebug("Network: Can not get socket = %d old flags.", Socket);
+        return false;
+    }
+
+    if (!(OldFlags & O_NONBLOCK))
+    {
+        if (fcntl(Socket, F_SETFL, OldFlags | O_NONBLOCK) == -1)
+        {
+            QLog::g_Log.WriteDebug("Network: Can not set socket = %d nonblocking.", Socket);
+            return false;
+        }
+    }
+
+#endif
+
+    QLog::g_Log.WriteDebug("Network: Set socket = %d nonblocking.", Socket);
+    return true;
+}
+
+bool QNetwork::SetListenSocketReuseable(QEventFD Socket)
+{
+#ifdef _WIN32
+    return true;
+#else
+    int one = 1;
+    if (setsockopt(Socket, SOL_SOCKET, SO_REUSEADDR, (void*)&one, (socklen_t)sizeof(one)) != 0)
+    {
+        QLog::g_Log.WriteDebug("Network: Can not set listen socket = %d reuseable.", Socket);
+        return false;
+    }
+#endif // _WIN32
+
+    QLog::g_Log.WriteDebug("Network: Set listen socket = %d reuseable.", Socket);
+    return true;
+}
+
+void QNetwork::InitSockAddress(sockaddr_in &ServerAddress, const std::string &IP, int Port)
 {
     memset(&ServerAddress, 0, sizeof(ServerAddress));
 
     ServerAddress.sin_family = AF_INET;
     inet_pton(AF_INET, IP.c_str(), &ServerAddress.sin_addr);
     ServerAddress.sin_port = htons(static_cast<uint16_t>(Port));
-}
-
-void QNetwork::RecordSocketError()
-{
-#ifdef _WIN32
-    m_Error = WSAGetLastError();
-#else
-    m_Error = errno;
-#endif // _WIN32
-}
-
-int QNetwork::SetSocketNonblocking(QEventFD fd)
-{
-#ifdef _WIN32
-    unsigned long nonblocking = 1;
-    if (ioctlsocket(fd, FIONBIO, &nonblocking) == SOCKET_ERROR)
-    {
-        return -1;
-    }
-#else
-
-    int OldFlags;
-    if ((OldFlags = fcntl(fd, F_GETFL, NULL)) < 0)
-    {
-        return -1;
-    }
-
-    if (!(OldFlags & O_NONBLOCK))
-    {
-        if (fcntl(fd, F_SETFL, OldFlags | O_NONBLOCK) == -1)
-        {
-            return -1;
-        }
-    }
-
-#endif
-    return 0;
-}
-
-int QNetwork::SetListenSocketReuseable(QEventFD fd)
-{
-#ifdef _WIN32
-    return 0;
-#else
-    int one = 1;
-    return setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (void*)&one, (socklen_t)sizeof(one));
-#endif // _WIN32
 }

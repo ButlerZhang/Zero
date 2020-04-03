@@ -1,9 +1,7 @@
 #pragma once
 #include "../QLibBase.h"
 #include "../Event/QEvent.h"
-
 #include <map>
-#include <string>
 
 
 

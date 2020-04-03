@@ -1,4 +1,5 @@
 #include "QEvent.h"
+#include "../../QLog/QSimpleLog.h"
 
 
 
@@ -37,6 +38,12 @@ void QEvent::CallBack()
 {
     if (m_CallBack != nullptr)
     {
+        QLog::g_Log.WriteDebug("QEvent: Start process call back.");
         m_CallBack(*this);
+        QLog::g_Log.WriteDebug("QEvent: stop process call back.");
+    }
+    else
+    {
+        QLog::g_Log.WriteDebug("QEvent: call back is nullptr, FD = %d.", GetFD());
     }
 }

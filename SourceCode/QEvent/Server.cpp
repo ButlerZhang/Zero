@@ -34,6 +34,7 @@ bool Server::Start(const std::string &BindIP, int Port)
     QEvent ListenEvent(m_Network.GetSocket(), QET_READ);
     ListenEvent.SetCallBack(std::bind(&Server::Accept, this, ListenEvent));
     m_Reactor.AddEvent(ListenEvent);
+
     return m_Reactor.Dispatch(NULL);
 }
 

@@ -28,6 +28,6 @@ private:
 
 private:
 
-    int                         m_Port;
-    std::string                 m_ServerIP;
+    int                                     m_Port;
+    std::string                             m_ServerIP;
 };

@@ -1,7 +1,6 @@
 #pragma once
 #include "Backend/QReactor.h"
 #include "Network/QNetwork.h"
-#include <string>
 
 class QEvent;
 

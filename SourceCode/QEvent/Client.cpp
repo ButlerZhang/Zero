@@ -93,7 +93,6 @@ bool Client::SendMsg(int ClientIndex, QLog::QSimpleLog &Log)
     QNetwork MyNetwork;
     if (!MyNetwork.Connect(m_ServerIP, m_Port))
     {
-        Log.WriteError("Connected server failed, code = %d", MyNetwork.GetError());
         return false;
     }
 

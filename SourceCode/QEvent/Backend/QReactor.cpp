@@ -1,5 +1,6 @@
 #include "QReactor.h"
 #include "QBackend.h"
+#include "../../QLog/QSimpleLog.h"
 
 #ifdef _WIN32
 #include "QWin32Select.h"
@@ -30,6 +31,7 @@ bool QReactor::AddEvent(const QEvent &Event)
 {
     if (Event.GetWatchEvents() == 0)
     {
+        QLog::g_Log.WriteError("Reactor: Add event failed, watch events is 0.");
         return false;
     }
 
