@@ -70,5 +70,8 @@ void Server::Recevie(const QEvent &Event)
     {
         QLog::g_Log.WriteInfo("Received %d bytes data from client = %d, msg = %s",
             RecvSize, Event.GetFD(), DataBuffer);
+
+        int WriteSize = (int)send(Event.GetFD(), DataBuffer, RecvSize, 0);
+        QLog::g_Log.WriteInfo("Server ack, size = %d", WriteSize);
     }
 }

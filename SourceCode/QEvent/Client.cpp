@@ -5,8 +5,8 @@
 
 #ifdef _WIN32
 #include <io.h>
-#define STDIN_FILENO 0
 #else
+//#define ENABLE_CMD_INPUT
 #include <unistd.h>
 #endif // _WIN32
 
@@ -58,26 +58,29 @@ bool Client::MultiThread(int ClientCount)
 bool Client::SingleThread(int ClientCount)
 {
     QReactor Reactor;
-    std::vector<QNetwork> NetworkVector;
+    std::vector<QNetwork> NetworkVector(ClientCount, QNetwork());
     for (int Index = 0; Index < ClientCount; Index++)
     {
-        NetworkVector.push_back(QNetwork());
-        if (NetworkVector[NetworkVector.size() - 1].Connect(m_ServerIP, m_Port))
+        QNetwork& Network = NetworkVector[Index];
+        if (Network.Connect(m_ServerIP, m_Port))
         {
-            QNetwork::SetSocketNonblocking(NetworkVector[NetworkVector.size() - 1].GetSocket());
+            QNetwork::SetSocketNonblocking(Network.GetSocket());
 
-            QEvent ReceiveEvent(NetworkVector[NetworkVector.size() - 1].GetSocket(), QET_READ);
-            ReceiveEvent.SetCallBack(std::bind(&Client::Recevie, this, ReceiveEvent));
+            QEvent ReceiveEvent(Network.GetSocket(), QET_READ);
+            ReceiveEvent.SetCallBack(std::bind(&Client::Recevie, this, std::placeholders::_1));
             Reactor.AddEvent(ReceiveEvent);
         }
     }
 
+#ifdef ENABLE_CMD_INPUT
+
     QEventFD TargetFD = NetworkVector[0].GetSocket();
 
     QEvent CMDEvent(STDIN_FILENO, QET_READ);
-    CMDEvent.SetResultEvents(12345);
     CMDEvent.SetCallBack(std::bind(&Client::CMDInput, this, std::placeholders::_1), (void*)&TargetFD);
     Reactor.AddEvent(CMDEvent);
+
+#endif // ENABLE_CMD_INPUT
 
     return Reactor.Dispatch(NULL);
 }
@@ -139,5 +142,16 @@ void Client::CMDInput(const QEvent &Event)
 
 void Client::Recevie(const QEvent &Event)
 {
-    QLog::g_Log.WriteInfo("I come Receive here.");
+    char Message[BUFFER_SIZE];
+    memset(Message, 0, BUFFER_SIZE);
+
+    int ReadSize = static_cast<int>(read(static_cast<int>(Event.GetFD()), Message, BUFFER_SIZE));
+    if (ReadSize <= 0)
+    {
+        QLog::g_Log.WriteError("Client: Can not read from server.");
+    }
+    else
+    {
+        QLog::g_Log.WriteInfo("Client recv msg = %s, size = %d", Message, ReadSize);
+    }
 }
