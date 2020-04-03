@@ -28,8 +28,8 @@ bool Server::Start(const std::string &BindIP, int Port)
         return false;
     }
 
-    QNetwork::SetSocketNonblocking(m_Network.GetSocket());
     QNetwork::SetListenSocketReuseable(m_Network.GetSocket());
+    QNetwork::SetSocketNonblocking(m_Network.GetSocket());
 
     QEvent ListenEvent(m_Network.GetSocket(), QET_READ);
     ListenEvent.SetCallBack(std::bind(&Server::Accept, this, ListenEvent));

@@ -20,8 +20,10 @@ private:
     bool MultiThread(int ClientCount);
     bool SingleThread(int ClientCount);
 
-    bool SendMsg(int ClientIndex, QLog::QSimpleLog &Log);
-    static void CallBack_Thread(void *ClientObject, int ThreadIndex);
+    bool SendMsg(int ClientID, QLog::QSimpleLog &Log);
+    static void CallBack_Thread(void *ClientObject, int ClientID);
+
+private:
 
     void CMDInput(const QEvent &Event);
     void Recevie(const QEvent &Event);

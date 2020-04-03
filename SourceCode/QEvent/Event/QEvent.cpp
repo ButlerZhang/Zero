@@ -5,6 +5,7 @@
 
 QEvent::QEvent()
 {
+    m_ExtendArg = NULL;
     m_WatchEvents = 0;
     m_ResultEvents = 0;
     m_EventFD = -1;
@@ -14,19 +15,11 @@ QEvent::QEvent()
 
 QEvent::QEvent(QEventFD EventFD, int WatchEvents)
 {
+    m_ExtendArg = NULL;
     m_WatchEvents = WatchEvents;
     m_ResultEvents = 0;
     m_EventFD = EventFD;
     m_CallBack = nullptr;
-    m_TimeOut.tv_sec = m_TimeOut.tv_usec = 0;
-}
-
-QEvent::QEvent(QEventFD EventFD, int WatchEvents, CallBackFunction CallBack)
-{
-    m_WatchEvents = WatchEvents;
-    m_ResultEvents = 0;
-    m_EventFD = EventFD;
-    m_CallBack = CallBack;
     m_TimeOut.tv_sec = m_TimeOut.tv_usec = 0;
 }
 
@@ -45,5 +38,14 @@ void QEvent::CallBack()
     else
     {
         QLog::g_Log.WriteDebug("QEvent: call back is nullptr, FD = %d.", GetFD());
+    }
+}
+
+void QEvent::SetCallBack(CallBackFunction CallBack, void *ExtendArg)
+{
+    m_CallBack = std::move(CallBack);
+    if (ExtendArg != NULL)
+    {
+        m_ExtendArg = ExtendArg;
     }
 }
