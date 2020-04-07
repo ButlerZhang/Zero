@@ -1,6 +1,7 @@
 #include <cstdio>
 #include "ClientTest.h"
 #include "ServerTest.h"
+#include "TimerTest.h"
 #include <iostream>
 
 
@@ -31,6 +32,9 @@ int main(int argc, char *argv[])
     //int Choose = argc > 1 ? 1 : 0;
 
 #endif
+
+    TimerTest Timer;
+    return Timer.Test();
 
     const int ServerPort = 9000;
     const std::string ServerIP("127.0.0.1");

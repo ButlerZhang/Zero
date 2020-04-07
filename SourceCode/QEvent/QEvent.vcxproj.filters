@@ -28,6 +28,10 @@
     </ClCompile>
     <ClCompile Include="ClientTest.cpp" />
     <ClCompile Include="ServerTest.cpp" />
+    <ClCompile Include="TimerTest.cpp" />
+    <ClCompile Include="Tools\QMinHeap.cpp">
+      <Filter>Tools</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\QLog\QSimpleLog.h">
@@ -60,6 +64,10 @@
     </ClInclude>
     <ClInclude Include="ClientTest.h" />
     <ClInclude Include="ServerTest.h" />
+    <ClInclude Include="TimerTest.h" />
+    <ClInclude Include="Tools\QMinHeap.h">
+      <Filter>Tools</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Reference">
@@ -76,6 +84,9 @@
     </Filter>
     <Filter Include="Event">
       <UniqueIdentifier>{82eae3ff-715e-4aa7-afb0-2f1be1ea365b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tools">
+      <UniqueIdentifier>{a7324851-f1f6-46bc-a4f3-947ce36e33d9}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

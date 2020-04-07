@@ -36,6 +36,7 @@ public:
     inline std::shared_ptr<QBackend> GetBackend() const { return m_Backend; }
     inline const CallBackFunction& GetCallBack() const { return m_CallBack; }
 
+    inline void SetTimeOut(const timeval &TimeOut) { m_TimeOut = TimeOut; }
     inline void SetResultEvents(int ResultEvents) { m_ResultEvents = ResultEvents; }
     inline void BindBackend(const std::shared_ptr<QBackend> &Backend) { m_Backend = Backend; }
 

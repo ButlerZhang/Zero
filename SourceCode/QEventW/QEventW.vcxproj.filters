@@ -28,6 +28,9 @@
     <Filter Include="Event">
       <UniqueIdentifier>{6e075f06-7b27-49e0-a10c-92035ad30e6a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Tools">
+      <UniqueIdentifier>{de54bc7f-7cf9-4caf-a7f2-cfe37d69b40e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\QLog\QLogBase.h">
@@ -57,6 +60,12 @@
     <ClInclude Include="..\QEvent\ServerTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\QEvent\TimerTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\QEvent\Tools\QMinHeap.h">
+      <Filter>Tools</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\QEvent\main.cpp">
@@ -85,6 +94,12 @@
     </ClCompile>
     <ClCompile Include="..\QEvent\ServerTest.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\QEvent\TimerTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\QEvent\Tools\QMinHeap.cpp">
+      <Filter>Tools</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

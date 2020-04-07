@@ -6,7 +6,7 @@
 
 QSelect::QSelect()
 {
-    m_HighestEventFD = -1;
+    m_HighestEventFD = 0;
     m_BackendName = "select";
 
     FD_ZERO(&m_ReadSetIn);
@@ -75,23 +75,31 @@ bool QSelect::DelEvent(const QEvent &Event)
     return true;
 }
 
-bool QSelect::Dispatch(timeval *tv)
+bool QSelect::Dispatch(struct timeval *tv)
 {
-    while (!m_IsStop)
+    memcpy(&m_ReadSetOut, &m_ReadSetIn, sizeof(m_ReadSetIn));
+    memcpy(&m_WriteSetOut, &m_WriteSetIn, sizeof(m_WriteSetIn));
+
+    QLog::g_Log.WriteDebug("Select: start...");
+    int Result = select(m_HighestEventFD, &m_ReadSetOut, &m_WriteSetOut, NULL, tv);
+    QLog::g_Log.WriteDebug("Select: stop, result = %d.", Result);
+
+    if (Result < 0)
     {
-        memcpy(&m_ReadSetOut, &m_ReadSetIn, sizeof(m_ReadSetIn));
-        memcpy(&m_WriteSetOut, &m_WriteSetIn, sizeof(m_WriteSetIn));
+        QLog::g_Log.WriteError("Select error : %s", strerror(errno));
+        m_IsStop = true;
+        return false;
+    }
 
-        QLog::g_Log.WriteDebug("Select: start...");
-        int Result = select(m_HighestEventFD, &m_ReadSetOut, &m_WriteSetOut, NULL, tv);
-        QLog::g_Log.WriteDebug("Select: stop, result = %d.", Result);
-
-        if (Result <= 0)
+    if (Result == 0)
+    {
+        if (m_EventMap.find(m_TimeFD) != m_EventMap.end())
         {
-            QLog::g_Log.WriteError("Select error : %s", strerror(errno));
-            return false;
+            m_EventMap[m_TimeFD].CallBack();
         }
-
+    }
+    else
+    {
         for (int FD = 0; FD < m_HighestEventFD; FD++)
         {
             if (FD_ISSET(FD, &m_ReadSetOut))

@@ -22,28 +22,32 @@ QEpoll::~QEpoll()
 
 bool QEpoll::AddEvent(const QEvent &Event)
 {
-    epoll_event NewEpollEvent;
-    memset(&NewEpollEvent, 0, sizeof(epoll_event));
-
-    NewEpollEvent.events |= EPOLLET;
-    NewEpollEvent.data.fd = Event.GetFD();
-
-    if (Event.GetWatchEvents() & QET_READ)
+    if (Event.GetFD() >= 0)
     {
-        NewEpollEvent.events |= EPOLLIN;
-        QLog::g_Log.WriteDebug("Epoll: FD = %d add read event.", Event.GetFD());
-    }
+        epoll_event NewEpollEvent;
+        memset(&NewEpollEvent, 0, sizeof(epoll_event));
 
-    if (Event.GetWatchEvents() & QET_WRITE)
-    {
-        NewEpollEvent.events |= EPOLLOUT;
-        QLog::g_Log.WriteDebug("Epoll: FD = %d add write event.", Event.GetFD());
-    }
+        NewEpollEvent.events |= EPOLLET;
+        NewEpollEvent.data.fd = Event.GetFD();
 
-    if (epoll_ctl(m_EpollFD, EPOLL_CTL_ADD, Event.GetFD(), &NewEpollEvent) != 0)
-    {
-        QLog::g_Log.WriteError("Epoll: FD = %d add failed.", Event.GetFD());
-        return false;
+        if (Event.GetWatchEvents() & QET_READ)
+        {
+            NewEpollEvent.events |= EPOLLIN;
+            QLog::g_Log.WriteDebug("Epoll: FD = %d add read event.", Event.GetFD());
+        }
+
+        if (Event.GetWatchEvents() & QET_WRITE)
+        {
+            NewEpollEvent.events |= EPOLLOUT;
+            QLog::g_Log.WriteDebug("Epoll: FD = %d add write event.", Event.GetFD());
+        }
+
+        if (epoll_ctl(m_EpollFD, EPOLL_CTL_ADD, Event.GetFD(), &NewEpollEvent) != 0)
+        {
+            QLog::g_Log.WriteError("Epoll: FD = %d add failed, errno = %d, errstr = %s.",
+                Event.GetFD(), errno, strerror(errno));
+            return false;
+        }
     }
 
     m_EventMap[Event.GetFD()] = std::move(Event);
@@ -79,14 +83,29 @@ bool QEpoll::DelEvent(const QEvent &Event)
     return true;
 }
 
-bool QEpoll::Dispatch(timeval *tv)
+bool QEpoll::Dispatch(struct timeval *tv)
 {
-    while (!m_IsStop)
-    {
-        QLog::g_Log.WriteDebug("Epoll: start...");
-        int ActiveEventCount = epoll_wait(m_EpollFD, m_EventArray, FD_SETSIZE, -1);
-        QLog::g_Log.WriteDebug("Epoll: stop, active event count = %d.", ActiveEventCount);
+    QLog::g_Log.WriteDebug("Epoll: start...");
+    int timeout = static_cast<int>(QMinHeap::ConvertToMillisecond(tv));
+    int ActiveEventCount = epoll_wait(m_EpollFD, m_EventArray, FD_SETSIZE, timeout);
+    QLog::g_Log.WriteDebug("Epoll: stop, active event count = %d.", ActiveEventCount);
 
+    if (ActiveEventCount < 0)
+    {
+        QLog::g_Log.WriteError("Epoll error : %s", strerror(errno));
+        m_IsStop = true;
+        return false;
+    }
+
+    if (ActiveEventCount == 0)
+    {
+        if (m_EventMap.find(m_TimeFD) != m_EventMap.end())
+        {
+            m_EventMap[m_TimeFD].CallBack();
+        }
+    }
+    else
+    {
         for (int Index = 0; Index < ActiveEventCount; Index++)
         {
             int FD = m_EventArray[Index].data.fd;

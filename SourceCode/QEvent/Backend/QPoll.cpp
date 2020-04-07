@@ -92,20 +92,29 @@ bool QPoll::DelEvent(const QEvent &Event)
     return false;
 }
 
-bool QPoll::Dispatch(timeval *tv)
+bool QPoll::Dispatch(struct timeval *tv)
 {
-    while (!m_IsStop)
+    QLog::g_Log.WriteDebug("poll: start...");
+    int timeout = static_cast<int>(QMinHeap::ConvertToMillisecond(tv));
+    int Result = poll(m_FDArray, m_FDMaxIndex, timeout);
+    QLog::g_Log.WriteDebug("Select: stop, result = %d.", Result);
+
+    if (Result < 0)
     {
-        QLog::g_Log.WriteDebug("poll: start...");
-        int Result = poll(m_FDArray, m_FDMaxIndex, -1);
-        QLog::g_Log.WriteDebug("Select: stop, result = %d.", Result);
+        QLog::g_Log.WriteError("Poll error : %s", strerror(errno));
+        m_IsStop = true;
+        return false;
+    }
 
-        if (Result <= 0)
+    if (Result == 0)
+    {
+        if (m_EventMap.find(m_TimeFD) != m_EventMap.end())
         {
-            QLog::g_Log.WriteError("Poll error : %s", strerror(errno));
-            return false;
+            m_EventMap[m_TimeFD].CallBack();
         }
-
+    }
+    else
+    {
         for (int FDIndex = 0; FDIndex < m_FDMaxIndex; FDIndex++)
         {
             if (m_FDArray[FDIndex].revents & POLLIN)
@@ -113,7 +122,7 @@ bool QPoll::Dispatch(timeval *tv)
                 m_EventMap[m_FDArray[FDIndex].fd].CallBack();
             }
 
-            if(m_FDArray[FDIndex].revents & POLLOUT)
+            if (m_FDArray[FDIndex].revents & POLLOUT)
             {
                 m_EventMap[m_FDArray[FDIndex].fd].CallBack();
             }

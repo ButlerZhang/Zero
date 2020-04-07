@@ -123,6 +123,8 @@
     <ClInclude Include="..\QEvent\Event\QEvent.h" />
     <ClInclude Include="..\QEvent\Network\QNetwork.h" />
     <ClInclude Include="..\QEvent\ServerTest.h" />
+    <ClInclude Include="..\QEvent\TimerTest.h" />
+    <ClInclude Include="..\QEvent\Tools\QMinHeap.h" />
     <ClInclude Include="..\QLog\QLogBase.h" />
     <ClInclude Include="..\QLog\QSimpleLog.h" />
   </ItemGroup>
@@ -135,6 +137,8 @@
     <ClCompile Include="..\QEvent\main.cpp" />
     <ClCompile Include="..\QEvent\Network\QNetwork.cpp" />
     <ClCompile Include="..\QEvent\ServerTest.cpp" />
+    <ClCompile Include="..\QEvent\TimerTest.cpp" />
+    <ClCompile Include="..\QEvent\Tools\QMinHeap.cpp" />
     <ClCompile Include="..\QLog\QSimpleLog.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

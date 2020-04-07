@@ -16,6 +16,10 @@ public:
 
 private:
 
+    bool UseSleepSimulateSelect(struct timeval *tv);
+
+private:
+
     fd_set                     m_ReadSetIn;
     fd_set                     m_WriteSetIn;
     fd_set                     m_ReadSetOut;
