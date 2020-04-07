@@ -60,11 +60,11 @@
     <ClInclude Include="..\QEvent\ServerTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\QEvent\TimerTest.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\QEvent\Tools\QMinHeap.h">
       <Filter>Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\QEvent\UnitTest.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -95,11 +95,11 @@
     <ClCompile Include="..\QEvent\ServerTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\QEvent\TimerTest.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\QEvent\Tools\QMinHeap.cpp">
       <Filter>Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\QEvent\UnitTest.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

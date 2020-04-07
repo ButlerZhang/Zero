@@ -28,10 +28,10 @@
     </ClCompile>
     <ClCompile Include="ClientTest.cpp" />
     <ClCompile Include="ServerTest.cpp" />
-    <ClCompile Include="TimerTest.cpp" />
     <ClCompile Include="Tools\QMinHeap.cpp">
       <Filter>Tools</Filter>
     </ClCompile>
+    <ClCompile Include="UnitTest.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\QLog\QSimpleLog.h">
@@ -64,10 +64,10 @@
     </ClInclude>
     <ClInclude Include="ClientTest.h" />
     <ClInclude Include="ServerTest.h" />
-    <ClInclude Include="TimerTest.h" />
     <ClInclude Include="Tools\QMinHeap.h">
       <Filter>Tools</Filter>
     </ClInclude>
+    <ClInclude Include="UnitTest.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Reference">
