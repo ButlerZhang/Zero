@@ -1,4 +1,4 @@
-#include "Server.h"
+#include "ServerTest.h"
 #include "Event/QEvent.h"
 #include "Backend/QBackend.h"
 #include "../QLog/QSimpleLog.h"
@@ -11,15 +11,15 @@
 
 
 
-Server::Server()
+ServerTest::ServerTest()
 {
 }
 
-Server::~Server()
+ServerTest::~ServerTest()
 {
 }
 
-bool Server::Start(const std::string &BindIP, int Port)
+bool ServerTest::Start(const std::string &BindIP, int Port)
 {
     QLog::g_Log.SetLogFile(m_Reactor.GetBackend()->GetBackendName() + ".txt");
 
@@ -32,13 +32,13 @@ bool Server::Start(const std::string &BindIP, int Port)
     QNetwork::SetSocketNonblocking(m_Network.GetSocket());
 
     QEvent ListenEvent(m_Network.GetSocket(), QET_READ);
-    ListenEvent.SetCallBack(std::bind(&Server::Accept, this, ListenEvent));
+    ListenEvent.SetCallBack(std::bind(&ServerTest::Accept, this, ListenEvent));
     m_Reactor.AddEvent(ListenEvent);
 
     return m_Reactor.Dispatch(NULL);
 }
 
-void Server::Accept(const QEvent &Event)
+void ServerTest::Accept(const QEvent &Event)
 {
     struct sockaddr_in ClientAddress;
     socklen_t AddLength = sizeof(ClientAddress);
@@ -47,11 +47,11 @@ void Server::Accept(const QEvent &Event)
 
     QNetwork::SetSocketNonblocking(ClientFD);
     QEvent ClientEvent(ClientFD, QET_READ);
-    ClientEvent.SetCallBack(std::bind(&Server::Recevie, this, ClientEvent));
+    ClientEvent.SetCallBack(std::bind(&ServerTest::Recevie, this, ClientEvent));
     m_Reactor.AddEvent(ClientEvent);
 }
 
-void Server::Recevie(const QEvent &Event)
+void ServerTest::Recevie(const QEvent &Event)
 {
     char DataBuffer[BUFFER_SIZE];
     memset(DataBuffer, 0, sizeof(DataBuffer));

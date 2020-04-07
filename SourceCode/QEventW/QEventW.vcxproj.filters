@@ -30,9 +30,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\QEvent\Client.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\QLog\QLogBase.h">
       <Filter>Reference\QLog</Filter>
     </ClInclude>
@@ -51,18 +48,18 @@
     <ClInclude Include="..\QEvent\Event\QEvent.h">
       <Filter>Event</Filter>
     </ClInclude>
-    <ClInclude Include="..\QEvent\Server.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\QEvent\Backend\QReactor.h">
       <Filter>Backend</Filter>
+    </ClInclude>
+    <ClInclude Include="..\QEvent\ClientTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\QEvent\ServerTest.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\QEvent\main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\QEvent\Client.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\QLog\QSimpleLog.cpp">
@@ -80,11 +77,14 @@
     <ClCompile Include="..\QEvent\Event\QEvent.cpp">
       <Filter>Event</Filter>
     </ClCompile>
-    <ClCompile Include="..\QEvent\Server.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\QEvent\Backend\QReactor.cpp">
       <Filter>Backend</Filter>
+    </ClCompile>
+    <ClCompile Include="..\QEvent\ClientTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\QEvent\ServerTest.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

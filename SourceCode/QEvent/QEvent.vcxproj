@@ -70,11 +70,11 @@
     <ClInclude Include="Backend\QPoll.h" />
     <ClInclude Include="Backend\QReactor.h" />
     <ClInclude Include="Backend\QSelect.h" />
-    <ClInclude Include="Client.h" />
+    <ClInclude Include="ClientTest.h" />
     <ClInclude Include="Event\QEvent.h" />
     <ClInclude Include="Network\QNetwork.h" />
     <ClInclude Include="QLibBase.h" />
-    <ClInclude Include="Server.h" />
+    <ClInclude Include="ServerTest.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\QLog\QSimpleLog.cpp" />
@@ -83,11 +83,11 @@
     <ClCompile Include="Backend\QPoll.cpp" />
     <ClCompile Include="Backend\QReactor.cpp" />
     <ClCompile Include="Backend\QSelect.cpp" />
-    <ClCompile Include="Client.cpp" />
+    <ClCompile Include="ClientTest.cpp" />
     <ClCompile Include="Event\QEvent.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Network\QNetwork.cpp" />
-    <ClCompile Include="Server.cpp" />
+    <ClCompile Include="ServerTest.cpp" />
   </ItemGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Link>

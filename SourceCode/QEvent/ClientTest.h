@@ -6,12 +6,12 @@ class QEvent;
 
 
 
-class Client
+class ClientTest
 {
 public:
 
-    Client();
-    ~Client();
+    ClientTest();
+    ~ClientTest();
 
     bool Start(const std::string &ServerIP, int Port, int ClientCount);
 

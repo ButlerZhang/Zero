@@ -6,12 +6,12 @@ class QEvent;
 
 
 
-class Server
+class ServerTest
 {
 public:
 
-    Server();
-    ~Server();
+    ServerTest();
+    ~ServerTest();
 
     bool Start(const std::string &BindIP, int Port);
 

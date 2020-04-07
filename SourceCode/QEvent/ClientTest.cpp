@@ -1,4 +1,4 @@
-#include "Client.h"
+#include "ClientTest.h"
 #include "Event/QEvent.h"
 #include "Network/QNetwork.h"
 #include "Backend/QReactor.h"
@@ -16,15 +16,15 @@
 
 
 
-Client::Client()
+ClientTest::ClientTest()
 {
 }
 
-Client::~Client()
+ClientTest::~ClientTest()
 {
 }
 
-bool Client::Start(const std::string &ServerIP, int Port, int ClientCount)
+bool ClientTest::Start(const std::string &ServerIP, int Port, int ClientCount)
 {
     if (ServerIP.empty() || Port <= 1024 || ClientCount <= 0)
     {
@@ -40,11 +40,11 @@ bool Client::Start(const std::string &ServerIP, int Port, int ClientCount)
     return MultiThread(ClientCount);
 }
 
-bool Client::MultiThread(int ClientCount)
+bool ClientTest::MultiThread(int ClientCount)
 {
     for (int Count = 0; Count < ClientCount; Count++)
     {
-        std::thread SmallClient(Client::CallBack_Thread, this, Count);
+        std::thread SmallClient(ClientTest::CallBack_Thread, this, Count);
         SmallClient.detach();
 
         std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -55,7 +55,7 @@ bool Client::MultiThread(int ClientCount)
     return true;
 }
 
-bool Client::SingleThread(int ClientCount)
+bool ClientTest::SingleThread(int ClientCount)
 {
     QReactor Reactor;
     std::vector<QNetwork> NetworkVector(ClientCount, QNetwork());
@@ -67,7 +67,7 @@ bool Client::SingleThread(int ClientCount)
             QNetwork::SetSocketNonblocking(Network.GetSocket());
 
             QEvent ReceiveEvent(Network.GetSocket(), QET_READ);
-            ReceiveEvent.SetCallBack(std::bind(&Client::Recevie, this, std::placeholders::_1));
+            ReceiveEvent.SetCallBack(std::bind(&ClientTest::Recevie, this, std::placeholders::_1));
             Reactor.AddEvent(ReceiveEvent);
         }
     }
@@ -77,7 +77,7 @@ bool Client::SingleThread(int ClientCount)
     QEventFD TargetFD = NetworkVector[0].GetSocket();
 
     QEvent CMDEvent(STDIN_FILENO, QET_READ);
-    CMDEvent.SetCallBack(std::bind(&Client::CMDInput, this, std::placeholders::_1), (void*)&TargetFD);
+    CMDEvent.SetCallBack(std::bind(&ClientTest::CMDInput, this, std::placeholders::_1), (void*)&TargetFD);
     Reactor.AddEvent(CMDEvent);
 
 #endif // ENABLE_CMD_INPUT
@@ -85,7 +85,7 @@ bool Client::SingleThread(int ClientCount)
     return Reactor.Dispatch(NULL);
 }
 
-bool Client::SendMsg(int ClientID, QLog::QSimpleLog &Log)
+bool ClientTest::SendMsg(int ClientID, QLog::QSimpleLog &Log)
 {
     QNetwork MyNetwork;
     if (!MyNetwork.Connect(m_ServerIP, m_Port))
@@ -106,17 +106,17 @@ bool Client::SendMsg(int ClientID, QLog::QSimpleLog &Log)
     return true;
 }
 
-void Client::CallBack_Thread(void *ClientObject, int ClientID)
+void ClientTest::CallBack_Thread(void *ClientObject, int ClientID)
 {
     QLog::QSimpleLog SmallLog;
     if (SmallLog.SetLogFile("Client" + std::to_string(ClientID) + ".txt"))
     {
-        Client *MyClient = (Client*)ClientObject;
+        ClientTest *MyClient = (ClientTest*)ClientObject;
         MyClient->SendMsg(ClientID, SmallLog);
     }
 }
 
-void Client::CMDInput(const QEvent &Event)
+void ClientTest::CMDInput(const QEvent &Event)
 {
     char InputMsg[BUFFER_SIZE];
     memset(InputMsg, 0, BUFFER_SIZE);
@@ -140,7 +140,7 @@ void Client::CMDInput(const QEvent &Event)
     QLog::g_Log.WriteInfo("Send input msg = %s, size = %d.", InputMsg, WriteSize);
 }
 
-void Client::Recevie(const QEvent &Event)
+void ClientTest::Recevie(const QEvent &Event)
 {
     char Message[BUFFER_SIZE];
     memset(Message, 0, BUFFER_SIZE);

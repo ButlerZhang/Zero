@@ -18,7 +18,7 @@
 QNetwork::QNetwork()
 {
     m_Port = 0;
-    m_Socket = -1;      //unsigned int64 on windows
+    m_Socket = -1;
 }
 
 QNetwork::~QNetwork()
@@ -91,7 +91,7 @@ void QNetwork::WriteSocketErrorLog(const std::string &Operation)
 bool QNetwork::CloseSocket(QEventFD Socket)
 {
 #ifdef _WIN32
-    if (Socket == -1)
+    if (Socket == -1)      //unsigned int64 on windows
     {
         return false;
     }

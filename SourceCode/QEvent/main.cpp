@@ -1,6 +1,6 @@
 #include <cstdio>
-#include "Client.h"
-#include "Server.h"
+#include "ClientTest.h"
+#include "ServerTest.h"
 #include <iostream>
 
 
@@ -37,12 +37,12 @@ int main(int argc, char *argv[])
 
     if (Choose == 1)
     {
-        Server MyServer;
+        ServerTest MyServer;
         MyServer.Start(ServerIP, ServerPort);
     }
     else
     {
-        Client MyClient;
+        ClientTest MyClient;
         const int ClientCount = 1;// FD_SETSIZE;
         MyClient.Start(ServerIP, ServerPort, ClientCount);
 
