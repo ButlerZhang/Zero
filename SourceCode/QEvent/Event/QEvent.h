@@ -41,6 +41,7 @@ public:
     inline void BindBackend(const std::shared_ptr<QBackend> &Backend) { m_Backend = Backend; }
 
     void CallBack();
+    bool IsEqual(const QEvent& Right) const;
     void SetCallBack(CallBackFunction CallBack, void *ExtendArg = NULL);
 
 protected:

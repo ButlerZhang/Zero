@@ -33,12 +33,17 @@ void QEvent::CallBack()
     {
         QLog::g_Log.WriteDebug("QEvent: Start process call back.");
         m_CallBack(*this);
-        QLog::g_Log.WriteDebug("QEvent: stop process call back.");
+        QLog::g_Log.WriteDebug("QEvent: Stop process call back.");
     }
     else
     {
         QLog::g_Log.WriteDebug("QEvent: call back is nullptr, FD = %d.", GetFD());
     }
+}
+
+bool QEvent::IsEqual(const QEvent &Right) const
+{
+    return m_EventFD == Right.m_EventFD && m_WatchEvents == Right.m_WatchEvents;
 }
 
 void QEvent::SetCallBack(CallBackFunction CallBack, void *ExtendArg)

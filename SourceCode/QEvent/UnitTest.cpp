@@ -42,51 +42,51 @@ int UnitTest::AddAndDelEventTest()
     bool Result = m_Reactor.AddEvent(Event1);
     assert(Result == true);
 
-    //Add repeatedly
+    QLog::g_Log.WriteDebug("=====Add repeatedly=====");
     Result = m_Reactor.AddEvent(Event1);
-    assert(Result == true);
+    assert(Result == false);
 
-    //Different object but same context
+    QLog::g_Log.WriteDebug("=====Different object but same context=====");
     QEvent Event2(10, QET_READ);
     Event2.SetCallBack(std::bind(&UnitTest::CallBack_AddEvent1, this, std::placeholders::_1));
     Result = m_Reactor.AddEvent(Event2);
-    assert(Result == true);
+    assert(Result == false);
 
-    //different CallBackFunction
+    QLog::g_Log.WriteDebug("=====Different CallBackFunction=====");
     QEvent Event3(10, QET_READ);
     Event3.SetCallBack(std::bind(&UnitTest::CallBack_AddEvent3, this, std::placeholders::_1));
     Result = m_Reactor.AddEvent(Event3);
-    assert(Result == true);
+    assert(Result == false);
 
-    //different WatchEvents
+    QLog::g_Log.WriteDebug("=====Different WatchEvents=====");
     QEvent Event4(10, QET_READ | QET_WRITE);
     Event4.SetCallBack(std::bind(&UnitTest::CallBack_AddEvent1, this, std::placeholders::_1));
     Result = m_Reactor.AddEvent(Event4);
     assert(Result == true);
 
-    //different FD
+    QLog::g_Log.WriteDebug("=====Different FD=====");
     QEvent Event5(11, QET_READ);
     Event5.SetCallBack(std::bind(&UnitTest::CallBack_AddEvent1, this, std::placeholders::_1));
     Result = m_Reactor.AddEvent(Event5);
     assert(Result == true);
 
-    //delete existed Event in list
+    QLog::g_Log.WriteDebug("=====delete existed Event in array=====");
     Result = m_Reactor.DelEvent(Event4);
     assert(Result == true);
 
-    //delete existed Event in Map
+    QLog::g_Log.WriteDebug("=====delete existed Event in Map=====");
     Result = m_Reactor.DelEvent(Event5);
     assert(Result == true);
 
-    //delete not existed Event
+    QLog::g_Log.WriteDebug("=====delete not existed Event=====");
     Result = m_Reactor.DelEvent(Event5);
     assert(Result == false);
 
-    //delete new Event
+    QLog::g_Log.WriteDebug("=====delete new Event=====");
     QEvent Event6(10, QET_READ);
     Event1.SetCallBack(std::bind(&UnitTest::CallBack_AddEvent1, this, std::placeholders::_1));
     Result = m_Reactor.DelEvent(Event6);
-    assert(Result == false);
+    assert(Result == true);
 
     return m_Reactor.Dispatch();
 }

@@ -47,7 +47,7 @@ bool QPoll::AddEvent(const QEvent &Event)
                 m_FDMaxIndex = Index + 1;
             }
 
-            m_EventMap[Event.GetFD()] = std::move(Event);
+            m_EventMap[Event.GetFD()].push_back(std::move(Event));
             QLog::g_Log.WriteInfo("Poll: FD = %d add successed, FDMaxIndex = %d, event count = %d.",
                 Event.GetFD(),
                 m_FDMaxIndex,
@@ -63,7 +63,7 @@ bool QPoll::AddEvent(const QEvent &Event)
 
 bool QPoll::DelEvent(const QEvent &Event)
 {
-    std::map<QEventFD, QEvent>::const_iterator it = m_EventMap.find(Event.GetFD());
+    std::map<QEventFD, std::vector<QEvent>>::const_iterator it = m_EventMap.find(Event.GetFD());
     if (it == m_EventMap.end())
     {
         QLog::g_Log.WriteError("Poll: Can not find FD = %d.", Event.GetFD());
@@ -108,9 +108,9 @@ bool QPoll::Dispatch(struct timeval *tv)
 
     if (Result == 0)
     {
-        if (m_EventMap.find(m_TimeFD) != m_EventMap.end())
+        if (m_EventMap.find(m_TimerFD) != m_EventMap.end())
         {
-            m_EventMap[m_TimeFD].CallBack();
+            m_EventMap[m_TimerFD][0].CallBack();
         }
     }
     else
@@ -119,12 +119,24 @@ bool QPoll::Dispatch(struct timeval *tv)
         {
             if (m_FDArray[FDIndex].revents & POLLIN)
             {
-                m_EventMap[m_FDArray[FDIndex].fd].CallBack();
+                for (std::vector<QEvent>::size_type Index = 0; Index < m_EventMap[FDIndex].size(); Index++)
+                {
+                    if (m_EventMap[FDIndex][Index].GetWatchEvents() & QET_READ)
+                    {
+                        m_EventMap[FDIndex][Index].CallBack();
+                    }
+                }
             }
 
             if (m_FDArray[FDIndex].revents & POLLOUT)
             {
-                m_EventMap[m_FDArray[FDIndex].fd].CallBack();
+                for (std::vector<QEvent>::size_type Index = 0; Index < m_EventMap[FDIndex].size(); Index++)
+                {
+                    if (m_EventMap[FDIndex][Index].GetWatchEvents() & QET_WRITE)
+                    {
+                        m_EventMap[FDIndex][Index].CallBack();
+                    }
+                }
             }
         }
     }

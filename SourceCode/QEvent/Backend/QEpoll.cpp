@@ -50,7 +50,7 @@ bool QEpoll::AddEvent(const QEvent &Event)
         }
     }
 
-    m_EventMap[Event.GetFD()] = std::move(Event);
+    m_EventMap[Event.GetFD()].push_back(std::move(Event));
     QLog::g_Log.WriteInfo("Epoll: FD = %d add successed, event count = %d.",
         Event.GetFD(),
         static_cast<int>(m_EventMap.size()));
@@ -60,7 +60,7 @@ bool QEpoll::AddEvent(const QEvent &Event)
 
 bool QEpoll::DelEvent(const QEvent &Event)
 {
-    std::map<QEventFD, QEvent>::const_iterator it = m_EventMap.find(Event.GetFD());
+    std::map<QEventFD, std::vector<QEvent>>::const_iterator it = m_EventMap.find(Event.GetFD());
     if (it == m_EventMap.end())
     {
         QLog::g_Log.WriteError("Epoll: Can not find FD = %d.", Event.GetFD());
@@ -99,9 +99,9 @@ bool QEpoll::Dispatch(struct timeval *tv)
 
     if (ActiveEventCount == 0)
     {
-        if (m_EventMap.find(m_TimeFD) != m_EventMap.end())
+        if (m_EventMap.find(m_TimerFD) != m_EventMap.end())
         {
-            m_EventMap[m_TimeFD].CallBack();
+            m_EventMap[m_TimerFD][0].CallBack();
         }
     }
     else
@@ -111,12 +111,12 @@ bool QEpoll::Dispatch(struct timeval *tv)
             int FD = m_EventArray[Index].data.fd;
             if (m_EventArray[Index].events & EPOLLIN)
             {
-                m_EventMap[FD].CallBack();
+                m_EventMap[FD][0].CallBack();
             }
 
             if (m_EventArray[Index].events & EPOLLOUT)
             {
-                m_EventMap[FD].CallBack();
+                m_EventMap[FD][0].CallBack();
             }
         }
     }

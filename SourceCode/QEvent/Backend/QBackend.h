@@ -4,6 +4,7 @@
 #include "../Tools/QMinHeap.h"
 
 #include <map>
+#include <vector>
 
 
 
@@ -14,21 +15,28 @@ public:
     QBackend();
     virtual ~QBackend();
 
-    virtual bool AddEvent(const QEvent &Event) = 0;
-    virtual bool DelEvent(const QEvent &Event) = 0;
+    virtual bool AddEvent(const QEvent &Event);
+    virtual bool DelEvent(const QEvent &Event);
     virtual bool Dispatch(struct timeval *tv)  = 0;
 
     bool AddToMinHeap(const QEvent &Event);
+    bool IsExisted(const QEvent &Event) const;
 
-    bool IsStop() const { return m_IsStop; }
-    QMinHeap& GetMinHeap() { return m_MinHeap; }
-    const std::string& GetBackendName() const { return m_BackendName; }
+    inline bool IsStop() const { return m_IsStop; }
+    inline QMinHeap& GetMinHeap() { return m_MinHeap; }
+    inline const std::string& GetBackendName() const { return m_BackendName; }
+
+protected:
+
+    void WriteAddLog(QEventFD AddFD) const;
+    void WriteDelLog(QEventFD AddFD) const;
 
 protected:
 
     bool                                        m_IsStop;
     std::string                                 m_BackendName;
     QMinHeap                                    m_MinHeap;
-    std::map<QEventFD, QEvent>                  m_EventMap;
-    static QEventFD                             m_TimeFD;
+    std::map<QEventFD, std::vector<QEvent>>     m_EventMap;
+
+    static QEventFD                             m_TimerFD;
 };

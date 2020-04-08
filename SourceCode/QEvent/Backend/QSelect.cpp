@@ -19,59 +19,72 @@ QSelect::~QSelect()
 
 bool QSelect::AddEvent(const QEvent &Event)
 {
-    if (Event.GetWatchEvents() & QET_READ)
+    if (!QBackend::AddEvent(Event))
     {
-        FD_SET(Event.GetFD(), &m_ReadSetIn);
-        QLog::g_Log.WriteDebug("Select: FD = %d add read event.", Event.GetFD());
-    }
-
-    if (Event.GetWatchEvents() & QET_WRITE)
-    {
-        FD_SET(Event.GetFD(), &m_WriteSetIn);
-        QLog::g_Log.WriteDebug("Select: FD = %d add write event.", Event.GetFD());
-    }
-
-    if (m_HighestEventFD <= Event.GetFD())
-    {
-        m_HighestEventFD = Event.GetFD() + 1;
-    }
-
-    m_EventMap[Event.GetFD()] = std::move(Event);
-    QLog::g_Log.WriteInfo("Select: FD = %d add successed, HighestFD = %d, event count = %d.",
-        Event.GetFD(),
-        m_HighestEventFD,
-        static_cast<int>(m_EventMap.size()));
-
-    return true;
-}
-
-bool QSelect::DelEvent(const QEvent &Event)
-{
-    std::map<QEventFD, QEvent>::const_iterator it = m_EventMap.find(Event.GetFD());
-    if (it == m_EventMap.end())
-    {
-        QLog::g_Log.WriteError("Select: Can not find FD = %d.", Event.GetFD());
         return false;
     }
 
     if (Event.GetWatchEvents() & QET_READ)
     {
-        FD_CLR(Event.GetFD(), &m_ReadSetIn);
-        QLog::g_Log.WriteDebug("Select: FD = %d clear read event.", Event.GetFD());
+        FD_SET(Event.GetFD(), &m_ReadSetIn);
+        QLog::g_Log.WriteDebug("select: FD = %d add read event.", Event.GetFD());
     }
 
     if (Event.GetWatchEvents() & QET_WRITE)
     {
-        FD_CLR(Event.GetFD(), &m_WriteSetIn);
-        QLog::g_Log.WriteDebug("Select: FD = %d clear write event.", Event.GetFD());
+        FD_SET(Event.GetFD(), &m_WriteSetIn);
+        QLog::g_Log.WriteDebug("select: FD = %d add write event.", Event.GetFD());
     }
 
-    m_EventMap.erase(it);
-    QLog::g_Log.WriteInfo("Select: FD = %d delete successed, HighestFD = %d, event count = %d.",
-        Event.GetFD(),
-        m_HighestEventFD,
-        static_cast<int>(m_EventMap.size()));
+    if (m_HighestEventFD <= Event.GetFD())
+    {
+        m_HighestEventFD = Event.GetFD() + 1;
+        QLog::g_Log.WriteDebug("select: Highest event FD = %d.", m_HighestEventFD);
+    }
 
+    m_EventMap[Event.GetFD()].push_back(std::move(Event));
+    WriteAddLog(Event.GetFD());
+    return true;
+}
+
+bool QSelect::DelEvent(const QEvent &Event)
+{
+    if (!QBackend::DelEvent(Event))
+    {
+        return false;
+    }
+
+    FD_CLR(Event.GetFD(), &m_ReadSetIn);
+    FD_CLR(Event.GetFD(), &m_WriteSetIn);
+
+    m_HighestEventFD = 0;
+    for (std::map<QEventFD, std::vector<QEvent>>::iterator MapIt = m_EventMap.begin(); MapIt != m_EventMap.end(); MapIt++)
+    {
+        if (MapIt->first == Event.GetFD())
+        {
+            for (std::vector<QEvent>::iterator VecIt = MapIt->second.begin(); VecIt != MapIt->second.end(); VecIt++)
+            {
+                int WatchEvents = VecIt->GetWatchEvents();
+                if (WatchEvents & QET_READ)
+                {
+                    FD_SET(VecIt->GetFD(), &m_ReadSetIn);
+                }
+
+                if (Event.GetWatchEvents() & QET_WRITE)
+                {
+                    FD_SET(VecIt->GetFD(), &m_WriteSetIn);
+                }
+            }
+        }
+
+        if (m_HighestEventFD <= MapIt->first)
+        {
+            m_HighestEventFD = MapIt->first + 1;
+        }
+    }
+
+    QLog::g_Log.WriteDebug("select: Highest event FD = %d after deleted event.", m_HighestEventFD);
+    WriteDelLog(Event.GetFD());
     return true;
 }
 
@@ -80,22 +93,22 @@ bool QSelect::Dispatch(struct timeval *tv)
     memcpy(&m_ReadSetOut, &m_ReadSetIn, sizeof(m_ReadSetIn));
     memcpy(&m_WriteSetOut, &m_WriteSetIn, sizeof(m_WriteSetIn));
 
-    QLog::g_Log.WriteDebug("Select: start...");
+    QLog::g_Log.WriteDebug("select: start...");
     int Result = select(m_HighestEventFD, &m_ReadSetOut, &m_WriteSetOut, NULL, tv);
-    QLog::g_Log.WriteDebug("Select: stop, result = %d.", Result);
+    QLog::g_Log.WriteDebug("select: stop, result = %d.", Result);
 
     if (Result < 0)
     {
-        QLog::g_Log.WriteError("Select error : %s", strerror(errno));
+        QLog::g_Log.WriteError("select error : %s", strerror(errno));
         m_IsStop = true;
         return false;
     }
 
     if (Result == 0)
     {
-        if (m_EventMap.find(m_TimeFD) != m_EventMap.end())
+        if (m_EventMap.find(m_TimerFD) != m_EventMap.end())
         {
-            m_EventMap[m_TimeFD].CallBack();
+            m_EventMap[m_TimerFD][0].CallBack();
         }
     }
     else
@@ -104,12 +117,24 @@ bool QSelect::Dispatch(struct timeval *tv)
         {
             if (FD_ISSET(FD, &m_ReadSetOut))
             {
-                m_EventMap[FD].CallBack();
+                for (std::vector<QEvent>::size_type Index = 0; Index < m_EventMap[FD].size(); Index++)
+                {
+                    if (m_EventMap[FD][Index].GetWatchEvents() & QET_READ)
+                    {
+                        m_EventMap[FD][Index].CallBack();
+                    }
+                }
             }
 
             if (FD_ISSET(FD, &m_WriteSetOut))
             {
-                m_EventMap[FD].CallBack();
+                for (std::vector<QEvent>::size_type Index = 0; Index < m_EventMap[FD].size(); Index++)
+                {
+                    if (m_EventMap[FD][Index].GetWatchEvents() & QET_WRITE)
+                    {
+                        m_EventMap[FD][Index].CallBack();
+                    }
+                }
             }
         }
     }
