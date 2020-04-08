@@ -32,6 +32,8 @@ bool QPoll::AddEvent(const QEvent &Event)
     {
         if (m_FDArray[Index].fd < 0 || m_FDArray[Index].fd == Event.GetFD())
         {
+            QEventOption OP = (m_FDArray[Index].fd < 0) ? QEO_ADD : QEO_MOD;
+
             m_FDArray[Index].revents = 0;
             m_FDArray[Index].fd = Event.GetFD();
 
@@ -54,12 +56,12 @@ bool QPoll::AddEvent(const QEvent &Event)
             }
 
             m_EventMap[Event.GetFD()].push_back(std::move(Event));
-            WriteAddLog(Event.GetFD());
+            WriteEventOperationLog(Event.GetFD(), OP);
             return true;
         }
     }
 
-    QLog::g_Log.WriteError("%s: FD = %d watch events = %d add failed.",
+    QLog::g_Log.WriteError("%s: FD = %d watch events = %d add failed, no location.",
         m_BackendName.c_str(), Event.GetFD(), Event.GetWatchEvents());
     return false;
 }
@@ -101,7 +103,7 @@ bool QPoll::DelEvent(const QEvent &Event)
                 }
 
                 QLog::g_Log.WriteDebug("poll: FD max index = %d after deleted.", m_FDMaxIndex);
-                WriteDelLog(Event.GetFD());
+                WriteEventOperationLog(Event.GetFD(), QEO_DEL);
                 return true;
             }
         }
@@ -127,14 +129,14 @@ bool QPoll::DelEvent(const QEvent &Event)
                     }
                 }
 
-                QLog::g_Log.WriteDebug("poll: FD max index = %d after deleted.", m_FDMaxIndex);
-                WriteDelLog(Event.GetFD());
+                QLog::g_Log.WriteDebug("poll: FD max index = %d after modify.", m_FDMaxIndex);
+                WriteEventOperationLog(Event.GetFD(), QEO_MOD);
                 return true;
             }
         }
     }
 
-    QLog::g_Log.WriteError("%s: FD = %d watch events = %d deleted failed.",
+    QLog::g_Log.WriteError("%s: FD = %d watch events = %d deleted failed, no location.",
         m_BackendName.c_str(), Event.GetFD(), Event.GetWatchEvents());
     return false;
 }
@@ -164,27 +166,18 @@ bool QPoll::Dispatch(struct timeval *tv)
     {
         for (int FDIndex = 0; FDIndex < m_FDMaxIndex; FDIndex++)
         {
+            int ResultEvents = 0;
             if (m_FDArray[FDIndex].revents & POLLIN)
             {
-                for (std::vector<QEvent>::size_type Index = 0; Index < m_EventMap[FDIndex].size(); Index++)
-                {
-                    if (m_EventMap[FDIndex][Index].GetWatchEvents() & QET_READ)
-                    {
-                        m_EventMap[FDIndex][Index].CallBack();
-                    }
-                }
+                ResultEvents |= QET_READ;
             }
 
             if (m_FDArray[FDIndex].revents & POLLOUT)
             {
-                for (std::vector<QEvent>::size_type Index = 0; Index < m_EventMap[FDIndex].size(); Index++)
-                {
-                    if (m_EventMap[FDIndex][Index].GetWatchEvents() & QET_WRITE)
-                    {
-                        m_EventMap[FDIndex][Index].CallBack();
-                    }
-                }
+                ResultEvents |= QET_WRITE;
             }
+
+            ActiveEvent(m_FDArray[FDIndex].fd, ResultEvents);
         }
     }
 

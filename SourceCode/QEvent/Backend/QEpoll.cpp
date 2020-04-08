@@ -27,6 +27,7 @@ bool QEpoll::AddEvent(const QEvent &Event)
         return false;
     }
 
+    int EpollOP = EPOLL_CTL_ADD;
     if (Event.GetFD() >= 0)
     {
         epoll_event NewEpollEvent;
@@ -35,7 +36,6 @@ bool QEpoll::AddEvent(const QEvent &Event)
         NewEpollEvent.events |= EPOLLET;
         NewEpollEvent.data.fd = Event.GetFD();
 
-        int EpollOP = EPOLL_CTL_ADD;
         int WatchEvents = Event.GetWatchEvents();
         std::map<QEventFD, std::vector<QEvent>>::iterator MapIt = m_EventMap.find(Event.GetFD());
         if (MapIt != m_EventMap.end())
@@ -76,7 +76,7 @@ bool QEpoll::AddEvent(const QEvent &Event)
     }
 
     m_EventMap[Event.GetFD()].push_back(std::move(Event));
-    WriteAddLog(Event.GetFD());
+    WriteEventOperationLog(Event.GetFD(), static_cast<QEventOption>(EpollOP));
     return true;
 }
 
@@ -118,7 +118,7 @@ bool QEpoll::DelEvent(const QEvent &Event)
         return false;
     }
 
-    WriteDelLog(Event.GetFD());
+    WriteEventOperationLog(Event.GetFD(), static_cast<QEventOption>(EpollOP));
     return true;
 }
 
@@ -147,28 +147,19 @@ bool QEpoll::Dispatch(struct timeval *tv)
     {
         for (int Index = 0; Index < ActiveEventCount; Index++)
         {
+            int ResultEvents = 0;
             int FD = m_EventArray[Index].data.fd;
             if (m_EventArray[Index].events & EPOLLIN)
             {
-                for (std::vector<QEvent>::size_type Index = 0; Index < m_EventMap[FD].size(); Index++)
-                {
-                    if (m_EventMap[FD][Index].GetWatchEvents() & QET_READ)
-                    {
-                        m_EventMap[FD][Index].CallBack();
-                    }
-                }
+                ResultEvents |= QET_READ;
             }
 
             if (m_EventArray[Index].events & EPOLLOUT)
             {
-                for (std::vector<QEvent>::size_type Index = 0; Index < m_EventMap[FD].size(); Index++)
-                {
-                    if (m_EventMap[FD][Index].GetWatchEvents() & QET_WRITE)
-                    {
-                        m_EventMap[FD][Index].CallBack();
-                    }
-                }
+                ResultEvents |= QET_WRITE;
             }
+
+            ActiveEvent(FD, ResultEvents);
         }
     }
 

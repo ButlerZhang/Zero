@@ -1,5 +1,7 @@
 #pragma once
 #include "../QLibBase.h"
+#include "QEventEnum.h"
+
 #include <memory>
 #include <functional>
 
@@ -7,16 +9,6 @@ class QEvent;
 class QBackend;
 
 typedef std::function<void(const QEvent &Event)> CallBackFunction;
-
-enum QEventType
-{
-    QET_TIMEOUT     = 0x01,
-    QET_READ        = 0x02,
-    QET_WRITE       = 0x04,
-    QET_SIGNAL      = 0x08,
-    QET_PERSIST     = 0x10,
-    QET_ET          = 0x20
-};
 
 
 

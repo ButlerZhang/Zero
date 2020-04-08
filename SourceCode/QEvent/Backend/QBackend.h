@@ -28,8 +28,8 @@ public:
 
 protected:
 
-    void WriteAddLog(QEventFD AddFD) const;
-    void WriteDelLog(QEventFD AddFD) const;
+    void ActiveEvent(QEventFD FD, int ResultEvents);
+    void WriteEventOperationLog(QEventFD FD, QEventOption OP);
 
 protected:
 

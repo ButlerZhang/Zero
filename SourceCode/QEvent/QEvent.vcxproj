@@ -72,6 +72,7 @@
     <ClInclude Include="Backend\QSelect.h" />
     <ClInclude Include="ClientTest.h" />
     <ClInclude Include="Event\QEvent.h" />
+    <ClInclude Include="Event\QEventEnum.h" />
     <ClInclude Include="Network\QNetwork.h" />
     <ClInclude Include="QLibBase.h" />
     <ClInclude Include="ServerTest.h" />
@@ -87,6 +88,7 @@
     <ClCompile Include="Backend\QSelect.cpp" />
     <ClCompile Include="ClientTest.cpp" />
     <ClCompile Include="Event\QEvent.cpp" />
+    <ClCompile Include="Event\QEventEnum.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Network\QNetwork.cpp" />
     <ClCompile Include="ServerTest.cpp" />

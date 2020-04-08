@@ -46,7 +46,7 @@ bool QSelect::AddEvent(const QEvent &Event)
     }
 
     m_EventMap[Event.GetFD()].push_back(std::move(Event));
-    WriteAddLog(Event.GetFD());
+    WriteEventOperationLog(Event.GetFD(), QEO_ADD);
     return true;
 }
 
@@ -61,10 +61,13 @@ bool QSelect::DelEvent(const QEvent &Event)
     FD_CLR(Event.GetFD(), &m_WriteSetIn);
 
     m_HighestEventFD = 0;
+    QEventOption OP = QEO_DEL;
+
     for (std::map<QEventFD, std::vector<QEvent>>::iterator MapIt = m_EventMap.begin(); MapIt != m_EventMap.end(); MapIt++)
     {
         if (MapIt->first == Event.GetFD())
         {
+            OP = QEO_MOD;
             for (std::vector<QEvent>::iterator VecIt = MapIt->second.begin(); VecIt != MapIt->second.end(); VecIt++)
             {
                 int WatchEvents = VecIt->GetWatchEvents();
@@ -86,8 +89,8 @@ bool QSelect::DelEvent(const QEvent &Event)
         }
     }
 
-    QLog::g_Log.WriteDebug("select: Highest event FD = %d after deleted event.", m_HighestEventFD);
-    WriteDelLog(Event.GetFD());
+    QLog::g_Log.WriteDebug("select: Highest event FD = %d.", m_HighestEventFD);
+    WriteEventOperationLog(Event.GetFD(), OP);
     return true;
 }
 
@@ -118,27 +121,18 @@ bool QSelect::Dispatch(struct timeval *tv)
     {
         for (int FD = 0; FD < m_HighestEventFD; FD++)
         {
+            int ResultEvents = 0;
             if (FD_ISSET(FD, &m_ReadSetOut))
             {
-                for (std::vector<QEvent>::size_type Index = 0; Index < m_EventMap[FD].size(); Index++)
-                {
-                    if (m_EventMap[FD][Index].GetWatchEvents() & QET_READ)
-                    {
-                        m_EventMap[FD][Index].CallBack();
-                    }
-                }
+                ResultEvents |= QET_READ;
             }
 
             if (FD_ISSET(FD, &m_WriteSetOut))
             {
-                for (std::vector<QEvent>::size_type Index = 0; Index < m_EventMap[FD].size(); Index++)
-                {
-                    if (m_EventMap[FD][Index].GetWatchEvents() & QET_WRITE)
-                    {
-                        m_EventMap[FD][Index].CallBack();
-                    }
-                }
+                ResultEvents |= QET_WRITE;
             }
+
+            ActiveEvent(FD, ResultEvents);
         }
     }
 

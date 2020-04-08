@@ -66,6 +66,9 @@
     <ClInclude Include="..\QEvent\UnitTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\QEvent\Event\QEventEnum.h">
+      <Filter>Event</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\QEvent\main.cpp">
@@ -100,6 +103,9 @@
     </ClCompile>
     <ClCompile Include="..\QEvent\UnitTest.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\QEvent\Event\QEventEnum.cpp">
+      <Filter>Event</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

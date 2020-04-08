@@ -38,7 +38,7 @@ bool QWin32Select::AddEvent(const QEvent &Event)
     }
 
     m_EventMap[Event.GetFD()].push_back(std::move(Event));
-    WriteAddLog(Event.GetFD());
+    WriteEventOperationLog(Event.GetFD(), QEO_ADD);
     return true;
 }
 
@@ -49,12 +49,14 @@ bool QWin32Select::DelEvent(const QEvent &Event)
         return false;
     }
 
+    QEventOption OP = QEO_DEL;
     FD_CLR(Event.GetFD(), &m_ReadSetIn);
     FD_CLR(Event.GetFD(), &m_WriteSetIn);
 
     std::map<QEventFD, std::vector<QEvent>>::iterator MapIt = m_EventMap.find(Event.GetFD());
     if (MapIt != m_EventMap.end())
     {
+        OP = QEO_MOD;
         for (std::vector<QEvent>::iterator VecIt = MapIt->second.begin(); VecIt != MapIt->second.end(); VecIt++)
         {
             if (VecIt->GetWatchEvents() & QET_READ)
@@ -69,7 +71,7 @@ bool QWin32Select::DelEvent(const QEvent &Event)
         }
     }
 
-    WriteDelLog(Event.GetFD());
+    WriteEventOperationLog(Event.GetFD(), OP);
     return true;
 }
 
@@ -98,26 +100,12 @@ bool QWin32Select::Dispatch(struct timeval *tv)
     {
         if (FD_ISSET(m_ReadSetOut.fd_array[Index], &m_ReadSetOut))
         {
-            QEventFD FD = m_ReadSetOut.fd_array[Index];
-            for (std::vector<QEvent>::size_type Index = 0; Index < m_EventMap[FD].size(); Index++)
-            {
-                if (m_EventMap[FD][Index].GetWatchEvents() & QET_READ)
-                {
-                    m_EventMap[FD][Index].CallBack();
-                }
-            }
+            ActiveEvent(m_ReadSetOut.fd_array[Index], QET_READ);
         }
 
         if (FD_ISSET(m_WriteSetOut.fd_array[Index], &m_WriteSetOut))
         {
-            QEventFD FD = m_WriteSetOut.fd_array[Index];
-            for (std::vector<QEvent>::size_type Index = 0; Index < m_EventMap[FD].size(); Index++)
-            {
-                if (m_EventMap[FD][Index].GetWatchEvents() & QET_WRITE)
-                {
-                    m_EventMap[FD][Index].CallBack();
-                }
-            }
+            ActiveEvent(m_WriteSetOut.fd_array[Index], QET_WRITE);
         }
     }
 

@@ -32,6 +32,9 @@
       <Filter>Tools</Filter>
     </ClCompile>
     <ClCompile Include="UnitTest.cpp" />
+    <ClCompile Include="Event\QEventEnum.cpp">
+      <Filter>Event</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\QLog\QSimpleLog.h">
@@ -68,6 +71,9 @@
       <Filter>Tools</Filter>
     </ClInclude>
     <ClInclude Include="UnitTest.h" />
+    <ClInclude Include="Event\QEventEnum.h">
+      <Filter>Event</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Reference">

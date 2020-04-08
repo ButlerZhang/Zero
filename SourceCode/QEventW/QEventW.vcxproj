@@ -121,6 +121,7 @@
     <ClInclude Include="..\QEvent\Backend\QWin32Select.h" />
     <ClInclude Include="..\QEvent\ClientTest.h" />
     <ClInclude Include="..\QEvent\Event\QEvent.h" />
+    <ClInclude Include="..\QEvent\Event\QEventEnum.h" />
     <ClInclude Include="..\QEvent\Network\QNetwork.h" />
     <ClInclude Include="..\QEvent\ServerTest.h" />
     <ClInclude Include="..\QEvent\Tools\QMinHeap.h" />
@@ -134,6 +135,7 @@
     <ClCompile Include="..\QEvent\Backend\QWin32Select.cpp" />
     <ClCompile Include="..\QEvent\ClientTest.cpp" />
     <ClCompile Include="..\QEvent\Event\QEvent.cpp" />
+    <ClCompile Include="..\QEvent\Event\QEventEnum.cpp" />
     <ClCompile Include="..\QEvent\main.cpp" />
     <ClCompile Include="..\QEvent\Network\QNetwork.cpp" />
     <ClCompile Include="..\QEvent\ServerTest.cpp" />

@@ -106,32 +106,33 @@ bool QBackend::IsExisted(const QEvent &Event) const
     return false;
 }
 
-void QBackend::WriteAddLog(QEventFD AddFD) const
+void QBackend::ActiveEvent(QEventFD FD, int ResultEvents)
 {
-    int EventCount = 0;
-
-    std::map<QEventFD, std::vector<QEvent>>::const_iterator it = m_EventMap.begin();
-    while (it != m_EventMap.end())
+    for (std::vector<QEvent>::size_type Index = 0; Index < m_EventMap[FD].size(); Index++)
     {
-        EventCount += static_cast<int>(it->second.size());
-        it++;
-    }
+        if (ResultEvents & QET_READ)
+        {
+            m_EventMap[FD][Index].CallBack();
+        }
 
-    QLog::g_Log.WriteInfo("%s: Add FD = %d succeed, FD count = %d, event count = %d.",
-        m_BackendName.c_str(), AddFD, static_cast<int>(m_EventMap.size()), EventCount);
+        if (ResultEvents & QET_WRITE)
+        {
+            m_EventMap[FD][Index].CallBack();
+        }
+    }
 }
 
-void QBackend::WriteDelLog(QEventFD AddFD) const
+void QBackend::WriteEventOperationLog(QEventFD FD, QEventOption OP)
 {
     int EventCount = 0;
+    int FDCount = static_cast<int>(m_EventMap.size());
 
     std::map<QEventFD, std::vector<QEvent>>::const_iterator it = m_EventMap.begin();
     while (it != m_EventMap.end())
     {
-        EventCount += static_cast<int>(it->second.size());
-        it++;
+        EventCount += static_cast<int>((it++)->second.size());
     }
 
-    QLog::g_Log.WriteInfo("%s: Del FD = %d succeed, FD count = %d, event count = %d.",
-        m_BackendName.c_str(), AddFD, static_cast<int>(m_EventMap.size()), EventCount);
+    QLog::g_Log.WriteDebug("%s: FD = %d, OP = %s, FD Count = %d, Event Count = %d.",
+        m_BackendName.c_str(), FD, GetEventOptionString(OP), FDCount, EventCount);
 }
