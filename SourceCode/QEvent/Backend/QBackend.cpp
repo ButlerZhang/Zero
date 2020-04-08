@@ -117,8 +117,8 @@ void QBackend::WriteAddLog(QEventFD AddFD) const
         it++;
     }
 
-    QLog::g_Log.WriteInfo("%s: Add FD = %d succeed, current event count = %d.",
-        m_BackendName.c_str(), AddFD, EventCount);
+    QLog::g_Log.WriteInfo("%s: Add FD = %d succeed, FD count = %d, event count = %d.",
+        m_BackendName.c_str(), AddFD, static_cast<int>(m_EventMap.size()), EventCount);
 }
 
 void QBackend::WriteDelLog(QEventFD AddFD) const
@@ -132,6 +132,6 @@ void QBackend::WriteDelLog(QEventFD AddFD) const
         it++;
     }
 
-    QLog::g_Log.WriteInfo("%s: Del FD = %d succeed, current event count = %d.",
-        m_BackendName.c_str(), AddFD, EventCount);
+    QLog::g_Log.WriteInfo("%s: Del FD = %d succeed, FD count = %d, event count = %d.",
+        m_BackendName.c_str(), AddFD, static_cast<int>(m_EventMap.size()), EventCount);
 }

@@ -17,55 +17,59 @@ QWin32Select::~QWin32Select()
 
 bool QWin32Select::AddEvent(const QEvent &Event)
 {
+    if (!QBackend::AddEvent(Event))
+    {
+        return false;
+    }
+
     if (Event.GetFD() >= 0)
     {
         if (Event.GetWatchEvents() & QET_READ)
         {
             FD_SET(Event.GetFD(), &m_ReadSetIn);
-            QLog::g_Log.WriteDebug("Win32Select: FD = %d add read event.", Event.GetFD());
+            QLog::g_Log.WriteDebug("win32select: FD = %d add read event.", Event.GetFD());
         }
 
         if (Event.GetWatchEvents() & QET_WRITE)
         {
             FD_SET(Event.GetFD(), &m_WriteSetIn);
-            QLog::g_Log.WriteDebug("Win32Select: FD = %d add write event.", Event.GetFD());
+            QLog::g_Log.WriteDebug("win32select: FD = %d add write event.", Event.GetFD());
         }
     }
 
-    m_EventMap[Event.GetFD()] = std::move(Event);
-    QLog::g_Log.WriteInfo("Win32Select: FD = %d add successed, event count = %d.",
-        Event.GetFD(),
-        static_cast<int>(m_EventMap.size()));
-
+    m_EventMap[Event.GetFD()].push_back(std::move(Event));
+    WriteAddLog(Event.GetFD());
     return true;
 }
 
 bool QWin32Select::DelEvent(const QEvent &Event)
 {
-    std::map<QEventFD, QEvent>::const_iterator it = m_EventMap.find(Event.GetFD());
-    if (it == m_EventMap.end())
+    if (!QBackend::DelEvent(Event))
     {
-        QLog::g_Log.WriteError("Win32Select: Can not find FD = %d.", Event.GetFD());
         return false;
     }
 
-    if (Event.GetWatchEvents() & QET_READ)
+    FD_CLR(Event.GetFD(), &m_ReadSetIn);
+    FD_CLR(Event.GetFD(), &m_WriteSetIn);
+
+    std::map<QEventFD, std::vector<QEvent>>::iterator MapIt = m_EventMap.find(Event.GetFD());
+    if (MapIt != m_EventMap.end())
     {
-        FD_CLR(Event.GetFD(), &m_ReadSetIn);
-        QLog::g_Log.WriteDebug("Win32Select: FD = %d clear read event.", Event.GetFD());
+        for (std::vector<QEvent>::iterator VecIt = MapIt->second.begin(); VecIt != MapIt->second.end(); VecIt++)
+        {
+            if (VecIt->GetWatchEvents() & QET_READ)
+            {
+                FD_SET(VecIt->GetFD(), &m_ReadSetIn);
+            }
+
+            if (VecIt->GetWatchEvents() & QET_WRITE)
+            {
+                FD_SET(VecIt->GetFD(), &m_WriteSetIn);
+            }
+        }
     }
 
-    if (Event.GetWatchEvents() & QET_WRITE)
-    {
-        FD_CLR(Event.GetFD(), &m_WriteSetIn);
-        QLog::g_Log.WriteDebug("Win32Select: FD = %d clear write event.", Event.GetFD());
-    }
-
-    m_EventMap.erase(it);
-    QLog::g_Log.WriteInfo("Win32Select: FD = %d delete successed, event count = %d.",
-        Event.GetFD(),
-        static_cast<int>(m_EventMap.size()));
-
+    WriteDelLog(Event.GetFD());
     return true;
 }
 
@@ -79,13 +83,13 @@ bool QWin32Select::Dispatch(struct timeval *tv)
     memcpy(&m_ReadSetOut, &m_ReadSetIn, sizeof(m_ReadSetIn));
     memcpy(&m_WriteSetOut, &m_WriteSetIn, sizeof(m_WriteSetIn));
 
-    QLog::g_Log.WriteDebug("Win32Select: start...");
+    QLog::g_Log.WriteDebug("win32select: start...");
     int Result = select(-1, &m_ReadSetOut, &m_WriteSetOut, NULL, tv);
-    QLog::g_Log.WriteDebug("Win32Select: stop, result = %d.", Result);
+    QLog::g_Log.WriteDebug("win32select: stop, result = %d.", Result);
 
     if (Result < 0)
     {
-        QLog::g_Log.WriteError("Win32Select error : %d", WSAGetLastError());
+        QLog::g_Log.WriteError("win32select error : %d", WSAGetLastError());
         m_IsStop = true;
         return false;
     }
@@ -94,12 +98,26 @@ bool QWin32Select::Dispatch(struct timeval *tv)
     {
         if (FD_ISSET(m_ReadSetOut.fd_array[Index], &m_ReadSetOut))
         {
-            m_EventMap[m_ReadSetOut.fd_array[Index]].CallBack();
+            QEventFD FD = m_ReadSetOut.fd_array[Index];
+            for (std::vector<QEvent>::size_type Index = 0; Index < m_EventMap[FD].size(); Index++)
+            {
+                if (m_EventMap[FD][Index].GetWatchEvents() & QET_READ)
+                {
+                    m_EventMap[FD][Index].CallBack();
+                }
+            }
         }
 
         if (FD_ISSET(m_WriteSetOut.fd_array[Index], &m_WriteSetOut))
         {
-            m_EventMap[m_WriteSetOut.fd_array[Index]].CallBack();
+            QEventFD FD = m_WriteSetOut.fd_array[Index];
+            for (std::vector<QEvent>::size_type Index = 0; Index < m_EventMap[FD].size(); Index++)
+            {
+                if (m_EventMap[FD][Index].GetWatchEvents() & QET_WRITE)
+                {
+                    m_EventMap[FD][Index].CallBack();
+                }
+            }
         }
     }
 
@@ -122,9 +140,9 @@ bool QWin32Select::UseSleepSimulateSelect(struct timeval *tv)
 
     Sleep(SleepTime);
 
-    if (m_EventMap.find(m_TimeFD) != m_EventMap.end())
+    if (m_EventMap.find(m_TimerFD) != m_EventMap.end())
     {
-        m_EventMap[m_TimeFD].CallBack();
+        m_EventMap[m_TimerFD][0].CallBack();
     }
 
     return true;

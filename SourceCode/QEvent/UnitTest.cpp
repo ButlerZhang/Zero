@@ -8,6 +8,7 @@
 
 UnitTest::UnitTest()
 {
+    QLog::g_Log.SetLogFile("UnitTest.txt");
 }
 
 UnitTest::~UnitTest()
@@ -16,8 +17,6 @@ UnitTest::~UnitTest()
 
 int UnitTest::SingleTimerTest()
 {
-    QLog::g_Log.SetLogFile("SingleTimer.txt");
-
     timeval tv;
     tv.tv_sec = 5;
     tv.tv_usec = 0;
@@ -37,7 +36,11 @@ int UnitTest::MultiTimerTest()
 
 int UnitTest::AddAndDelEventTest()
 {
-    QEvent Event1(10, QET_READ);
+    QEventFD BaseFD = 1;
+    QEventFD ChangeFD = BaseFD + 1;
+
+    QLog::g_Log.WriteDebug("=====Add Event1=====");
+    QEvent Event1(BaseFD, QET_READ);
     Event1.SetCallBack(std::bind(&UnitTest::CallBack_AddEvent1, this, std::placeholders::_1));
     bool Result = m_Reactor.AddEvent(Event1);
     assert(Result == true);
@@ -47,25 +50,25 @@ int UnitTest::AddAndDelEventTest()
     assert(Result == false);
 
     QLog::g_Log.WriteDebug("=====Different object but same context=====");
-    QEvent Event2(10, QET_READ);
+    QEvent Event2(BaseFD, QET_READ);
     Event2.SetCallBack(std::bind(&UnitTest::CallBack_AddEvent1, this, std::placeholders::_1));
     Result = m_Reactor.AddEvent(Event2);
     assert(Result == false);
 
     QLog::g_Log.WriteDebug("=====Different CallBackFunction=====");
-    QEvent Event3(10, QET_READ);
+    QEvent Event3(BaseFD, QET_READ);
     Event3.SetCallBack(std::bind(&UnitTest::CallBack_AddEvent3, this, std::placeholders::_1));
     Result = m_Reactor.AddEvent(Event3);
     assert(Result == false);
 
     QLog::g_Log.WriteDebug("=====Different WatchEvents=====");
-    QEvent Event4(10, QET_READ | QET_WRITE);
+    QEvent Event4(BaseFD, QET_READ | QET_WRITE);
     Event4.SetCallBack(std::bind(&UnitTest::CallBack_AddEvent1, this, std::placeholders::_1));
     Result = m_Reactor.AddEvent(Event4);
     assert(Result == true);
 
     QLog::g_Log.WriteDebug("=====Different FD=====");
-    QEvent Event5(11, QET_READ);
+    QEvent Event5(ChangeFD, QET_READ);
     Event5.SetCallBack(std::bind(&UnitTest::CallBack_AddEvent1, this, std::placeholders::_1));
     Result = m_Reactor.AddEvent(Event5);
     assert(Result == true);
@@ -83,7 +86,7 @@ int UnitTest::AddAndDelEventTest()
     assert(Result == false);
 
     QLog::g_Log.WriteDebug("=====delete new Event=====");
-    QEvent Event6(10, QET_READ);
+    QEvent Event6(BaseFD, QET_READ);
     Event1.SetCallBack(std::bind(&UnitTest::CallBack_AddEvent1, this, std::placeholders::_1));
     Result = m_Reactor.DelEvent(Event6);
     assert(Result == true);

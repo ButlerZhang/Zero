@@ -23,9 +23,14 @@ QPoll::~QPoll()
 
 bool QPoll::AddEvent(const QEvent &Event)
 {
+    if (!QBackend::AddEvent(Event))
+    {
+        return false;
+    }
+
     for (int Index = 0; Index < FD_SETSIZE; Index++)
     {
-        if (m_FDArray[Index].fd < 0)
+        if (m_FDArray[Index].fd < 0 || m_FDArray[Index].fd == Event.GetFD())
         {
             m_FDArray[Index].revents = 0;
             m_FDArray[Index].fd = Event.GetFD();
@@ -33,62 +38,104 @@ bool QPoll::AddEvent(const QEvent &Event)
             if (Event.GetWatchEvents() & QET_READ)
             {
                 m_FDArray[Index].events |= POLLIN;
-                QLog::g_Log.WriteDebug("Poll: FD = %d add read event.", Event.GetFD());
+                QLog::g_Log.WriteDebug("poll: FD = %d add read event.", Event.GetFD());
             }
 
             if (Event.GetWatchEvents() & QET_WRITE)
             {
                 m_FDArray[Index].events |= POLLOUT;
-                QLog::g_Log.WriteDebug("Poll: FD = %d add write event.", Event.GetFD());
+                QLog::g_Log.WriteDebug("poll: FD = %d add write event.", Event.GetFD());
             }
 
             if (m_FDMaxIndex <= Index)
             {
                 m_FDMaxIndex = Index + 1;
+                QLog::g_Log.WriteDebug("poll: FD max index = %d.", m_FDMaxIndex);
             }
 
             m_EventMap[Event.GetFD()].push_back(std::move(Event));
-            QLog::g_Log.WriteInfo("Poll: FD = %d add successed, FDMaxIndex = %d, event count = %d.",
-                Event.GetFD(),
-                m_FDMaxIndex,
-                static_cast<int>(m_EventMap.size()));
-
+            WriteAddLog(Event.GetFD());
             return true;
         }
     }
 
-    QLog::g_Log.WriteError("Poll: FD = %d add failed.", Event.GetFD());
+    QLog::g_Log.WriteError("%s: FD = %d watch events = %d add failed.",
+        m_BackendName.c_str(), Event.GetFD(), Event.GetWatchEvents());
     return false;
 }
 
 bool QPoll::DelEvent(const QEvent &Event)
 {
-    std::map<QEventFD, std::vector<QEvent>>::const_iterator it = m_EventMap.find(Event.GetFD());
-    if (it == m_EventMap.end())
+    if (!QBackend::DelEvent(Event))
     {
-        QLog::g_Log.WriteError("Poll: Can not find FD = %d.", Event.GetFD());
         return false;
     }
 
-    for (int Index = 0; Index < FD_SETSIZE; Index++)
+    std::map<QEventFD, std::vector<QEvent>>::iterator MapIt = m_EventMap.find(Event.GetFD());
+    if (MapIt == m_EventMap.end())
     {
-        if (m_FDArray[Index].fd == Event.GetFD())
+        for (int Index = 0; Index < FD_SETSIZE; Index++)
         {
-            m_FDArray[Index].fd = -1;
-            m_FDArray[Index].events = 0;
-            m_FDArray[Index].revents = 0;
+            if (m_FDArray[Index].fd == Event.GetFD())
+            {
+                int LastIndex = m_FDMaxIndex - 1;
+                if (LastIndex == Index)
+                {
+                    m_FDArray[Index].fd = -1;
+                    m_FDArray[Index].events = 0;
+                    m_FDArray[Index].revents = 0;
 
-            m_EventMap.erase(it);
-            QLog::g_Log.WriteInfo("Poll: FD = %d delete successed, FDMaxIndex = %d, event count = %d.",
-                Event.GetFD(),
-                m_FDMaxIndex,
-                static_cast<int>(m_EventMap.size()));
+                    m_FDMaxIndex = Index;
+                }
+                else
+                {
+                    m_FDArray[Index].fd = m_FDArray[LastIndex].fd;
+                    m_FDArray[Index].events = m_FDArray[LastIndex].events;
+                    m_FDArray[Index].revents = m_FDArray[LastIndex].revents;
 
-            return true;
+                    m_FDArray[LastIndex].fd = -1;
+                    m_FDArray[LastIndex].events = 0;
+                    m_FDArray[LastIndex].revents = 0;
+
+                    m_FDMaxIndex = LastIndex;
+                }
+
+                QLog::g_Log.WriteDebug("poll: FD max index = %d after deleted.", m_FDMaxIndex);
+                WriteDelLog(Event.GetFD());
+                return true;
+            }
+        }
+    }
+    else
+    {
+        for (int Index = 0; Index < FD_SETSIZE; Index++)
+        {
+            if (m_FDArray[Index].fd == Event.GetFD())
+            {
+                m_FDArray[Index].events = 0;
+
+                for (std::vector<QEvent>::iterator VecIt = MapIt->second.begin(); VecIt != MapIt->second.end(); VecIt++)
+                {
+                    if (VecIt->GetWatchEvents() & QET_READ)
+                    {
+                        m_FDArray[Index].events |= POLLIN;
+                    }
+
+                    if (VecIt->GetWatchEvents() & QET_WRITE)
+                    {
+                        m_FDArray[Index].events |= POLLOUT;
+                    }
+                }
+
+                QLog::g_Log.WriteDebug("poll: FD max index = %d after deleted.", m_FDMaxIndex);
+                WriteDelLog(Event.GetFD());
+                return true;
+            }
         }
     }
 
-    QLog::g_Log.WriteError("Poll: FD = %d delete failed.", Event.GetFD());
+    QLog::g_Log.WriteError("%s: FD = %d watch events = %d deleted failed.",
+        m_BackendName.c_str(), Event.GetFD(), Event.GetWatchEvents());
     return false;
 }
 
@@ -97,11 +144,11 @@ bool QPoll::Dispatch(struct timeval *tv)
     QLog::g_Log.WriteDebug("poll: start...");
     int timeout = static_cast<int>(QMinHeap::ConvertToMillisecond(tv));
     int Result = poll(m_FDArray, m_FDMaxIndex, timeout);
-    QLog::g_Log.WriteDebug("Select: stop, result = %d.", Result);
+    QLog::g_Log.WriteDebug("poll: stop, result = %d.", Result);
 
     if (Result < 0)
     {
-        QLog::g_Log.WriteError("Poll error : %s", strerror(errno));
+        QLog::g_Log.WriteError("poll error : %s", strerror(errno));
         m_IsStop = true;
         return false;
     }
