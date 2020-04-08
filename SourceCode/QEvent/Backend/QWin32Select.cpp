@@ -22,19 +22,16 @@ bool QWin32Select::AddEvent(const QEvent &Event)
         return false;
     }
 
-    if (Event.GetFD() >= 0)
+    if (Event.GetWatchEvents() & QET_READ)
     {
-        if (Event.GetWatchEvents() & QET_READ)
-        {
-            FD_SET(Event.GetFD(), &m_ReadSetIn);
-            QLog::g_Log.WriteDebug("win32select: FD = %d add read event.", Event.GetFD());
-        }
+        FD_SET(Event.GetFD(), &m_ReadSetIn);
+        QLog::g_Log.WriteDebug("win32select: FD = %d add read event.", Event.GetFD());
+    }
 
-        if (Event.GetWatchEvents() & QET_WRITE)
-        {
-            FD_SET(Event.GetFD(), &m_WriteSetIn);
-            QLog::g_Log.WriteDebug("win32select: FD = %d add write event.", Event.GetFD());
-        }
+    if (Event.GetWatchEvents() & QET_WRITE)
+    {
+        FD_SET(Event.GetFD(), &m_WriteSetIn);
+        QLog::g_Log.WriteDebug("win32select: FD = %d add write event.", Event.GetFD());
     }
 
     m_EventMap[Event.GetFD()].push_back(std::move(Event));

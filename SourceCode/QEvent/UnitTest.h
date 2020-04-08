@@ -13,14 +13,16 @@ public:
 
     int SingleTimerTest();
     int MultiTimerTest();
-    int AddAndDelEventTest();
+
+    int AddAndDeleteSocketEvent();
 
 private:
 
     void CallBack_TimeOut1(const QEvent &Event);
+    void CallBack_TimeOut2(const QEvent &Event);
 
     void CallBack_AddEvent1(const QEvent &Event);
-    void CallBack_AddEvent3(const QEvent &Event);
+    void CallBack_AddEvent2(const QEvent &Event);
 
 private:
 
