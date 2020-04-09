@@ -11,9 +11,7 @@ public:
     UnitTest();
     ~UnitTest();
 
-    int SingleTimerTest();
-    int MultiTimerTest();
-
+    int AddAndDeleteTimer();
     int AddAndDeleteIOEvent();
 
 private:

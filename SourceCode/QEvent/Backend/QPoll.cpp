@@ -28,6 +28,13 @@ bool QPoll::AddEvent(const QEvent &Event)
         return false;
     }
 
+    if (Event.GetEvents() & QET_TIMEOUT)
+    {
+        m_EventMap[m_TimerFD].push_back(std::move(Event));
+        WriteEventOperationLog(m_TimerFD, Event.GetFD(), QEO_ADD);
+        return true;
+    }
+
     for (int Index = 0; Index < FD_SETSIZE; Index++)
     {
         if (m_FDArray[Index].fd < 0 || m_FDArray[Index].fd == Event.GetFD())
@@ -56,7 +63,7 @@ bool QPoll::AddEvent(const QEvent &Event)
             }
 
             m_EventMap[Event.GetFD()].push_back(std::move(Event));
-            WriteEventOperationLog(Event.GetFD(), OP);
+            WriteEventOperationLog(Event.GetFD(), Event.GetFD(), OP);
             return true;
         }
     }
@@ -71,6 +78,12 @@ bool QPoll::DelEvent(const QEvent &Event)
     if (!QBackend::DelEvent(Event))
     {
         return false;
+    }
+
+    if (Event.GetEvents() & QET_TIMEOUT)
+    {
+        WriteEventOperationLog(m_TimerFD, Event.GetFD(), QEO_DEL);
+        return true;
     }
 
     std::map<QEventFD, std::vector<QEvent>>::iterator MapIt = m_EventMap.find(Event.GetFD());
@@ -103,7 +116,7 @@ bool QPoll::DelEvent(const QEvent &Event)
                 }
 
                 QLog::g_Log.WriteDebug("poll: FD max index = %d after deleted.", m_FDMaxIndex);
-                WriteEventOperationLog(Event.GetFD(), QEO_DEL);
+                WriteEventOperationLog(Event.GetFD(), Event.GetFD(), QEO_DEL);
                 return true;
             }
         }
@@ -130,7 +143,7 @@ bool QPoll::DelEvent(const QEvent &Event)
                 }
 
                 QLog::g_Log.WriteDebug("poll: FD max index = %d after modify.", m_FDMaxIndex);
-                WriteEventOperationLog(Event.GetFD(), QEO_MOD);
+                WriteEventOperationLog(Event.GetFD(), Event.GetFD(), QEO_MOD);
                 return true;
             }
         }

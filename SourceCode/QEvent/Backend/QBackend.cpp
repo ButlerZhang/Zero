@@ -42,7 +42,8 @@ bool QBackend::AddEvent(const QEvent &Event)
 
 bool QBackend::DelEvent(const QEvent &Event)
 {
-    std::map<QEventFD, std::vector<QEvent>>::iterator MapIt = m_EventMap.find(Event.GetFD());
+    QEventFD FindFD = GetTargetFD(Event);
+    std::map<QEventFD, std::vector<QEvent>>::iterator MapIt = m_EventMap.find(FindFD);
     if (MapIt == m_EventMap.end())
     {
         QLog::g_Log.WriteError("%s: Delete event FD = %d failed, can not find FD.",
@@ -62,8 +63,8 @@ bool QBackend::DelEvent(const QEvent &Event)
 
     if (TargetVecIt == MapIt->second.end())
     {
-        QLog::g_Log.WriteError("%s: Delete event FD = %d failed, can not match watch events = %d.",
-            m_BackendName.c_str(), Event.GetFD(), Event.GetEvents());
+        QLog::g_Log.WriteError("%s: Delete event FD = %d failed, can not match.",
+            m_BackendName.c_str(), Event.GetFD());
         return false;
     }
 
@@ -89,7 +90,8 @@ bool QBackend::AddToMinHeap(const QEvent &Event)
 
 bool QBackend::IsExisted(const QEvent &Event) const
 {
-    std::map<QEventFD, std::vector<QEvent>>::const_iterator MapIt= m_EventMap.find(Event.GetFD());
+    QEventFD FindFD = GetTargetFD(Event);
+    std::map<QEventFD, std::vector<QEvent>>::const_iterator MapIt = m_EventMap.find(FindFD);
     if (MapIt == m_EventMap.end())
     {
         return false;
@@ -104,6 +106,21 @@ bool QBackend::IsExisted(const QEvent &Event) const
     }
 
     return false;
+}
+
+QEventFD QBackend::GetTargetFD(const QEvent &Event) const
+{
+    if (Event.GetEvents() & QET_TIMEOUT)
+    {
+        return m_TimerFD;
+    }
+
+    if (Event.GetEvents() & QET_SIGNAL)
+    {
+        //TODO
+    }
+
+    return Event.GetFD();
 }
 
 void QBackend::ActiveEvent(QEventFD FD, int ResultEvents)
@@ -122,7 +139,7 @@ void QBackend::ActiveEvent(QEventFD FD, int ResultEvents)
     }
 }
 
-void QBackend::WriteEventOperationLog(QEventFD FD, QEventOption OP)
+void QBackend::WriteEventOperationLog(QEventFD MapIndex, QEventFD FD, QEventOption OP)
 {
     int EventCount = 0;
     int FDCount = static_cast<int>(m_EventMap.size());
@@ -133,6 +150,6 @@ void QBackend::WriteEventOperationLog(QEventFD FD, QEventOption OP)
         EventCount += static_cast<int>((it++)->second.size());
     }
 
-    QLog::g_Log.WriteDebug("%s: FD = %d, OP = %s, FD Count = %d, Event Count = %d.",
-        m_BackendName.c_str(), FD, GetEventOptionString(OP), FDCount, EventCount);
+    QLog::g_Log.WriteDebug("%s: MapIndex = %d, FD = %d, OP = %s, FD Count = %d, Event Count = %d.",
+        m_BackendName.c_str(), MapIndex, FD, GetEventOptionString(OP), FDCount, EventCount);
 }

@@ -28,8 +28,9 @@ public:
 
 protected:
 
+    QEventFD GetTargetFD(const QEvent &Event) const;
     void ActiveEvent(QEventFD FD, int ResultEvents);
-    void WriteEventOperationLog(QEventFD FD, QEventOption OP);
+    void WriteEventOperationLog(QEventFD MapIndex, QEventFD FD, QEventOption OP);
 
 protected:
 

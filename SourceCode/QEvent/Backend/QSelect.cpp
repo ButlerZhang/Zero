@@ -24,6 +24,13 @@ bool QSelect::AddEvent(const QEvent &Event)
         return false;
     }
 
+    if (Event.GetEvents() & QET_TIMEOUT)
+    {
+        m_EventMap[m_TimerFD].push_back(std::move(Event));
+        WriteEventOperationLog(m_TimerFD, Event.GetFD(), QEO_ADD);
+        return true;
+    }
+
     if (Event.GetEvents() & QET_READ)
     {
         FD_SET(Event.GetFD(), &m_ReadSetIn);
@@ -43,7 +50,7 @@ bool QSelect::AddEvent(const QEvent &Event)
     }
 
     m_EventMap[Event.GetFD()].push_back(std::move(Event));
-    WriteEventOperationLog(Event.GetFD(), QEO_ADD);
+    WriteEventOperationLog(Event.GetFD(), Event.GetFD(), QEO_ADD);
     return true;
 }
 
@@ -52,6 +59,12 @@ bool QSelect::DelEvent(const QEvent &Event)
     if (!QBackend::DelEvent(Event))
     {
         return false;
+    }
+
+    if (Event.GetEvents() & QET_TIMEOUT)
+    {
+        WriteEventOperationLog(m_TimerFD, Event.GetFD(), QEO_DEL);
+        return true;
     }
 
     FD_CLR(Event.GetFD(), &m_ReadSetIn);
@@ -87,7 +100,7 @@ bool QSelect::DelEvent(const QEvent &Event)
     }
 
     QLog::g_Log.WriteDebug("select: Highest event FD = %d.", m_HighestEventFD);
-    WriteEventOperationLog(Event.GetFD(), OP);
+    WriteEventOperationLog(Event.GetFD(), Event.GetFD(), OP);
     return true;
 }
 

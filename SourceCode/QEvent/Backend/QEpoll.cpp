@@ -27,56 +27,61 @@ bool QEpoll::AddEvent(const QEvent &Event)
         return false;
     }
 
-    int EpollOP = EPOLL_CTL_ADD;
-    if (Event.GetFD() >= 0)
+    if (Event.GetEvents() & QET_TIMEOUT)
     {
-        epoll_event NewEpollEvent;
-        memset(&NewEpollEvent, 0, sizeof(epoll_event));
+        m_EventMap[m_TimerFD].push_back(std::move(Event));
+        WriteEventOperationLog(m_TimerFD, Event.GetFD(), QEO_ADD);
+        return true;
+    }
 
-        NewEpollEvent.events |= EPOLLET;
-        NewEpollEvent.data.fd = Event.GetFD();
+    epoll_event NewEpollEvent;
+    memset(&NewEpollEvent, 0, sizeof(epoll_event));
 
-        int WatchEvents = Event.GetEvents();
-        std::map<QEventFD, std::vector<QEvent>>::iterator MapIt = m_EventMap.find(Event.GetFD());
-        if (MapIt != m_EventMap.end())
+    NewEpollEvent.events |= EPOLLET;
+    NewEpollEvent.data.fd = Event.GetFD();
+
+    int EpollOP = EPOLL_CTL_ADD;
+    int WatchEvents = Event.GetEvents();
+
+    std::map<QEventFD, std::vector<QEvent>>::iterator MapIt = m_EventMap.find(Event.GetFD());
+    if (MapIt != m_EventMap.end())
+    {
+        for (std::vector<QEvent>::iterator VecIt = MapIt->second.begin(); VecIt != MapIt->second.end(); VecIt++)
         {
-            for (std::vector<QEvent>::iterator VecIt = MapIt->second.begin(); VecIt != MapIt->second.end(); VecIt++)
+            EpollOP = EPOLL_CTL_MOD;
+            if (VecIt->GetEvents() & QET_READ)
             {
-                EpollOP = EPOLL_CTL_MOD;
-                if (VecIt->GetEvents() & QET_READ)
-                {
-                    WatchEvents |= QET_READ;
-                }
-
-                if (VecIt->GetEvents() & QET_WRITE)
-                {
-                    WatchEvents |= QET_WRITE;
-                }
+                WatchEvents |= QET_READ;
             }
-        }
 
-        if (WatchEvents & QET_READ)
-        {
-            NewEpollEvent.events |= EPOLLIN;
-            QLog::g_Log.WriteDebug("epoll: FD = %d add read event.", Event.GetFD());
-        }
-
-        if (WatchEvents & QET_WRITE)
-        {
-            NewEpollEvent.events |= EPOLLOUT;
-            QLog::g_Log.WriteDebug("epoll: FD = %d add write event.", Event.GetFD());
-        }
-
-        if (epoll_ctl(m_EpollFD, EpollOP, Event.GetFD(), &NewEpollEvent) != 0)
-        {
-            QLog::g_Log.WriteError("epoll: FD = %d op = %d failed, errno = %d, errstr = %s.",
-                Event.GetFD(), EpollOP, errno, strerror(errno));
-            return false;
+            if (VecIt->GetEvents() & QET_WRITE)
+            {
+                WatchEvents |= QET_WRITE;
+            }
         }
     }
 
+    if (WatchEvents & QET_READ)
+    {
+        NewEpollEvent.events |= EPOLLIN;
+        QLog::g_Log.WriteDebug("epoll: FD = %d add read event.", Event.GetFD());
+    }
+
+    if (WatchEvents & QET_WRITE)
+    {
+        NewEpollEvent.events |= EPOLLOUT;
+        QLog::g_Log.WriteDebug("epoll: FD = %d add write event.", Event.GetFD());
+    }
+
+    if (epoll_ctl(m_EpollFD, EpollOP, Event.GetFD(), &NewEpollEvent) != 0)
+    {
+        QLog::g_Log.WriteError("epoll: FD = %d op = %d failed, errno = %d, errstr = %s.",
+            Event.GetFD(), EpollOP, errno, strerror(errno));
+        return false;
+    }
+
     m_EventMap[Event.GetFD()].push_back(std::move(Event));
-    WriteEventOperationLog(Event.GetFD(), static_cast<QEventOption>(EpollOP));
+    WriteEventOperationLog(Event.GetFD(), Event.GetFD(), static_cast<QEventOption>(EpollOP));
     return true;
 }
 
@@ -85,6 +90,12 @@ bool QEpoll::DelEvent(const QEvent &Event)
     if (!QBackend::DelEvent(Event))
     {
         return false;
+    }
+
+    if (Event.GetEvents() & QET_TIMEOUT)
+    {
+        WriteEventOperationLog(m_TimerFD, Event.GetFD(), QEO_DEL);
+        return true;
     }
 
     epoll_event DelEpollEvent;
@@ -118,7 +129,7 @@ bool QEpoll::DelEvent(const QEvent &Event)
         return false;
     }
 
-    WriteEventOperationLog(Event.GetFD(), static_cast<QEventOption>(EpollOP));
+    WriteEventOperationLog(Event.GetFD(), Event.GetFD(), static_cast<QEventOption>(EpollOP));
     return true;
 }
 
