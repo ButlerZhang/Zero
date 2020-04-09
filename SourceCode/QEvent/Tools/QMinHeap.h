@@ -1,11 +1,8 @@
 #pragma once
-#include <vector>
+#include "../Event/QEvent.h"
+#include "QTime.h"
 
-#ifdef _WIN32
-#include <WinSock2.h>
-#else
-#include <sys/time.h>
-#endif // _WIN32
+#include <vector>
 
 
 
@@ -15,7 +12,13 @@ private:
 
     struct HeapNode
     {
-        struct timeval m_tv;
+        std::size_t         m_MapVectorIndex;
+        long                m_Milliseconds;
+        QEventFD            m_MapKey;
+        struct timeval      m_TimeOut;
+
+        HeapNode();
+        bool operator<(const HeapNode &Right);
     };
 
 public:
@@ -23,11 +26,14 @@ public:
     QMinHeap();
     ~QMinHeap();
 
-    bool AddTime(const timeval &tv);
+    bool AddTimeOut(const timeval &tv);
+    bool AddTimeOut(const QEvent &Event, QEventFD MapKey, std::size_t VectorIndex);
 
     timeval Pop();
 
-    static long ConvertToMillisecond(const timeval *tv);
+private:
+
+    bool AddHeapNode(HeapNode &NewNode);
 
 private:
 

@@ -29,13 +29,7 @@ QReactor::~QReactor()
 
 bool QReactor::AddEvent(const QEvent &Event)
 {
-    if (!m_Backend->AddEvent(Event))
-    {
-        return false;
-    }
-
-    m_Backend->AddToMinHeap(Event);
-    return true;
+    return m_Backend->AddEvent(Event);
 }
 
 bool QReactor::DelEvent(const QEvent &Event)
@@ -47,7 +41,7 @@ bool QReactor::Dispatch(struct timeval *tv)
 {
     if (tv != nullptr)
     {
-        m_Backend->GetMinHeap().AddTime(*tv);
+        m_Backend->GetMinHeap().AddTimeOut(*tv);
     }
 
     while (!m_Backend->IsStop())

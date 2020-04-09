@@ -69,6 +69,9 @@
     <ClInclude Include="..\QEvent\Event\QEventEnum.h">
       <Filter>Event</Filter>
     </ClInclude>
+    <ClInclude Include="..\QEvent\Tools\QTime.h">
+      <Filter>Tools</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\QEvent\main.cpp">
@@ -106,6 +109,9 @@
     </ClCompile>
     <ClCompile Include="..\QEvent\Event\QEventEnum.cpp">
       <Filter>Event</Filter>
+    </ClCompile>
+    <ClCompile Include="..\QEvent\Tools\QTime.cpp">
+      <Filter>Tools</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

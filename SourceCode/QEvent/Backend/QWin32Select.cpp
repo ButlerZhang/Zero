@@ -26,6 +26,7 @@ bool QWin32Select::AddEvent(const QEvent &Event)
     {
         m_EventMap[m_TimerFD].push_back(std::move(Event));
         WriteEventOperationLog(m_TimerFD, Event.GetFD(), QEO_ADD);
+        m_MinHeap.AddTimeOut(Event, m_TimerFD, m_EventMap[m_TimerFD].size() - 1);
         return true;
     }
 
@@ -43,6 +44,7 @@ bool QWin32Select::AddEvent(const QEvent &Event)
 
     m_EventMap[Event.GetFD()].push_back(std::move(Event));
     WriteEventOperationLog(Event.GetFD(), Event.GetFD(), QEO_ADD);
+    m_MinHeap.AddTimeOut(Event, Event.GetFD(), m_EventMap[Event.GetFD()].size() - 1);
     return true;
 }
 
@@ -130,18 +132,14 @@ bool QWin32Select::UseSleepSimulateSelect(struct timeval *tv)
         return false;
     }
 
-    long SleepTime = QMinHeap::ConvertToMillisecond(tv);
+    long SleepTime = QTime::ConvertToMillisecond(tv);
     if (SleepTime < 0)
     {
         SleepTime = LONG_MAX;
     }
 
     Sleep(SleepTime);
-
-    if (m_EventMap.find(m_TimerFD) != m_EventMap.end())
-    {
-        m_EventMap[m_TimerFD][0].CallBack();
-    }
+    ProcessTimeOut();
 
     return true;
 }

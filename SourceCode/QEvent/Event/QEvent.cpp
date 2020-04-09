@@ -46,7 +46,7 @@ void QEvent::CallBack()
     }
 }
 
-bool QEvent::IsEventsValid() const
+bool QEvent::IsEventValid() const
 {
     if (m_Events == 0)
     {
@@ -55,6 +55,11 @@ bool QEvent::IsEventsValid() const
 
     if (m_Events & QET_TIMEOUT)
     {
+        if (m_TimeOut.tv_sec < 0 && m_TimeOut.tv_usec < 0)
+        {
+            return false;
+        }
+
         return !(m_Events & (QET_READ | QET_WRITE | QET_SIGNAL));
     }
 

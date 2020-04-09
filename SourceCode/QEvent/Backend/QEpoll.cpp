@@ -31,6 +31,7 @@ bool QEpoll::AddEvent(const QEvent &Event)
     {
         m_EventMap[m_TimerFD].push_back(std::move(Event));
         WriteEventOperationLog(m_TimerFD, Event.GetFD(), QEO_ADD);
+        m_MinHeap.AddTimeOut(Event, m_TimerFD, m_EventMap[m_TimerFD].size() - 1);
         return true;
     }
 
@@ -82,6 +83,7 @@ bool QEpoll::AddEvent(const QEvent &Event)
 
     m_EventMap[Event.GetFD()].push_back(std::move(Event));
     WriteEventOperationLog(Event.GetFD(), Event.GetFD(), static_cast<QEventOption>(EpollOP));
+    m_MinHeap.AddTimeOut(Event, Event.GetFD(), m_EventMap[Event.GetFD()].size() - 1);
     return true;
 }
 
@@ -136,7 +138,7 @@ bool QEpoll::DelEvent(const QEvent &Event)
 bool QEpoll::Dispatch(struct timeval *tv)
 {
     QLog::g_Log.WriteDebug("epoll: start...");
-    int timeout = static_cast<int>(QMinHeap::ConvertToMillisecond(tv));
+    int timeout = static_cast<int>(QTime::ConvertToMillisecond(tv));
     int ActiveEventCount = epoll_wait(m_EpollFD, m_EventArray, FD_SETSIZE, timeout);
     QLog::g_Log.WriteDebug("epoll: stop, active event count = %d.", ActiveEventCount);
 
@@ -149,10 +151,7 @@ bool QEpoll::Dispatch(struct timeval *tv)
 
     if (ActiveEventCount == 0)
     {
-        if (m_EventMap.find(m_TimerFD) != m_EventMap.end())
-        {
-            m_EventMap[m_TimerFD][0].CallBack();
-        }
+        ProcessTimeOut();
     }
     else
     {

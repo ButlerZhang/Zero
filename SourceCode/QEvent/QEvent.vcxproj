@@ -76,6 +76,7 @@
     <ClInclude Include="Network\QNetwork.h" />
     <ClInclude Include="QLibBase.h" />
     <ClInclude Include="ServerTest.h" />
+    <ClInclude Include="Tools\QTime.h" />
     <ClInclude Include="UnitTest.h" />
     <ClInclude Include="Tools\QMinHeap.h" />
   </ItemGroup>
@@ -92,6 +93,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Network\QNetwork.cpp" />
     <ClCompile Include="ServerTest.cpp" />
+    <ClCompile Include="Tools\QTime.cpp" />
     <ClCompile Include="UnitTest.cpp" />
     <ClCompile Include="Tools\QMinHeap.cpp" />
   </ItemGroup>

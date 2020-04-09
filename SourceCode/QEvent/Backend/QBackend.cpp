@@ -23,7 +23,7 @@ QBackend::~QBackend()
 
 bool QBackend::AddEvent(const QEvent &Event)
 {
-    if (!Event.IsEventsValid())
+    if (!Event.IsEventValid())
     {
         QLog::g_Log.WriteError("%s: Add event FD = %d failed, events = %d is not valid.",
             m_BackendName.c_str(), Event.GetFD(), Event.GetEvents());
@@ -77,17 +77,6 @@ bool QBackend::DelEvent(const QEvent &Event)
     return true;
 }
 
-bool QBackend::AddToMinHeap(const QEvent &Event)
-{
-    if (Event.GetTimeOut().tv_sec > 0 || Event.GetTimeOut().tv_usec > 0)
-    {
-        m_MinHeap.AddTime(Event.GetTimeOut());
-        return true;
-    }
-
-    return false;
-}
-
 bool QBackend::IsExisted(const QEvent &Event) const
 {
     QEventFD FindFD = GetTargetFD(Event);
@@ -106,6 +95,14 @@ bool QBackend::IsExisted(const QEvent &Event) const
     }
 
     return false;
+}
+
+void QBackend::ProcessTimeOut()
+{
+    if (m_EventMap.find(m_TimerFD) != m_EventMap.end())
+    {
+        m_EventMap[m_TimerFD][0].CallBack();
+    }
 }
 
 QEventFD QBackend::GetTargetFD(const QEvent &Event) const
@@ -139,7 +136,7 @@ void QBackend::ActiveEvent(QEventFD FD, int ResultEvents)
     }
 }
 
-void QBackend::WriteEventOperationLog(QEventFD MapIndex, QEventFD FD, QEventOption OP)
+void QBackend::WriteEventOperationLog(QEventFD MapKey, QEventFD FD, QEventOption OP)
 {
     int EventCount = 0;
     int FDCount = static_cast<int>(m_EventMap.size());
@@ -150,6 +147,6 @@ void QBackend::WriteEventOperationLog(QEventFD MapIndex, QEventFD FD, QEventOpti
         EventCount += static_cast<int>((it++)->second.size());
     }
 
-    QLog::g_Log.WriteDebug("%s: MapIndex = %d, FD = %d, OP = %s, FD Count = %d, Event Count = %d.",
-        m_BackendName.c_str(), MapIndex, FD, GetEventOptionString(OP), FDCount, EventCount);
+    QLog::g_Log.WriteDebug("%s: MapKey = %d, FD = %d, OP = %s, FD Count = %d, Event Count = %d.",
+        m_BackendName.c_str(), MapKey, FD, GetEventOptionString(OP), FDCount, EventCount);
 }

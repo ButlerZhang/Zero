@@ -19,7 +19,6 @@ public:
     virtual bool DelEvent(const QEvent &Event);
     virtual bool Dispatch(struct timeval *tv)  = 0;
 
-    bool AddToMinHeap(const QEvent &Event);
     bool IsExisted(const QEvent &Event) const;
 
     inline bool IsStop() const { return m_IsStop; }
@@ -28,9 +27,10 @@ public:
 
 protected:
 
+    void ProcessTimeOut();
     QEventFD GetTargetFD(const QEvent &Event) const;
     void ActiveEvent(QEventFD FD, int ResultEvents);
-    void WriteEventOperationLog(QEventFD MapIndex, QEventFD FD, QEventOption OP);
+    void WriteEventOperationLog(QEventFD MapKey, QEventFD FD, QEventOption OP);
 
 protected:
 

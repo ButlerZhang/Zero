@@ -32,6 +32,7 @@ bool QPoll::AddEvent(const QEvent &Event)
     {
         m_EventMap[m_TimerFD].push_back(std::move(Event));
         WriteEventOperationLog(m_TimerFD, Event.GetFD(), QEO_ADD);
+        m_MinHeap.AddTimeOut(Event, m_TimerFD, m_EventMap[m_TimerFD].size() - 1);
         return true;
     }
 
@@ -64,6 +65,7 @@ bool QPoll::AddEvent(const QEvent &Event)
 
             m_EventMap[Event.GetFD()].push_back(std::move(Event));
             WriteEventOperationLog(Event.GetFD(), Event.GetFD(), OP);
+            m_MinHeap.AddTimeOut(Event, Event.GetFD(), m_EventMap[Event.GetFD()].size() - 1);
             return true;
         }
     }
@@ -157,7 +159,7 @@ bool QPoll::DelEvent(const QEvent &Event)
 bool QPoll::Dispatch(struct timeval *tv)
 {
     QLog::g_Log.WriteDebug("poll: start...");
-    int timeout = static_cast<int>(QMinHeap::ConvertToMillisecond(tv));
+    int timeout = static_cast<int>(QTime::ConvertToMillisecond(tv));
     int Result = poll(m_FDArray, m_FDMaxIndex, timeout);
     QLog::g_Log.WriteDebug("poll: stop, result = %d.", Result);
 
@@ -170,10 +172,7 @@ bool QPoll::Dispatch(struct timeval *tv)
 
     if (Result == 0)
     {
-        if (m_EventMap.find(m_TimerFD) != m_EventMap.end())
-        {
-            m_EventMap[m_TimerFD][0].CallBack();
-        }
+        ProcessTimeOut();
     }
     else
     {

@@ -25,7 +25,7 @@ int UnitTest::AddAndDeleteTimer()
 
     QLog::g_Log.WriteDebug("=====Add timer=====");
     QEvent Timer(TimerFD, QET_TIMEOUT);
-    assert(m_Reactor.AddEvent(Timer) == true);
+    assert(m_Reactor.AddEvent(Timer) == false);
 
     QLog::g_Log.WriteDebug("=====Add timer again=====");
     assert(m_Reactor.AddEvent(Timer) == false);
@@ -64,9 +64,6 @@ int UnitTest::AddAndDeleteTimer()
 
     //////////////////////////////////////////////////////////////////////
     //test delete
-
-    QLog::g_Log.WriteDebug("=====Delete existed timer=====");
-    assert(m_Reactor.DelEvent(Timer) == true);
 
     QLog::g_Log.WriteDebug("=====Delete not existed timer=====");
     assert(m_Reactor.DelEvent(Timer) == false);
