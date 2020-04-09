@@ -33,9 +33,11 @@ int UnitTest::MultiTimerTest()
 {
     QEventFD TimerFD = -1;
     QEventFD ChangeFD = -2;
+    timeval TimeOut = { 5, 0 };
 
     QLog::g_Log.WriteDebug("=====Add Event1=====");
     QEvent Event1(TimerFD, QET_TIMEOUT);
+    Event1.SetTimeOut(TimeOut);
     Event1.SetCallBack(std::bind(&UnitTest::CallBack_TimeOut1, this, std::placeholders::_1));
     bool Result = m_Reactor.AddEvent(Event1);
     assert(Result == true);
@@ -46,24 +48,28 @@ int UnitTest::MultiTimerTest()
 
     QLog::g_Log.WriteDebug("=====Different object but same context=====");
     QEvent Event2(TimerFD, QET_TIMEOUT);
+    Event2.SetTimeOut(TimeOut);
     Event2.SetCallBack(std::bind(&UnitTest::CallBack_TimeOut1, this, std::placeholders::_1));
     Result = m_Reactor.AddEvent(Event2);
     assert(Result == true);
 
     QLog::g_Log.WriteDebug("=====Different CallBackFunction=====");
     QEvent Event3(TimerFD, QET_TIMEOUT);
+    Event3.SetTimeOut(TimeOut);
     Event3.SetCallBack(std::bind(&UnitTest::CallBack_TimeOut2, this, std::placeholders::_1));
     Result = m_Reactor.AddEvent(Event3);
     assert(Result == true);
 
     QLog::g_Log.WriteDebug("=====Different WatchEvents=====");
     QEvent Event4(TimerFD, QET_TIMEOUT | QET_PERSIST);
+    Event4.SetTimeOut(TimeOut);
     Event4.SetCallBack(std::bind(&UnitTest::CallBack_TimeOut1, this, std::placeholders::_1));
     Result = m_Reactor.AddEvent(Event4);
     assert(Result == true);
 
     QLog::g_Log.WriteDebug("=====Different FD=====");
     QEvent Event5(ChangeFD, QET_TIMEOUT);
+    Event5.SetTimeOut(TimeOut);
     Event5.SetCallBack(std::bind(&UnitTest::CallBack_TimeOut1, this, std::placeholders::_1));
     Result = m_Reactor.AddEvent(Event5);
     assert(Result == true);

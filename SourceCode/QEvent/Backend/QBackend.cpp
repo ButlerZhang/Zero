@@ -23,7 +23,7 @@ QBackend::~QBackend()
 
 bool QBackend::AddEvent(const QEvent &Event)
 {
-    if (Event.GetWatchEvents() == 0)
+    if (Event.GetEvents() == 0)
     {
         QLog::g_Log.WriteError("%s: Add event FD = %d failed, watch events is 0.",
             m_BackendName.c_str(), Event.GetFD());
@@ -33,7 +33,7 @@ bool QBackend::AddEvent(const QEvent &Event)
     if (IsExisted(Event))
     {
         QLog::g_Log.WriteError("%s: Add event FD = %d, watch events = %d falied, exited.",
-            m_BackendName.c_str(), Event.GetFD(), Event.GetWatchEvents());
+            m_BackendName.c_str(), Event.GetFD(), Event.GetEvents());
         return false;
     }
 
@@ -63,7 +63,7 @@ bool QBackend::DelEvent(const QEvent &Event)
     if (TargetVecIt == MapIt->second.end())
     {
         QLog::g_Log.WriteError("%s: Delete event FD = %d failed, can not match watch events = %d.",
-            m_BackendName.c_str(), Event.GetFD(), Event.GetWatchEvents());
+            m_BackendName.c_str(), Event.GetFD(), Event.GetEvents());
         return false;
     }
 

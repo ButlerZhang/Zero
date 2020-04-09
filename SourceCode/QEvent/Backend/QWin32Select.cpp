@@ -22,13 +22,13 @@ bool QWin32Select::AddEvent(const QEvent &Event)
         return false;
     }
 
-    if (Event.GetWatchEvents() & QET_READ)
+    if (Event.GetEvents() & QET_READ)
     {
         FD_SET(Event.GetFD(), &m_ReadSetIn);
         QLog::g_Log.WriteDebug("win32select: FD = %d add read event.", Event.GetFD());
     }
 
-    if (Event.GetWatchEvents() & QET_WRITE)
+    if (Event.GetEvents() & QET_WRITE)
     {
         FD_SET(Event.GetFD(), &m_WriteSetIn);
         QLog::g_Log.WriteDebug("win32select: FD = %d add write event.", Event.GetFD());
@@ -56,12 +56,12 @@ bool QWin32Select::DelEvent(const QEvent &Event)
         OP = QEO_MOD;
         for (std::vector<QEvent>::iterator VecIt = MapIt->second.begin(); VecIt != MapIt->second.end(); VecIt++)
         {
-            if (VecIt->GetWatchEvents() & QET_READ)
+            if (VecIt->GetEvents() & QET_READ)
             {
                 FD_SET(VecIt->GetFD(), &m_ReadSetIn);
             }
 
-            if (VecIt->GetWatchEvents() & QET_WRITE)
+            if (VecIt->GetEvents() & QET_WRITE)
             {
                 FD_SET(VecIt->GetFD(), &m_WriteSetIn);
             }

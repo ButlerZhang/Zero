@@ -20,16 +20,13 @@ public:
     QEvent(QEventFD EventFD, int WatchEvents);
     virtual ~QEvent();
 
+    inline int GetEvents() const { return m_Events; }
     inline QEventFD GetFD() const { return m_EventFD; }
+    inline timeval GetTimeOut() const { return m_TimeOut; }
     inline void* GetExtendArg() const { return m_ExtendArg; }
-    inline int GetWatchEvents() const { return m_WatchEvents; }
-    inline int GetResultEvents() const { return m_ResultEvents; }
-    inline struct timeval GetTimeOut() const { return m_TimeOut; }
     inline std::shared_ptr<QBackend> GetBackend() const { return m_Backend; }
-    inline const CallBackFunction& GetCallBack() const { return m_CallBack; }
 
     inline void SetTimeOut(const timeval &TimeOut) { m_TimeOut = TimeOut; }
-    inline void SetResultEvents(int ResultEvents) { m_ResultEvents = ResultEvents; }
     inline void BindBackend(const std::shared_ptr<QBackend> &Backend) { m_Backend = Backend; }
 
     void CallBack();
@@ -38,13 +35,10 @@ public:
 
 protected:
 
-    int                                         m_WatchEvents;
-    int                                         m_ResultEvents;
-
+    int                                         m_Events;
+    QEventFD                                    m_EventFD;
+    timeval                                     m_TimeOut;
     void                                       *m_ExtendArg;
     CallBackFunction                            m_CallBack;
-
-    QEventFD                                    m_EventFD;
-    struct timeval                              m_TimeOut;
     std::shared_ptr<QBackend>                   m_Backend;
 };

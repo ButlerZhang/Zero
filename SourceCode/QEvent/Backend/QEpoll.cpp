@@ -36,19 +36,19 @@ bool QEpoll::AddEvent(const QEvent &Event)
         NewEpollEvent.events |= EPOLLET;
         NewEpollEvent.data.fd = Event.GetFD();
 
-        int WatchEvents = Event.GetWatchEvents();
+        int WatchEvents = Event.GetEvents();
         std::map<QEventFD, std::vector<QEvent>>::iterator MapIt = m_EventMap.find(Event.GetFD());
         if (MapIt != m_EventMap.end())
         {
             for (std::vector<QEvent>::iterator VecIt = MapIt->second.begin(); VecIt != MapIt->second.end(); VecIt++)
             {
                 EpollOP = EPOLL_CTL_MOD;
-                if (VecIt->GetWatchEvents() & QET_READ)
+                if (VecIt->GetEvents() & QET_READ)
                 {
                     WatchEvents |= QET_READ;
                 }
 
-                if (VecIt->GetWatchEvents() & QET_WRITE)
+                if (VecIt->GetEvents() & QET_WRITE)
                 {
                     WatchEvents |= QET_WRITE;
                 }
@@ -99,12 +99,12 @@ bool QEpoll::DelEvent(const QEvent &Event)
         for (std::vector<QEvent>::iterator VecIt = MapIt->second.begin(); VecIt != MapIt->second.end(); VecIt++)
         {
             EpollOP = EPOLL_CTL_MOD;
-            if (VecIt->GetWatchEvents() & QET_READ)
+            if (VecIt->GetEvents() & QET_READ)
             {
                 WatchEvents |= QET_READ;
             }
 
-            if (VecIt->GetWatchEvents() & QET_WRITE)
+            if (VecIt->GetEvents() & QET_WRITE)
             {
                 WatchEvents |= QET_WRITE;
             }

@@ -37,13 +37,13 @@ bool QPoll::AddEvent(const QEvent &Event)
             m_FDArray[Index].revents = 0;
             m_FDArray[Index].fd = Event.GetFD();
 
-            if (Event.GetWatchEvents() & QET_READ)
+            if (Event.GetEvents() & QET_READ)
             {
                 m_FDArray[Index].events |= POLLIN;
                 QLog::g_Log.WriteDebug("poll: FD = %d add read event.", Event.GetFD());
             }
 
-            if (Event.GetWatchEvents() & QET_WRITE)
+            if (Event.GetEvents() & QET_WRITE)
             {
                 m_FDArray[Index].events |= POLLOUT;
                 QLog::g_Log.WriteDebug("poll: FD = %d add write event.", Event.GetFD());
@@ -62,7 +62,7 @@ bool QPoll::AddEvent(const QEvent &Event)
     }
 
     QLog::g_Log.WriteError("%s: FD = %d watch events = %d add failed, no location.",
-        m_BackendName.c_str(), Event.GetFD(), Event.GetWatchEvents());
+        m_BackendName.c_str(), Event.GetFD(), Event.GetEvents());
     return false;
 }
 
@@ -118,12 +118,12 @@ bool QPoll::DelEvent(const QEvent &Event)
 
                 for (std::vector<QEvent>::iterator VecIt = MapIt->second.begin(); VecIt != MapIt->second.end(); VecIt++)
                 {
-                    if (VecIt->GetWatchEvents() & QET_READ)
+                    if (VecIt->GetEvents() & QET_READ)
                     {
                         m_FDArray[Index].events |= POLLIN;
                     }
 
-                    if (VecIt->GetWatchEvents() & QET_WRITE)
+                    if (VecIt->GetEvents() & QET_WRITE)
                     {
                         m_FDArray[Index].events |= POLLOUT;
                     }
@@ -137,7 +137,7 @@ bool QPoll::DelEvent(const QEvent &Event)
     }
 
     QLog::g_Log.WriteError("%s: FD = %d watch events = %d deleted failed, no location.",
-        m_BackendName.c_str(), Event.GetFD(), Event.GetWatchEvents());
+        m_BackendName.c_str(), Event.GetFD(), Event.GetEvents());
     return false;
 }
 

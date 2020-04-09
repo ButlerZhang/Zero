@@ -6,8 +6,7 @@
 QEvent::QEvent()
 {
     m_ExtendArg = NULL;
-    m_WatchEvents = 0;
-    m_ResultEvents = 0;
+    m_Events = 0;
     m_EventFD = -1;
     m_CallBack = nullptr;
     m_TimeOut.tv_sec = m_TimeOut.tv_usec = 0;
@@ -16,8 +15,7 @@ QEvent::QEvent()
 QEvent::QEvent(QEventFD EventFD, int WatchEvents)
 {
     m_ExtendArg = NULL;
-    m_WatchEvents = WatchEvents;
-    m_ResultEvents = 0;
+    m_Events = WatchEvents;
     m_EventFD = EventFD;
     m_CallBack = nullptr;
     m_TimeOut.tv_sec = m_TimeOut.tv_usec = 0;
@@ -43,7 +41,7 @@ void QEvent::CallBack()
 
 bool QEvent::IsEqual(const QEvent &Right) const
 {
-    return m_EventFD == Right.m_EventFD && m_WatchEvents == Right.m_WatchEvents;
+    return m_EventFD == Right.m_EventFD && m_Events == Right.m_Events;
 }
 
 void QEvent::SetCallBack(CallBackFunction CallBack, void *ExtendArg)
