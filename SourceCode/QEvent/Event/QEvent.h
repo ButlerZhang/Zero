@@ -17,7 +17,7 @@ class QEvent
 public:
 
     QEvent();
-    QEvent(QEventFD EventFD, int WatchEvents);
+    QEvent(QEventFD EventFD, int Events);
     virtual ~QEvent();
 
     inline int GetEvents() const { return m_Events; }
@@ -26,12 +26,13 @@ public:
     inline void* GetExtendArg() const { return m_ExtendArg; }
     inline std::shared_ptr<QBackend> GetBackend() const { return m_Backend; }
 
-    inline void SetTimeOut(const timeval &TimeOut) { m_TimeOut = TimeOut; }
-    inline void BindBackend(const std::shared_ptr<QBackend> &Backend) { m_Backend = Backend; }
+    void SetTimeOut(const timeval &TimeOut) { m_TimeOut = TimeOut; }
+    void SetCallBack(CallBackFunction CallBack, void *ExtendArg = nullptr);
+    void SetBackend(const std::shared_ptr<QBackend> &Backend) { m_Backend = Backend; }
 
     void CallBack();
+    bool IsEventsValid() const;
     bool IsEqual(const QEvent& Right) const;
-    void SetCallBack(CallBackFunction CallBack, void *ExtendArg = NULL);
 
 protected:
 

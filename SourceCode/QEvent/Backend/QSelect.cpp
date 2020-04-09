@@ -24,19 +24,16 @@ bool QSelect::AddEvent(const QEvent &Event)
         return false;
     }
 
-    if (Event.GetFD() >= 0)
+    if (Event.GetEvents() & QET_READ)
     {
-        if (Event.GetEvents() & QET_READ)
-        {
-            FD_SET(Event.GetFD(), &m_ReadSetIn);
-            QLog::g_Log.WriteDebug("select: FD = %d add read event.", Event.GetFD());
-        }
+        FD_SET(Event.GetFD(), &m_ReadSetIn);
+        QLog::g_Log.WriteDebug("select: FD = %d add read event.", Event.GetFD());
+    }
 
-        if (Event.GetEvents() & QET_WRITE)
-        {
-            FD_SET(Event.GetFD(), &m_WriteSetIn);
-            QLog::g_Log.WriteDebug("select: FD = %d add write event.", Event.GetFD());
-        }
+    if (Event.GetEvents() & QET_WRITE)
+    {
+        FD_SET(Event.GetFD(), &m_WriteSetIn);
+        QLog::g_Log.WriteDebug("select: FD = %d add write event.", Event.GetFD());
     }
 
     if (m_HighestEventFD <= Event.GetFD())

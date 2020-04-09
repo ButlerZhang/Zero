@@ -14,7 +14,7 @@ public:
     int SingleTimerTest();
     int MultiTimerTest();
 
-    int AddAndDeleteSocketEvent();
+    int AddAndDeleteIOEvent();
 
 private:
 

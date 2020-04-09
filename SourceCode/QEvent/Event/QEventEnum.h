@@ -9,7 +9,6 @@ enum QEventType
     QET_WRITE   = 0x04,
     QET_SIGNAL  = 0x08,
     QET_PERSIST = 0x10,
-    QET_ET      = 0x20
 };
 
 enum QEventOption

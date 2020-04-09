@@ -23,10 +23,10 @@ QBackend::~QBackend()
 
 bool QBackend::AddEvent(const QEvent &Event)
 {
-    if (Event.GetEvents() == 0)
+    if (!Event.IsEventsValid())
     {
-        QLog::g_Log.WriteError("%s: Add event FD = %d failed, watch events is 0.",
-            m_BackendName.c_str(), Event.GetFD());
+        QLog::g_Log.WriteError("%s: Add event FD = %d failed, events = %d is not valid.",
+            m_BackendName.c_str(), Event.GetFD(), Event.GetEvents());
         return false;
     }
 

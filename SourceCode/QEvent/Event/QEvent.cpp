@@ -5,24 +5,30 @@
 
 QEvent::QEvent()
 {
-    m_ExtendArg = NULL;
     m_Events = 0;
     m_EventFD = -1;
     m_CallBack = nullptr;
-    m_TimeOut.tv_sec = m_TimeOut.tv_usec = 0;
+    m_ExtendArg = nullptr;
+    m_TimeOut.tv_sec = m_TimeOut.tv_usec = -1;
 }
 
-QEvent::QEvent(QEventFD EventFD, int WatchEvents)
+QEvent::QEvent(QEventFD EventFD, int Events)
 {
-    m_ExtendArg = NULL;
-    m_Events = WatchEvents;
+    m_Events = Events;
     m_EventFD = EventFD;
     m_CallBack = nullptr;
-    m_TimeOut.tv_sec = m_TimeOut.tv_usec = 0;
+    m_ExtendArg = nullptr;
+    m_TimeOut.tv_sec = m_TimeOut.tv_usec = -1;
 }
 
 QEvent::~QEvent()
 {
+}
+
+void QEvent::SetCallBack(CallBackFunction CallBack, void *ExtendArg)
+{
+    m_ExtendArg = ExtendArg;
+    m_CallBack = std::move(CallBack);
 }
 
 void QEvent::CallBack()
@@ -35,20 +41,67 @@ void QEvent::CallBack()
     }
     else
     {
-        QLog::g_Log.WriteDebug("QEvent: call back is nullptr, FD = %d.", GetFD());
+        QLog::g_Log.WriteDebug("QEvent: CallBack is nullptr, FD = %d, events = %d.",
+            GetFD(), GetEvents());
     }
+}
+
+bool QEvent::IsEventsValid() const
+{
+    if (m_Events == 0)
+    {
+        return false;
+    }
+
+    if (m_Events & QET_TIMEOUT)
+    {
+        return !(m_Events & (QET_READ | QET_WRITE | QET_SIGNAL));
+    }
+
+    if (m_Events & (QET_READ | QET_WRITE))
+    {
+        return !(m_Events & (QET_TIMEOUT | QET_SIGNAL));
+    }
+
+    if (m_Events & QET_SIGNAL)
+    {
+        return !(m_Events & (QET_READ | QET_WRITE | QET_TIMEOUT));
+    }
+
+    return false;
 }
 
 bool QEvent::IsEqual(const QEvent &Right) const
 {
-    return m_EventFD == Right.m_EventFD && m_Events == Right.m_Events;
-}
-
-void QEvent::SetCallBack(CallBackFunction CallBack, void *ExtendArg)
-{
-    m_CallBack = std::move(CallBack);
-    if (ExtendArg != NULL)
+    if (Right.m_Events & QET_TIMEOUT)
     {
-        m_ExtendArg = ExtendArg;
+        return false;
     }
+
+    if (Right.m_Events & QET_SIGNAL)
+    {
+        return m_EventFD == Right.m_EventFD;
+    }
+
+    if (m_EventFD != Right.m_EventFD)
+    {
+        return false;
+    }
+
+    if ((m_Events & QET_READ) && (m_Events & QET_WRITE))
+    {
+        return (Right.m_Events & QET_READ) && (Right.m_Events & QET_WRITE);
+    }
+
+    if (m_Events & QET_READ)
+    {
+        return (Right.m_Events & QET_READ) && (!(Right.m_Events & QET_WRITE));
+    }
+
+    if (m_Events & QET_WRITE)
+    {
+        return (Right.m_Events & QET_WRITE) && (!(Right.m_Events & QET_READ));
+    }
+
+    return false;
 }
