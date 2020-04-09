@@ -8,7 +8,7 @@
 
 class QMinHeap
 {
-private:
+public:
 
     struct HeapNode
     {
@@ -18,6 +18,7 @@ private:
         struct timeval      m_TimeOut;
 
         HeapNode();
+        void SetTimeOut(const timeval &tv);
         bool operator<(const HeapNode &Right);
     };
 
@@ -29,11 +30,12 @@ public:
     bool AddTimeOut(const timeval &tv);
     bool AddTimeOut(const QEvent &Event, QEventFD MapKey, std::size_t VectorIndex);
 
-    timeval Pop();
+    bool AddHeapNode(const HeapNode &NewNode);
+    bool DelHeapNode(const HeapNode &OldNode);
 
-private:
+    timeval GetMinTimeOut() const;
 
-    bool AddHeapNode(HeapNode &NewNode);
+    const std::vector<HeapNode>& GetHeapArray() const { return m_HeapArray; }
 
 private:
 

@@ -99,9 +99,29 @@ bool QBackend::IsExisted(const QEvent &Event) const
 
 void QBackend::ProcessTimeOut()
 {
-    if (m_EventMap.find(m_TimerFD) != m_EventMap.end())
+    const std::vector<QMinHeap::HeapNode> &HeadVector = m_MinHeap.GetHeapArray();
+    if (HeadVector.empty())
     {
-        m_EventMap[m_TimerFD][0].CallBack();
+        return;
+    }
+
+    long MinMillisconds = HeadVector[0].m_Milliseconds;
+    for (std::vector<QMinHeap::HeapNode>::size_type Index = 0; Index < HeadVector.size(); Index++)
+    {
+        if (HeadVector[Index].m_Milliseconds > MinMillisconds)
+        {
+            return;
+        }
+
+        QEventFD MapKey = HeadVector[Index].m_MapKey;
+        if (m_EventMap.find(MapKey) != m_EventMap.end())
+        {
+            std::size_t VectorIndex = HeadVector[Index].m_MapVectorIndex;
+            if (VectorIndex >= 0 && VectorIndex < m_EventMap[MapKey].size())
+            {
+                m_EventMap[MapKey][VectorIndex].CallBack();
+            }
+        }
     }
 }
 

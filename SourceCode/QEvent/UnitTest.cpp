@@ -15,6 +15,47 @@ UnitTest::~UnitTest()
 {
 }
 
+int UnitTest::AddMultiTimer()
+{
+    QEventFD BaseFD = 0;
+    timeval TimeOut5 = { 5,0 };
+
+    QLog::g_Log.WriteDebug("=====Add 5 seoncds timer=====");
+    QEvent Timer5(BaseFD, QET_TIMEOUT);
+    Timer5.SetTimeOut(TimeOut5);
+    Timer5.SetCallBack(std::bind(&UnitTest::CallBack_TimeOut1, this, std::placeholders::_1));
+    assert(m_Reactor.AddEvent(Timer5) == true);
+
+    QLog::g_Log.WriteDebug("=====Add 5 seoncds timer again, persist=====");
+    QEvent Timer5Again(BaseFD + 1, QET_TIMEOUT | QET_PERSIST);
+    Timer5Again.SetTimeOut(TimeOut5);
+    Timer5Again.SetCallBack(std::bind(&UnitTest::CallBack_TimeOut2, this, std::placeholders::_1));
+    assert(m_Reactor.AddEvent(Timer5Again) == true);
+
+    QLog::g_Log.WriteDebug("=====Add 20 seoncds timer=====");
+    QEvent Timer20(BaseFD + 2, QET_TIMEOUT);
+    timeval TimeOut20 = { 20, 0 };
+    Timer20.SetTimeOut(TimeOut20);
+    Timer20.SetCallBack(std::bind(&UnitTest::CallBack_TimeOut3, this, std::placeholders::_1));
+    assert(m_Reactor.AddEvent(Timer20) == true);
+
+    QLog::g_Log.WriteDebug("=====Add 60 seoncds timer=====");
+    QEvent Timer60(BaseFD + 3, QET_TIMEOUT | QET_PERSIST);
+    timeval TimeOut60 = { 60, 0 };
+    Timer60.SetTimeOut(TimeOut60);
+    Timer60.SetCallBack(std::bind(&UnitTest::CallBack_TimeOut3, this, std::placeholders::_1));
+    assert(m_Reactor.AddEvent(Timer60) == true);
+
+    QLog::g_Log.WriteDebug("=====Add IO event=====");
+    QEvent IOEvent(1, QET_READ);
+    timeval TimeOut40 = { 40, 0 };
+    IOEvent.SetTimeOut(TimeOut40);
+    IOEvent.SetCallBack(std::bind(&UnitTest::CallBack_AddEvent1, this, std::placeholders::_1));
+    assert(m_Reactor.AddEvent(IOEvent) == true);
+
+    return m_Reactor.Dispatch();
+}
+
 int UnitTest::AddAndDeleteTimer()
 {
     QEventFD TimerFD = -1;
@@ -125,7 +166,7 @@ int UnitTest::AddAndDeleteIOEvent()
     assert(m_Reactor.AddEvent(ReadWritePersistEvent) == false);
 
     //////////////////////////////////////////////////////////////////////
-    //add TimeOut
+    //add TimeOut5
 
     QLog::g_Log.WriteDebug("=====Add read and timeout event=====");
     QEvent ReadTimeoutEvent(BaseFD, QET_READ | QET_TIMEOUT);
@@ -217,12 +258,22 @@ int UnitTest::AddAndDeleteIOEvent()
 
 void UnitTest::CallBack_TimeOut1(const QEvent & Event)
 {
-    QLog::g_Log.WriteInfo("CallBack_TimeOut1");
+    QLog::g_Log.WriteInfo("CallBack_TimeOut1 : 5 seconds");
 }
 
 void UnitTest::CallBack_TimeOut2(const QEvent & Event)
 {
-    QLog::g_Log.WriteInfo("CallBack_TimeOut2");
+    QLog::g_Log.WriteInfo("CallBack_TimeOut2: 5 seconds");
+}
+
+void UnitTest::CallBack_TimeOut3(const QEvent & Event)
+{
+    QLog::g_Log.WriteInfo("CallBack_TimeOut3: 20 seconds");
+}
+
+void UnitTest::CallBack_TimeOut4(const QEvent & Event)
+{
+    QLog::g_Log.WriteInfo("CallBack_TimeOut4: 60 seconds");
 }
 
 void UnitTest::CallBack_AddEvent1(const QEvent & Event)

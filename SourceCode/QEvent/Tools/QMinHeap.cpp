@@ -13,6 +13,12 @@ QMinHeap::HeapNode::HeapNode()
     QTime::ClearTimeval(m_TimeOut);
 }
 
+void QMinHeap::HeapNode::SetTimeOut(const timeval &tv)
+{
+    m_TimeOut = tv;
+    m_Milliseconds = QTime::ConvertToMillisecond(&m_TimeOut);
+}
+
 bool QMinHeap::HeapNode::operator<(const HeapNode &Right)
 {
     return m_Milliseconds < Right.m_Milliseconds;
@@ -29,7 +35,7 @@ QMinHeap::~QMinHeap()
 bool QMinHeap::AddTimeOut(const timeval &tv)
 {
     HeapNode NewNode;
-    NewNode.m_TimeOut = tv;
+    NewNode.SetTimeOut(tv);
     return AddHeapNode(NewNode);
 }
 
@@ -43,11 +49,11 @@ bool QMinHeap::AddTimeOut(const QEvent &Event, QEventFD MapKey, std::size_t Vect
     HeapNode NewNode;
     NewNode.m_MapKey = MapKey;
     NewNode.m_MapVectorIndex = VectorIndex;
-    NewNode.m_TimeOut = Event.GetTimeOut();
+    NewNode.SetTimeOut(Event.GetTimeOut());
     return AddHeapNode(NewNode);
 }
 
-timeval QMinHeap::Pop()
+timeval QMinHeap::GetMinTimeOut() const
 {
     timeval MinTV;
     if (m_HeapArray.empty())
@@ -62,12 +68,11 @@ timeval QMinHeap::Pop()
     return MinTV;
 }
 
-bool QMinHeap::AddHeapNode(HeapNode &NewNode)
+bool QMinHeap::AddHeapNode(const HeapNode &NewNode)
 {
-    NewNode.m_Milliseconds = QTime::ConvertToMillisecond(&NewNode.m_TimeOut);
     m_HeapArray.push_back(std::move(NewNode));
 
-    QLog::g_Log.WriteDebug("MinHeap: Add node, MapKey = %d, VectorIndex = %d, tv.sec = %d, tv.usec = %d, total count = %d",
+    QLog::g_Log.WriteDebug("MinHeap: Add node, MapKey = %d\tVectorIndex = %d\ttv.sec = %d\ttv.usec = %d\ttotal count = %d",
         NewNode.m_MapKey, NewNode.m_MapVectorIndex,
         NewNode.m_TimeOut.tv_sec, NewNode.m_TimeOut.tv_usec,
         static_cast<int>(m_HeapArray.size()));
@@ -76,9 +81,15 @@ bool QMinHeap::AddHeapNode(HeapNode &NewNode)
     for (std::vector<HeapNode>::size_type Index = 0; Index < m_HeapArray.size(); Index++)
     {
         const HeapNode &Node = m_HeapArray[Index];
-        QLog::g_Log.WriteDebug("MinHeap: vec_index = %d, tv.sec = %d, tv.usec = %d, long = %lld",
+        QLog::g_Log.WriteDebug("MinHeap: vec_index = %d\ttv.sec = %d\ttv.usec = %d\tMilliseconds = %ld",
             Index, Node.m_TimeOut.tv_sec, Node.m_TimeOut.tv_usec, Node.m_Milliseconds);
     }
 
     return !m_HeapArray.empty();
 }
+
+bool QMinHeap::DelHeapNode(const HeapNode & OldNode)
+{
+    return false;
+}
+

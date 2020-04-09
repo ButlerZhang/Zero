@@ -35,7 +35,8 @@ int main(int argc, char *argv[])
 
     UnitTest Test;
     //return Test.AddAndDeleteIOEvent();
-    return Test.AddAndDeleteTimer();
+    //return Test.AddAndDeleteTimer();
+    return Test.AddMultiTimer();
 
     const int ServerPort = 9000;
     const std::string ServerIP("127.0.0.1");
