@@ -46,16 +46,17 @@ bool QReactor::Dispatch(struct timeval *tv)
 
     while (!m_Backend->IsStop())
     {
-        timeval MinTime = m_Backend->GetMinHeap().GetMinTimeOut();
-        if (!QTime::IsTimevalValid(MinTime))
+        long MinTime = m_Backend->GetMinHeap().GetMinTimeOut();
+        if (MinTime < 0)
         {
-            //QLog::g_Log.WriteDebug("Dispatch: timeval is NULL.");
+            QLog::g_Log.WriteDebug("Dispatch: timeval is NULL.");
             m_Backend->Dispatch(NULL);
         }
         else
         {
-            //QLog::g_Log.WriteDebug("Dispatch: tv.sec = %d, tv.usec = %d.", MinTime.tv_sec, MinTime.tv_usec);
-            m_Backend->Dispatch(&MinTime);
+            timeval tv = QTime::ConvertToTimeval(MinTime);
+            QLog::g_Log.WriteDebug("Dispatch: tv.sec = %d, tv.usec = %d.", tv.tv_sec, tv.tv_usec);
+            m_Backend->Dispatch(&tv);
         }
     }
 

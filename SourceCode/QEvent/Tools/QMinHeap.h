@@ -15,10 +15,8 @@ public:
         std::size_t         m_MapVectorIndex;
         long                m_Milliseconds;
         QEventFD            m_MapKey;
-        struct timeval      m_TimeOut;
 
         HeapNode();
-        void SetTimeOut(const timeval &tv);
         bool operator<(const HeapNode &Right);
     };
 
@@ -31,11 +29,17 @@ public:
     bool AddTimeOut(const QEvent &Event, QEventFD MapKey, std::size_t VectorIndex);
 
     bool AddHeapNode(const HeapNode &NewNode);
-    bool DelHeapNode(const HeapNode &OldNode);
+    bool MinusTimeout(long Millisconds);
 
-    timeval GetMinTimeOut() const;
+    long GetMinTimeOut() const;
+    bool HasNode() const { return !m_HeapArray.empty(); }
 
-    const std::vector<HeapNode>& GetHeapArray() const { return m_HeapArray; }
+    HeapNode Pop();
+    const HeapNode& Top() const { return m_HeapArray[0]; }
+
+private:
+
+    void WriteHeapArrayStatus() const;
 
 private:
 

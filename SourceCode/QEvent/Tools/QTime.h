@@ -14,5 +14,7 @@ public:
 
     static void ClearTimeval(timeval &tv);
     static bool IsTimevalValid(const timeval &tv);
+
+    static timeval ConvertToTimeval(long Millisconds);
     static long ConvertToMillisecond(const timeval *tv);
 };

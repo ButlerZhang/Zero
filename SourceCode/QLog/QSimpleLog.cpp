@@ -54,7 +54,7 @@ void QSimpleLog::SetEnableLogLevel(LogLevel Level)
 
 bool QSimpleLog::SetLogFile(const std::string &FileName)
 {
-    m_LogFile = fopen(FileName.c_str(), "a");
+    m_LogFile = fopen(FileName.c_str(), "w");
     if (m_LogFile != NULL)
     {
         setbuf(m_LogFile, NULL);

@@ -27,7 +27,7 @@ public:
 
 protected:
 
-    void ProcessTimeOut();
+    void ProcessTimeOut(struct timeval *tv);
     QEventFD GetTargetFD(const QEvent &Event) const;
     void ActiveEvent(QEventFD FD, int ResultEvents);
     void WriteEventOperationLog(QEventFD MapKey, QEventFD FD, QEventOption OP);

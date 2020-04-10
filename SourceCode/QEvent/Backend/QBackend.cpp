@@ -97,29 +97,32 @@ bool QBackend::IsExisted(const QEvent &Event) const
     return false;
 }
 
-void QBackend::ProcessTimeOut()
+void QBackend::ProcessTimeOut(struct timeval *tv)
 {
-    const std::vector<QMinHeap::HeapNode> &HeadVector = m_MinHeap.GetHeapArray();
-    if (HeadVector.empty())
+    long MinMillisconds = m_MinHeap.GetMinTimeOut();
+    if (!m_MinHeap.MinusTimeout(MinMillisconds))
     {
         return;
     }
 
-    long MinMillisconds = HeadVector[0].m_Milliseconds;
-    for (std::vector<QMinHeap::HeapNode>::size_type Index = 0; Index < HeadVector.size(); Index++)
+    while (m_MinHeap.HasNode() && m_MinHeap.Top().m_Milliseconds <= 0)
     {
-        if (HeadVector[Index].m_Milliseconds > MinMillisconds)
+        const QMinHeap::HeapNode &CurrentNode = m_MinHeap.Pop();
+        if (m_EventMap.find(CurrentNode.m_MapKey) == m_EventMap.end())
         {
-            return;
+            QLog::g_Log.WriteDebug("Can not find map key = %d", CurrentNode.m_MapKey);
+            continue;
         }
 
-        QEventFD MapKey = HeadVector[Index].m_MapKey;
-        if (m_EventMap.find(MapKey) != m_EventMap.end())
+        if (CurrentNode.m_MapVectorIndex >= 0 && CurrentNode.m_MapVectorIndex < m_EventMap[CurrentNode.m_MapKey].size())
         {
-            std::size_t VectorIndex = HeadVector[Index].m_MapVectorIndex;
-            if (VectorIndex >= 0 && VectorIndex < m_EventMap[MapKey].size())
+            QEvent &Event = m_EventMap[CurrentNode.m_MapKey][CurrentNode.m_MapVectorIndex];
+
+            Event.CallBack();
+
+            if (Event.GetEvents() & QET_PERSIST)
             {
-                m_EventMap[MapKey][VectorIndex].CallBack();
+                m_MinHeap.AddTimeOut(Event, CurrentNode.m_MapKey, CurrentNode.m_MapVectorIndex);
             }
         }
     }

@@ -172,7 +172,7 @@ bool QPoll::Dispatch(struct timeval *tv)
 
     if (Result == 0)
     {
-        ProcessTimeOut();
+        ProcessTimeOut(tv);
     }
     else
     {

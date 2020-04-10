@@ -139,7 +139,7 @@ bool QWin32Select::UseSleepSimulateSelect(struct timeval *tv)
     }
 
     Sleep(SleepTime);
-    ProcessTimeOut();
+    ProcessTimeOut(tv);
 
     return true;
 }

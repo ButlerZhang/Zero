@@ -151,7 +151,7 @@ bool QEpoll::Dispatch(struct timeval *tv)
 
     if (ActiveEventCount == 0)
     {
-        ProcessTimeOut();
+        ProcessTimeOut(tv);
     }
     else
     {
