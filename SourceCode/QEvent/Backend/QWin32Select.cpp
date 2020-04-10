@@ -51,22 +51,23 @@ bool QWin32Select::AddEvent(const QEvent &Event)
 
 bool QWin32Select::DelEvent(const QEvent &Event)
 {
+    QEvent CopyEvent = Event;
     if (!QBackend::DelEvent(Event))
     {
         return false;
     }
 
-    if (Event.GetEvents() & QET_TIMEOUT)
+    if (CopyEvent.GetEvents() & QET_TIMEOUT)
     {
-        WriteEventOperationLog(m_TimerFD, Event.GetFD(), QEO_DEL);
+        WriteEventOperationLog(m_TimerFD, CopyEvent.GetFD(), QEO_DEL);
         return true;
     }
 
     QEventOption OP = QEO_DEL;
-    FD_CLR(Event.GetFD(), &m_ReadSetIn);
-    FD_CLR(Event.GetFD(), &m_WriteSetIn);
+    FD_CLR(CopyEvent.GetFD(), &m_ReadSetIn);
+    FD_CLR(CopyEvent.GetFD(), &m_WriteSetIn);
 
-    std::map<QEventFD, std::vector<QEvent>>::iterator MapIt = m_EventMap.find(Event.GetFD());
+    std::map<QEventFD, std::vector<QEvent>>::iterator MapIt = m_EventMap.find(CopyEvent.GetFD());
     if (MapIt != m_EventMap.end())
     {
         OP = QEO_MOD;
@@ -84,7 +85,7 @@ bool QWin32Select::DelEvent(const QEvent &Event)
         }
     }
 
-    WriteEventOperationLog(Event.GetFD(), Event.GetFD(), OP);
+    WriteEventOperationLog(CopyEvent.GetFD(), CopyEvent.GetFD(), OP);
     return true;
 }
 
@@ -110,13 +111,16 @@ bool QWin32Select::Dispatch(timeval &tv)
         return false;
     }
 
-    for (int Index = 0; Index < FD_SETSIZE; Index++)
+    for (u_int Index = 0; Index < m_ReadSetOut.fd_count; Index++)
     {
         if (FD_ISSET(m_ReadSetOut.fd_array[Index], &m_ReadSetOut))
         {
             ActiveEvent(m_ReadSetOut.fd_array[Index], QET_READ);
         }
+    }
 
+    for (u_int Index = 0; Index < m_WriteSetOut.fd_count; Index++)
+    {
         if (FD_ISSET(m_WriteSetOut.fd_array[Index], &m_WriteSetOut))
         {
             ActiveEvent(m_WriteSetOut.fd_array[Index], QET_WRITE);

@@ -56,22 +56,40 @@ void ServerTest::Recevie(const QEvent &Event)
     char DataBuffer[BUFFER_SIZE];
     memset(DataBuffer, 0, sizeof(DataBuffer));
 
-    int RecvSize = (int)recv(Event.GetFD(), DataBuffer, BUFFER_SIZE - 1, 0);
-    if (RecvSize <= 0)
-    {
-        if (errno != EAGAIN)
-        {
-            m_Reactor.DelEvent(Event);
-            m_Network.CloseSocket(Event.GetFD());
-            QLog::g_Log.WriteInfo("Client = %d disconnected", Event.GetFD());
-        }
-    }
-    else
+    QEventFD ClientFD = Event.GetFD();
+    int RecvSize = (int)recv(ClientFD, DataBuffer, BUFFER_SIZE - 1, 0);
+    if (RecvSize > 0)
     {
         QLog::g_Log.WriteInfo("Received %d bytes data from client = %d, msg = %s",
             RecvSize, Event.GetFD(), DataBuffer);
 
         int WriteSize = (int)send(Event.GetFD(), DataBuffer, RecvSize, 0);
         QLog::g_Log.WriteInfo("Server ack, size = %d", WriteSize);
+    }
+    else if (RecvSize == 0)
+    {
+        m_Reactor.DelEvent(Event);
+        m_Network.CloseSocket(ClientFD);
+        QLog::g_Log.WriteInfo("Client = %d disconnected", ClientFD);
+    }
+    else
+    {
+#ifdef _WIN32
+        int WSAErrno = WSAGetLastError();
+        QLog::g_Log.WriteError("Recv errno = %d", WSAErrno);
+        if (WSAErrno != WSAEWOULDBLOCK)
+        {
+            m_Reactor.DelEvent(Event);
+            m_Network.CloseSocket(ClientFD);
+            QLog::g_Log.WriteInfo("Client = %d disconnected", ClientFD);
+        }
+#else
+        int Errno = errno;
+        QLog::g_Log.WriteError("Recv errno = %d", Errno);
+        if (Errno != EAGAIN)
+        {
+            QLog::g_Log.WriteInfo("Recv errno: TODO", ClientFD);
+        }
+#endif // _WIN32
     }
 }

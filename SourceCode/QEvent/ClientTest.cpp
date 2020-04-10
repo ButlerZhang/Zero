@@ -36,7 +36,7 @@ bool ClientTest::Start(const std::string &ServerIP, int Port, int ClientCount)
     QLog::g_Log.SetLogFile("Client.txt");
     QLog::g_Log.WriteInfo("Client start....");
 
-    return SingleThread(ClientCount);
+    //return SingleThread(ClientCount);
     return MultiThread(ClientCount);
 }
 
@@ -44,11 +44,12 @@ bool ClientTest::MultiThread(int ClientCount)
 {
     for (int Count = 0; Count < ClientCount; Count++)
     {
+        QLog::g_Log.WriteInfo("Client = %d start...", Count);
+
         std::thread SmallClient(ClientTest::CallBack_Thread, this, Count);
         SmallClient.detach();
 
         std::this_thread::sleep_for(std::chrono::seconds(1));
-        QLog::g_Log.WriteInfo("Client = %d start...", Count);
     }
 
     QLog::g_Log.WriteInfo("Total Client count = %d started", ClientCount);
@@ -90,29 +91,42 @@ bool ClientTest::SendMsg(int ClientID, QLog::QSimpleLog &Log)
     QNetwork MyNetwork;
     if (!MyNetwork.Connect(m_ServerIP, m_Port))
     {
+        Log.WriteDebug("Socket = %d connectd server failed.", MyNetwork.GetSocket());
         return false;
     }
 
+    Log.WriteDebug("Socket = %d connectd server succeed.", MyNetwork.GetSocket());
+
     char Msg[BUFFER_SIZE];
-    sprintf(Msg, "(ClientID=%d,Socket=%s)", ClientID, std::to_string(MyNetwork.GetSocket()).c_str());
+    sprintf(Msg, "(ClientID=%d\tSocket=%s)", ClientID, std::to_string(MyNetwork.GetSocket()).c_str());
 
     while (true)
     {
         int SendSize = (int)send(MyNetwork.GetSocket(), Msg, (int)strlen(Msg), 0);
-        Log.WriteInfo("Send size = %d, msg = %s", SendSize, Msg);
+        Log.WriteInfo("Send size = %d\tmsg = %s", SendSize, Msg);
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 
+    //system("pause");
     return true;
 }
 
 void ClientTest::CallBack_Thread(void *ClientObject, int ClientID)
 {
-    QLog::QSimpleLog SmallLog;
-    if (SmallLog.SetLogFile("Client" + std::to_string(ClientID) + ".txt"))
+    bool IsOpenMultiLogFile = false;
+    ClientTest *MyClient = (ClientTest*)ClientObject;
+
+    if (IsOpenMultiLogFile)
     {
-        ClientTest *MyClient = (ClientTest*)ClientObject;
-        MyClient->SendMsg(ClientID, SmallLog);
+        QLog::QSimpleLog SmallLog;
+        if (SmallLog.SetLogFile("Client" + std::to_string(ClientID) + ".txt"))
+        {
+            MyClient->SendMsg(ClientID, SmallLog);
+        }
+    }
+    else
+    {
+        MyClient->SendMsg(ClientID, QLog::g_Log);
     }
 }
 

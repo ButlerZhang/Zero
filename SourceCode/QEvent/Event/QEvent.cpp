@@ -71,7 +71,7 @@ bool QEvent::IsValid() const
 
 bool QEvent::IsPersist() const
 {
-    return m_Events & QET_PERSIST;
+    return (m_Events & QET_PERSIST) > 0;
 }
 
 bool QEvent::IsEqual(const QEvent &Right) const
