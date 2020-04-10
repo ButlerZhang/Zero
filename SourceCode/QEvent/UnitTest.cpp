@@ -22,34 +22,34 @@ int UnitTest::AddMultiTimer()
 
     QLog::g_Log.WriteDebug("=====Add 5 seoncds timer=====");
     QEvent Timer5(BaseFD, QET_TIMEOUT);
-    Timer5.SetTimeOut(TimeOut5);
+    Timer5.SetTimeout(TimeOut5);
     Timer5.SetCallBack(std::bind(&UnitTest::CallBack_TimeOut1, this, std::placeholders::_1));
     assert(m_Reactor.AddEvent(Timer5) == true);
 
     QLog::g_Log.WriteDebug("=====Add 5 seoncds timer again, persist=====");
     QEvent Timer5Again(BaseFD + 1, QET_TIMEOUT | QET_PERSIST);
-    Timer5Again.SetTimeOut(TimeOut5);
+    Timer5Again.SetTimeout(TimeOut5);
     Timer5Again.SetCallBack(std::bind(&UnitTest::CallBack_TimeOut2, this, std::placeholders::_1));
     assert(m_Reactor.AddEvent(Timer5Again) == true);
 
     QLog::g_Log.WriteDebug("=====Add 20 seoncds timer=====");
     QEvent Timer20(BaseFD + 2, QET_TIMEOUT);
     timeval TimeOut20 = { 20, 0 };
-    Timer20.SetTimeOut(TimeOut20);
+    Timer20.SetTimeout(TimeOut20);
     Timer20.SetCallBack(std::bind(&UnitTest::CallBack_TimeOut3, this, std::placeholders::_1));
     assert(m_Reactor.AddEvent(Timer20) == true);
 
     QLog::g_Log.WriteDebug("=====Add 60 seoncds timer=====");
     QEvent Timer60(BaseFD + 3, QET_TIMEOUT | QET_PERSIST);
     timeval TimeOut60 = { 60, 0 };
-    Timer60.SetTimeOut(TimeOut60);
+    Timer60.SetTimeout(TimeOut60);
     Timer60.SetCallBack(std::bind(&UnitTest::CallBack_TimeOut3, this, std::placeholders::_1));
     assert(m_Reactor.AddEvent(Timer60) == true);
 
     QLog::g_Log.WriteDebug("=====Add IO event=====");
     QEvent IOEvent(1, QET_READ);
     timeval TimeOut40 = { 40, 0 };
-    IOEvent.SetTimeOut(TimeOut40);
+    IOEvent.SetTimeout(TimeOut40);
     IOEvent.SetCallBack(std::bind(&UnitTest::CallBack_AddEvent1, this, std::placeholders::_1));
     assert(m_Reactor.AddEvent(IOEvent) == true);
 
@@ -87,19 +87,19 @@ int UnitTest::AddAndDeleteTimer()
 
     QLog::g_Log.WriteDebug("=====Add normal timer=====");
     QEvent NormalTimer(TimerFD, QET_TIMEOUT);
-    NormalTimer.SetTimeOut(Timeout);
+    NormalTimer.SetTimeout(Timeout);
     NormalTimer.SetCallBack(std::bind(&UnitTest::CallBack_TimeOut1, this, std::placeholders::_1));
     assert(m_Reactor.AddEvent(NormalTimer) == true);
 
     QLog::g_Log.WriteDebug("=====Add different Callback timer=====");
     QEvent DifferentCBTimer(TimerFD, QET_TIMEOUT);
-    DifferentCBTimer.SetTimeOut(Timeout);
+    DifferentCBTimer.SetTimeout(Timeout);
     DifferentCBTimer.SetCallBack(std::bind(&UnitTest::CallBack_TimeOut2, this, std::placeholders::_1));
     assert(m_Reactor.AddEvent(DifferentCBTimer) == false);
 
     QLog::g_Log.WriteDebug("=====Add different fd timer=====");
     QEvent DifferentFDTimer(ChangeTimerFD, QET_TIMEOUT);
-    DifferentFDTimer.SetTimeOut(Timeout);
+    DifferentFDTimer.SetTimeout(Timeout);
     DifferentFDTimer.SetCallBack(std::bind(&UnitTest::CallBack_TimeOut2, this, std::placeholders::_1));
     assert(m_Reactor.AddEvent(DifferentFDTimer) == true);
 

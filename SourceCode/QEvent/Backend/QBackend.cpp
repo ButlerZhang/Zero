@@ -118,7 +118,7 @@ void QBackend::ProcessTimeout()
     {
         m_MinHeap.MinusElapsedTime(m_MinHeap.GetMinTimeout());
 
-        while (m_MinHeap.Top().m_Timeout <= 0)
+        while (m_MinHeap.HasNode() && m_MinHeap.Top().m_Timeout <= 0)
         {
             const QMinHeap::HeapNode &PopNode = m_MinHeap.Pop();
             if (m_EventMap.find(PopNode.m_MapKey) == m_EventMap.end())

@@ -35,12 +35,12 @@ bool QMinHeap::AddTimeout(const timeval &tv)
 
 bool QMinHeap::AddTimeout(const QEvent &Event, QEventFD MapKey, std::size_t VectorIndex)
 {
-    if (QTime::IsValid(Event.GetTimeOut()))
+    if (QTime::IsValid(Event.GetTimeout()))
     {
         HeapNode NewNode;
         NewNode.m_MapKey = MapKey;
         NewNode.m_MapVectorIndex = VectorIndex;
-        NewNode.m_Timeout = QTime::ConvertToMillisecond(Event.GetTimeOut());
+        NewNode.m_Timeout = QTime::ConvertToMillisecond(Event.GetTimeout());
         return AddHeapNode(NewNode);
     }
 
@@ -97,6 +97,7 @@ QMinHeap::HeapNode QMinHeap::Pop()
 
 void QMinHeap::WriteHeapStatusLog() const
 {
+    QLog::g_Log.WriteDebug("MinHeap: Current heap node count = %d", static_cast<int>(m_HeapArray.size()));
     for (std::vector<HeapNode>::size_type Index = 0; Index < m_HeapArray.size(); Index++)
     {
         const HeapNode &Node = m_HeapArray[Index];

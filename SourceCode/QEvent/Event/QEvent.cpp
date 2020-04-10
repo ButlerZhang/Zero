@@ -9,7 +9,7 @@ QEvent::QEvent()
     m_EventFD = -1;
     m_CallBack = nullptr;
     m_ExtendArg = nullptr;
-    m_TimeOut.tv_sec = m_TimeOut.tv_usec = -1;
+    m_Timeout.tv_sec = m_Timeout.tv_usec = -1;
 }
 
 QEvent::QEvent(QEventFD EventFD, int Events)
@@ -18,7 +18,7 @@ QEvent::QEvent(QEventFD EventFD, int Events)
     m_EventFD = EventFD;
     m_CallBack = nullptr;
     m_ExtendArg = nullptr;
-    m_TimeOut.tv_sec = m_TimeOut.tv_usec = -1;
+    m_Timeout.tv_sec = m_Timeout.tv_usec = -1;
 }
 
 QEvent::~QEvent()
@@ -42,25 +42,18 @@ void QEvent::CallBack()
     else
     {
         QLog::g_Log.WriteDebug("QEvent: CallBack is nullptr, FD = %d, events = %d.",
-            GetFD(), GetEvents());
+            m_EventFD, m_Events);
     }
 }
 
 bool QEvent::IsValid() const
 {
-    if (m_Events == 0)
-    {
-        return false;
-    }
-
     if (m_Events & QET_TIMEOUT)
     {
-        if (m_TimeOut.tv_sec < 0 && m_TimeOut.tv_usec < 0)
+        if (m_Timeout.tv_sec >= 0 || m_Timeout.tv_usec >= 0)
         {
-            return false;
+            return !(m_Events & (QET_READ | QET_WRITE | QET_SIGNAL));
         }
-
-        return !(m_Events & (QET_READ | QET_WRITE | QET_SIGNAL));
     }
 
     if (m_Events & (QET_READ | QET_WRITE))
