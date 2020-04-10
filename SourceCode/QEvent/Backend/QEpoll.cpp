@@ -1,5 +1,7 @@
 #include "QEpoll.h"
+#include "../Tools/QTime.h"
 #include "../../QLog/QSimpleLog.h"
+
 #include <unistd.h>                 //close
 #include <string.h>                 //strerror
 
@@ -31,7 +33,7 @@ bool QEpoll::AddEvent(const QEvent &Event)
     {
         m_EventMap[m_TimerFD].push_back(std::move(Event));
         WriteEventOperationLog(m_TimerFD, Event.GetFD(), QEO_ADD);
-        m_MinHeap.AddTimeOut(Event, m_TimerFD, m_EventMap[m_TimerFD].size() - 1);
+        m_MinHeap.AddTimeout(Event, m_TimerFD, m_EventMap[m_TimerFD].size() - 1);
         return true;
     }
 
@@ -83,7 +85,7 @@ bool QEpoll::AddEvent(const QEvent &Event)
 
     m_EventMap[Event.GetFD()].push_back(std::move(Event));
     WriteEventOperationLog(Event.GetFD(), Event.GetFD(), static_cast<QEventOption>(EpollOP));
-    m_MinHeap.AddTimeOut(Event, Event.GetFD(), m_EventMap[Event.GetFD()].size() - 1);
+    m_MinHeap.AddTimeout(Event, Event.GetFD(), m_EventMap[Event.GetFD()].size() - 1);
     return true;
 }
 
@@ -135,7 +137,7 @@ bool QEpoll::DelEvent(const QEvent &Event)
     return true;
 }
 
-bool QEpoll::Dispatch(struct timeval *tv)
+bool QEpoll::Dispatch(timeval &tv)
 {
     QLog::g_Log.WriteDebug("epoll: start...");
     int timeout = static_cast<int>(QTime::ConvertToMillisecond(tv));
@@ -151,7 +153,7 @@ bool QEpoll::Dispatch(struct timeval *tv)
 
     if (ActiveEventCount == 0)
     {
-        ProcessTimeOut(tv);
+        ProcessTimeout();
     }
     else
     {

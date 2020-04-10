@@ -1,5 +1,7 @@
 #include "QPoll.h"
+#include "../Tools/QTime.h"
 #include "../../QLog/QSimpleLog.h"
+
 #include <string.h>                  //strerror
 
 
@@ -32,7 +34,7 @@ bool QPoll::AddEvent(const QEvent &Event)
     {
         m_EventMap[m_TimerFD].push_back(std::move(Event));
         WriteEventOperationLog(m_TimerFD, Event.GetFD(), QEO_ADD);
-        m_MinHeap.AddTimeOut(Event, m_TimerFD, m_EventMap[m_TimerFD].size() - 1);
+        m_MinHeap.AddTimeout(Event, m_TimerFD, m_EventMap[m_TimerFD].size() - 1);
         return true;
     }
 
@@ -65,7 +67,7 @@ bool QPoll::AddEvent(const QEvent &Event)
 
             m_EventMap[Event.GetFD()].push_back(std::move(Event));
             WriteEventOperationLog(Event.GetFD(), Event.GetFD(), OP);
-            m_MinHeap.AddTimeOut(Event, Event.GetFD(), m_EventMap[Event.GetFD()].size() - 1);
+            m_MinHeap.AddTimeout(Event, Event.GetFD(), m_EventMap[Event.GetFD()].size() - 1);
             return true;
         }
     }
@@ -156,7 +158,7 @@ bool QPoll::DelEvent(const QEvent &Event)
     return false;
 }
 
-bool QPoll::Dispatch(struct timeval *tv)
+bool QPoll::Dispatch(timeval &tv)
 {
     QLog::g_Log.WriteDebug("poll: start...");
     int timeout = static_cast<int>(QTime::ConvertToMillisecond(tv));
@@ -172,7 +174,7 @@ bool QPoll::Dispatch(struct timeval *tv)
 
     if (Result == 0)
     {
-        ProcessTimeOut(tv);
+        ProcessTimeout();
     }
     else
     {

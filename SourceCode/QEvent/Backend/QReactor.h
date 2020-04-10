@@ -1,4 +1,6 @@
 #pragma once
+#include "../Tools/QTime.h"
+
 #include <memory>
 
 class QEvent;
@@ -15,7 +17,9 @@ public:
 
     bool AddEvent(const QEvent &Event);
     bool DelEvent(const QEvent &Event);
-    bool Dispatch(struct timeval *tv = NULL);
+
+    bool Dispatch();
+    bool Dispatch(const timeval &tv);
 
     const std::shared_ptr<QBackend>& GetBackend() const { return m_Backend; }
 

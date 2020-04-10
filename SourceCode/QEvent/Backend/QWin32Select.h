@@ -12,11 +12,11 @@ public:
 
     virtual bool AddEvent(const QEvent &Event);
     virtual bool DelEvent(const QEvent &Event);
-    virtual bool Dispatch(struct timeval *tv);
+    virtual bool Dispatch(timeval &tv);
 
 private:
 
-    bool UseSleepSimulateSelect(struct timeval *tv);
+    bool UseSleepSimulateSelect(timeval &tv);
 
 private:
 

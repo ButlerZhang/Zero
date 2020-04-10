@@ -82,7 +82,7 @@ bool ClientTest::SingleThread(int ClientCount)
 
 #endif // ENABLE_CMD_INPUT
 
-    return Reactor.Dispatch(NULL);
+    return Reactor.Dispatch();
 }
 
 bool ClientTest::SendMsg(int ClientID, QLog::QSimpleLog &Log)

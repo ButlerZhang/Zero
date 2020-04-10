@@ -1,10 +1,8 @@
 #pragma once
 #include "../QLibBase.h"
-#include "../Event/QEvent.h"
 #include "../Tools/QMinHeap.h"
 
 #include <map>
-#include <vector>
 
 
 
@@ -17,9 +15,7 @@ public:
 
     virtual bool AddEvent(const QEvent &Event);
     virtual bool DelEvent(const QEvent &Event);
-    virtual bool Dispatch(struct timeval *tv)  = 0;
-
-    bool IsExisted(const QEvent &Event) const;
+    virtual bool Dispatch(timeval &tv)  = 0;
 
     inline bool IsStop() const { return m_IsStop; }
     inline QMinHeap& GetMinHeap() { return m_MinHeap; }
@@ -27,17 +23,19 @@ public:
 
 protected:
 
-    void ProcessTimeOut(struct timeval *tv);
-    QEventFD GetTargetFD(const QEvent &Event) const;
+    bool IsExisted(const QEvent &Event) const;
+    QEventFD GetMapKey(const QEvent &Event) const;
+
+    void ProcessTimeout();
     void ActiveEvent(QEventFD FD, int ResultEvents);
     void WriteEventOperationLog(QEventFD MapKey, QEventFD FD, QEventOption OP);
 
 protected:
 
-    bool                                        m_IsStop;
-    std::string                                 m_BackendName;
-    QMinHeap                                    m_MinHeap;
-    std::map<QEventFD, std::vector<QEvent>>     m_EventMap;
+    bool                                            m_IsStop;
+    std::string                                     m_BackendName;
+    QMinHeap                                        m_MinHeap;
+    std::map<QEventFD, std::vector<QEvent>>         m_EventMap;
 
-    static QEventFD                             m_TimerFD;
+    static QEventFD                                 m_TimerFD;
 };

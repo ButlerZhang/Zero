@@ -1,6 +1,5 @@
 #pragma once
 #include "../Event/QEvent.h"
-#include "QTime.h"
 
 #include <vector>
 
@@ -13,8 +12,8 @@ public:
     struct HeapNode
     {
         std::size_t         m_MapVectorIndex;
-        long                m_Milliseconds;
         QEventFD            m_MapKey;
+        long                m_Timeout;
 
         HeapNode();
         bool operator<(const HeapNode &Right);
@@ -25,24 +24,22 @@ public:
     QMinHeap();
     ~QMinHeap();
 
-    bool AddTimeOut(const timeval &tv);
-    bool AddTimeOut(const QEvent &Event, QEventFD MapKey, std::size_t VectorIndex);
+    bool AddTimeout(const timeval &tv);
+    bool AddTimeout(const QEvent &Event, QEventFD MapKey, std::size_t VectorIndex);
+    bool AddHeapNode(const HeapNode &Node);
 
-    bool AddHeapNode(const HeapNode &NewNode);
-    bool MinusTimeout(long Millisconds);
-
-    long GetMinTimeOut() const;
-    bool HasNode() const { return !m_HeapArray.empty(); }
+    long GetMinTimeout() const;
+    void MinusElapsedTime(long ElapsedTime);
 
     HeapNode Pop();
+    bool HasNode() const { return !m_HeapArray.empty(); }
     const HeapNode& Top() const { return m_HeapArray[0]; }
 
 private:
 
-    void WriteHeapArrayStatus() const;
+    void WriteHeapStatusLog() const;
 
 private:
 
     std::vector<HeapNode>       m_HeapArray;
 };
-

@@ -1,6 +1,7 @@
 #include "QWin32Select.h"
 #include "../../QLog/QSimpleLog.h"
 #include "../Network/QNetwork.h"
+#include "../Tools/QTime.h"
 
 
 
@@ -26,7 +27,7 @@ bool QWin32Select::AddEvent(const QEvent &Event)
     {
         m_EventMap[m_TimerFD].push_back(std::move(Event));
         WriteEventOperationLog(m_TimerFD, Event.GetFD(), QEO_ADD);
-        m_MinHeap.AddTimeOut(Event, m_TimerFD, m_EventMap[m_TimerFD].size() - 1);
+        m_MinHeap.AddTimeout(Event, m_TimerFD, m_EventMap[m_TimerFD].size() - 1);
         return true;
     }
 
@@ -44,7 +45,7 @@ bool QWin32Select::AddEvent(const QEvent &Event)
 
     m_EventMap[Event.GetFD()].push_back(std::move(Event));
     WriteEventOperationLog(Event.GetFD(), Event.GetFD(), QEO_ADD);
-    m_MinHeap.AddTimeOut(Event, Event.GetFD(), m_EventMap[Event.GetFD()].size() - 1);
+    m_MinHeap.AddTimeout(Event, Event.GetFD(), m_EventMap[Event.GetFD()].size() - 1);
     return true;
 }
 
@@ -87,7 +88,7 @@ bool QWin32Select::DelEvent(const QEvent &Event)
     return true;
 }
 
-bool QWin32Select::Dispatch(struct timeval *tv)
+bool QWin32Select::Dispatch(timeval &tv)
 {
     if (UseSleepSimulateSelect(tv))
     {
@@ -98,7 +99,8 @@ bool QWin32Select::Dispatch(struct timeval *tv)
     memcpy(&m_WriteSetOut, &m_WriteSetIn, sizeof(m_WriteSetIn));
 
     QLog::g_Log.WriteDebug("win32select: start...");
-    int Result = select(-1, &m_ReadSetOut, &m_WriteSetOut, NULL, tv);
+    timeval *TempTimeout = QTime::IsValid(tv) ? &tv : NULL;
+    int Result = select(-1, &m_ReadSetOut, &m_WriteSetOut, NULL, TempTimeout);
     QLog::g_Log.WriteDebug("win32select: stop, result = %d.", Result);
 
     if (Result < 0)
@@ -124,10 +126,14 @@ bool QWin32Select::Dispatch(struct timeval *tv)
     return true;
 }
 
-bool QWin32Select::UseSleepSimulateSelect(struct timeval *tv)
+bool QWin32Select::UseSleepSimulateSelect(timeval &tv)
 {
-    int fdCount = m_ReadSetIn.fd_count > m_WriteSetIn.fd_count ? m_ReadSetIn.fd_count : m_WriteSetIn.fd_count;
-    if (fdCount > 0)
+    if (m_ReadSetIn.fd_count > 0 || m_WriteSetIn.fd_count > 0)
+    {
+        return false;
+    }
+
+    if (!m_MinHeap.HasNode())
     {
         return false;
     }
@@ -139,7 +145,6 @@ bool QWin32Select::UseSleepSimulateSelect(struct timeval *tv)
     }
 
     Sleep(SleepTime);
-    ProcessTimeOut(tv);
-
+    ProcessTimeout();
     return true;
 }

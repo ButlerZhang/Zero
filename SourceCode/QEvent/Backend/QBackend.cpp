@@ -23,16 +23,16 @@ QBackend::~QBackend()
 
 bool QBackend::AddEvent(const QEvent &Event)
 {
-    if (!Event.IsEventValid())
+    if (!Event.IsValid())
     {
-        QLog::g_Log.WriteError("%s: Add event FD = %d failed, events = %d is not valid.",
+        QLog::g_Log.WriteError("%s: Add event FD = %d, events = %d failed, it is not valid.",
             m_BackendName.c_str(), Event.GetFD(), Event.GetEvents());
         return false;
     }
 
     if (IsExisted(Event))
     {
-        QLog::g_Log.WriteError("%s: Add event FD = %d, watch events = %d falied, exited.",
+        QLog::g_Log.WriteError("%s: Add event FD = %d, events = %d falied, it is existed.",
             m_BackendName.c_str(), Event.GetFD(), Event.GetEvents());
         return false;
     }
@@ -42,8 +42,8 @@ bool QBackend::AddEvent(const QEvent &Event)
 
 bool QBackend::DelEvent(const QEvent &Event)
 {
-    QEventFD FindFD = GetTargetFD(Event);
-    std::map<QEventFD, std::vector<QEvent>>::iterator MapIt = m_EventMap.find(FindFD);
+    QEventFD MapKey = GetMapKey(Event);
+    std::map<QEventFD, std::vector<QEvent>>::iterator MapIt = m_EventMap.find(MapKey);
     if (MapIt == m_EventMap.end())
     {
         QLog::g_Log.WriteError("%s: Delete event FD = %d failed, can not find FD.",
@@ -51,24 +51,24 @@ bool QBackend::DelEvent(const QEvent &Event)
         return false;
     }
 
-    std::vector<QEvent>::iterator TargetVecIt = MapIt->second.end();
+    std::vector<QEvent>::iterator TargetIt = MapIt->second.end();
     for (std::vector<QEvent>::iterator VecIt = MapIt->second.begin(); VecIt != MapIt->second.end(); VecIt++)
     {
         if (VecIt->IsEqual(Event))
         {
-            TargetVecIt = VecIt;
+            TargetIt = VecIt;
             break;
         }
     }
 
-    if (TargetVecIt == MapIt->second.end())
+    if (TargetIt == MapIt->second.end())
     {
         QLog::g_Log.WriteError("%s: Delete event FD = %d failed, can not match.",
             m_BackendName.c_str(), Event.GetFD());
         return false;
     }
 
-    MapIt->second.erase(TargetVecIt);
+    MapIt->second.erase(TargetIt);
     if (MapIt->second.empty())
     {
         m_EventMap.erase(MapIt);
@@ -79,8 +79,8 @@ bool QBackend::DelEvent(const QEvent &Event)
 
 bool QBackend::IsExisted(const QEvent &Event) const
 {
-    QEventFD FindFD = GetTargetFD(Event);
-    std::map<QEventFD, std::vector<QEvent>>::const_iterator MapIt = m_EventMap.find(FindFD);
+    QEventFD MapKey = GetMapKey(Event);
+    std::map<QEventFD, std::vector<QEvent>>::const_iterator MapIt = m_EventMap.find(MapKey);
     if (MapIt == m_EventMap.end())
     {
         return false;
@@ -97,38 +97,7 @@ bool QBackend::IsExisted(const QEvent &Event) const
     return false;
 }
 
-void QBackend::ProcessTimeOut(struct timeval *tv)
-{
-    long MinMillisconds = m_MinHeap.GetMinTimeOut();
-    if (!m_MinHeap.MinusTimeout(MinMillisconds))
-    {
-        return;
-    }
-
-    while (m_MinHeap.HasNode() && m_MinHeap.Top().m_Milliseconds <= 0)
-    {
-        const QMinHeap::HeapNode &CurrentNode = m_MinHeap.Pop();
-        if (m_EventMap.find(CurrentNode.m_MapKey) == m_EventMap.end())
-        {
-            QLog::g_Log.WriteDebug("Can not find map key = %d", CurrentNode.m_MapKey);
-            continue;
-        }
-
-        if (CurrentNode.m_MapVectorIndex >= 0 && CurrentNode.m_MapVectorIndex < m_EventMap[CurrentNode.m_MapKey].size())
-        {
-            QEvent &Event = m_EventMap[CurrentNode.m_MapKey][CurrentNode.m_MapVectorIndex];
-
-            Event.CallBack();
-
-            if (Event.GetEvents() & QET_PERSIST)
-            {
-                m_MinHeap.AddTimeOut(Event, CurrentNode.m_MapKey, CurrentNode.m_MapVectorIndex);
-            }
-        }
-    }
-}
-
-QEventFD QBackend::GetTargetFD(const QEvent &Event) const
+QEventFD QBackend::GetMapKey(const QEvent &Event) const
 {
     if (Event.GetEvents() & QET_TIMEOUT)
     {
@@ -141,6 +110,39 @@ QEventFD QBackend::GetTargetFD(const QEvent &Event) const
     }
 
     return Event.GetFD();
+}
+
+void QBackend::ProcessTimeout()
+{
+    if (m_MinHeap.HasNode())
+    {
+        m_MinHeap.MinusElapsedTime(m_MinHeap.GetMinTimeout());
+
+        while (m_MinHeap.Top().m_Timeout <= 0)
+        {
+            const QMinHeap::HeapNode &PopNode = m_MinHeap.Pop();
+            if (m_EventMap.find(PopNode.m_MapKey) == m_EventMap.end())
+            {
+                QLog::g_Log.WriteDebug("Process timeout: Can not find map key = %d", PopNode.m_MapKey);
+                continue;
+            }
+
+            if (!(PopNode.m_MapVectorIndex >= 0 && PopNode.m_MapVectorIndex < m_EventMap[PopNode.m_MapKey].size()))
+            {
+                QLog::g_Log.WriteDebug("Process timeout: map key = %d has wrong vec index = %d",
+                    PopNode.m_MapKey, PopNode.m_MapVectorIndex);
+                continue;
+            }
+
+            QEvent &Event = m_EventMap[PopNode.m_MapKey][PopNode.m_MapVectorIndex];
+
+            Event.CallBack();
+            if (Event.IsPersist())
+            {
+                m_MinHeap.AddTimeout(Event, PopNode.m_MapKey, PopNode.m_MapVectorIndex);
+            }
+        }
+    }
 }
 
 void QBackend::ActiveEvent(QEventFD FD, int ResultEvents)

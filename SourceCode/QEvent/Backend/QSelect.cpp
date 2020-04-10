@@ -1,4 +1,5 @@
 #include "QSelect.h"
+#include "../Tools/QTime.h"
 #include "../../QLog/QSimpleLog.h"
 #include <string.h>                     //strerror
 
@@ -28,7 +29,7 @@ bool QSelect::AddEvent(const QEvent &Event)
     {
         m_EventMap[m_TimerFD].push_back(std::move(Event));
         WriteEventOperationLog(m_TimerFD, Event.GetFD(), QEO_ADD);
-        m_MinHeap.AddTimeOut(Event, m_TimerFD, m_EventMap[m_TimerFD].size() - 1);
+        m_MinHeap.AddTimeout(Event, m_TimerFD, m_EventMap[m_TimerFD].size() - 1);
         return true;
     }
 
@@ -52,7 +53,7 @@ bool QSelect::AddEvent(const QEvent &Event)
 
     m_EventMap[Event.GetFD()].push_back(std::move(Event));
     WriteEventOperationLog(Event.GetFD(), Event.GetFD(), QEO_ADD);
-    m_MinHeap.AddTimeOut(Event, Event.GetFD(), m_EventMap[Event.GetFD()].size() - 1);
+    m_MinHeap.AddTimeout(Event, Event.GetFD(), m_EventMap[Event.GetFD()].size() - 1);
 
     return true;
 }
@@ -107,13 +108,14 @@ bool QSelect::DelEvent(const QEvent &Event)
     return true;
 }
 
-bool QSelect::Dispatch(struct timeval *tv)
+bool QSelect::Dispatch(timeval &tv)
 {
     memcpy(&m_ReadSetOut, &m_ReadSetIn, sizeof(m_ReadSetIn));
     memcpy(&m_WriteSetOut, &m_WriteSetIn, sizeof(m_WriteSetIn));
 
     QLog::g_Log.WriteDebug("select: start...");
-    int Result = select(m_HighestEventFD, &m_ReadSetOut, &m_WriteSetOut, NULL, tv);
+    timeval *TempTimeout = QTime::IsValid(tv) ? &tv : NULL;
+    int Result = select(m_HighestEventFD, &m_ReadSetOut, &m_WriteSetOut, NULL, TempTimeout);
     QLog::g_Log.WriteDebug("select: stop, result = %d.", Result);
 
     if (Result < 0)
@@ -125,7 +127,7 @@ bool QSelect::Dispatch(struct timeval *tv)
 
     if (Result == 0)
     {
-        ProcessTimeOut(tv);
+        ProcessTimeout();
     }
     else
     {

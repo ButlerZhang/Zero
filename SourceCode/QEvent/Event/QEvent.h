@@ -31,7 +31,8 @@ public:
     void SetBackend(const std::shared_ptr<QBackend> &Backend) { m_Backend = Backend; }
 
     void CallBack();
-    bool IsEventValid() const;
+    bool IsValid() const;
+    bool IsPersist() const;
     bool IsEqual(const QEvent& Right) const;
 
 protected:

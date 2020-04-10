@@ -46,7 +46,7 @@ void QEvent::CallBack()
     }
 }
 
-bool QEvent::IsEventValid() const
+bool QEvent::IsValid() const
 {
     if (m_Events == 0)
     {
@@ -74,6 +74,11 @@ bool QEvent::IsEventValid() const
     }
 
     return false;
+}
+
+bool QEvent::IsPersist() const
+{
+    return m_Events & QET_PERSIST;
 }
 
 bool QEvent::IsEqual(const QEvent &Right) const

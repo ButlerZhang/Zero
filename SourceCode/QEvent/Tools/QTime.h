@@ -13,8 +13,8 @@ class QTime
 public:
 
     static void ClearTimeval(timeval &tv);
-    static bool IsTimevalValid(const timeval &tv);
+    static bool IsValid(const timeval &tv);
 
-    static timeval ConvertToTimeval(long Millisconds);
-    static long ConvertToMillisecond(const timeval *tv);
+    static timeval ConvertToTimeval(long Millisecond);
+    static long ConvertToMillisecond(const timeval &tv);
 };

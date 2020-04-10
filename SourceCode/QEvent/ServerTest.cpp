@@ -35,7 +35,7 @@ bool ServerTest::Start(const std::string &BindIP, int Port)
     ListenEvent.SetCallBack(std::bind(&ServerTest::Accept, this, ListenEvent));
     m_Reactor.AddEvent(ListenEvent);
 
-    return m_Reactor.Dispatch(NULL);
+    return m_Reactor.Dispatch();
 }
 
 void ServerTest::Accept(const QEvent &Event)
