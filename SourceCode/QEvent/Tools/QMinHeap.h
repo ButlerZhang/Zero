@@ -1,6 +1,5 @@
 #pragma once
 #include "../Event/QEvent.h"
-
 #include <vector>
 
 
@@ -16,7 +15,6 @@ public:
         long                m_Timeout;
 
         HeapNode();
-        bool operator<(const HeapNode &Right);
     };
 
 public:
@@ -24,22 +22,23 @@ public:
     QMinHeap();
     ~QMinHeap();
 
-    bool AddTimeout(const timeval &tv);
-    bool AddTimeout(const QEvent &Event, QEventFD MapKey, std::size_t VectorIndex);
-    bool AddHeapNode(const HeapNode &Node);
-
+    bool HasNode() const;
     long GetMinTimeout() const;
     void MinusElapsedTime(long ElapsedTime);
+    bool AddTimeout(const QEvent &Event, QEventFD MapKey, std::size_t VectorIndex);
 
     HeapNode Pop();
-    bool HasNode() const { return !m_HeapArray.empty(); }
     const HeapNode& Top() const { return m_HeapArray[0]; }
 
 private:
+
+    void ShiftUp(std::vector<HeapNode>::size_type Pos);
+    void ShiftDown(std::vector<HeapNode>::size_type Pos);
 
     void WriteHeapStatusLog() const;
 
 private:
 
-    std::vector<HeapNode>       m_HeapArray;
+    std::vector<HeapNode>::size_type            m_NodeCount;
+    std::vector<HeapNode>                       m_HeapArray;
 };

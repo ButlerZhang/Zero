@@ -15,6 +15,8 @@ public:
     int AddAndDeleteTimer();
     int AddAndDeleteIOEvent();
 
+    int MinHeapTest();
+
 private:
 
     void CallBack_TimeOut1(const QEvent &Event);

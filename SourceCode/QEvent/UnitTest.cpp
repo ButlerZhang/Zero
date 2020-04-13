@@ -1,5 +1,7 @@
 #include "UnitTest.h"
+#include "Tools/QMinHeap.h"
 #include "Backend/QReactor.h"
+#include "Backend/QBackend.h"
 #include "../QLog/QSimpleLog.h"
 
 #include <assert.h>
@@ -254,6 +256,44 @@ int UnitTest::AddAndDeleteIOEvent()
     assert(m_Reactor.DelEvent(NewEvent) == true);
 
     return m_Reactor.Dispatch();
+}
+
+int UnitTest::MinHeapTest()
+{
+    QEvent Timer1(1, QET_TIMEOUT);
+    Timer1.SetTimeout({ 10, 0 });
+    assert(m_Reactor.AddEvent(Timer1) == true);
+
+    QEvent Timer2(2, QET_TIMEOUT);
+    Timer2.SetTimeout({ 8, 0 });
+    assert(m_Reactor.AddEvent(Timer2) == true);
+
+    QEvent Timer3(3, QET_TIMEOUT);
+    Timer3.SetTimeout({ 17, 0 });
+    assert(m_Reactor.AddEvent(Timer3) == true);
+
+    QEvent Timer4(4, QET_TIMEOUT);
+    Timer4.SetTimeout({ 56, 0 });
+    assert(m_Reactor.AddEvent(Timer4) == true);
+
+    QEvent Timer5(5, QET_TIMEOUT);
+    Timer5.SetTimeout({ 9, 0 });
+    assert(m_Reactor.AddEvent(Timer5) == true);
+
+    QEvent Timer6(6, QET_TIMEOUT);
+    Timer6.SetTimeout({ 2, 0 });
+    assert(m_Reactor.AddEvent(Timer6) == true);
+
+    QMinHeap &MinHeap = m_Reactor.GetBackend()->GetMinHeap();
+
+    MinHeap.Pop();
+    MinHeap.Pop();
+    MinHeap.Pop();
+    MinHeap.Pop();
+    MinHeap.Pop();
+    MinHeap.Pop();
+
+    return 0;
 }
 
 void UnitTest::CallBack_TimeOut1(const QEvent & Event)
