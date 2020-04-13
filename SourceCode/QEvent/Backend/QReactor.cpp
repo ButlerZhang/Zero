@@ -37,12 +37,6 @@ bool QReactor::DelEvent(const QEvent &Event)
     return m_Backend->DelEvent(Event);
 }
 
-bool QReactor::Dispatch(const timeval &tv)
-{
-    m_Backend->GetMinHeap().AddTimeout(tv);
-    return Dispatch();
-}
-
 bool QReactor::Dispatch()
 {
     while (!m_Backend->IsStop())

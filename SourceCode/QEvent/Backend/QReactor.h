@@ -17,9 +17,7 @@ public:
 
     bool AddEvent(const QEvent &Event);
     bool DelEvent(const QEvent &Event);
-
     bool Dispatch();
-    bool Dispatch(const timeval &tv);
 
     const std::shared_ptr<QBackend>& GetBackend() const { return m_Backend; }
 
