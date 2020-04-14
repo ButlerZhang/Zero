@@ -60,7 +60,7 @@ bool QPoll::AddEvent(const QEvent &Event)
             if (m_FDMaxIndex <= Index)
             {
                 m_FDMaxIndex = Index + 1;
-                QLog::g_Log.WriteDebug("poll: FD max index = %d.",
+                QLog::g_Log.WriteDebug("poll: FD max index = %d after added.",
                     m_FDMaxIndex);
             }
 
@@ -130,6 +130,9 @@ bool QPoll::DelEvent(const QEvent &Event)
             m_FDArray[m_FDMaxIndex].revents = 0;
         }
     }
+
+    QLog::g_Log.WriteDebug("poll: FD max index = %d after deleted.",
+        m_FDMaxIndex);
 
     return DelEventFromMapVector(Event);
 }

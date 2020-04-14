@@ -29,12 +29,13 @@ protected:
     bool DelEventFromMapVector(const QEvent &Event);
     bool AddEventToMapVector(const QEvent &Event, QEventOption OP);
 
-
     bool IsExisted(const QEvent &Event) const;
     QEventFD GetMapKey(const QEvent &Event) const;
 
     void ProcessTimeout();
     void ActiveEvent(QEventFD FD, int ResultEvents);
+
+    void WriteMapVectorSnapshot();
     void WriteEventOperationLog(QEventFD MapKey, QEventFD FD, QEventOption OP);
 
 protected:

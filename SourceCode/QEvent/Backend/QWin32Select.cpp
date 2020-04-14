@@ -31,15 +31,15 @@ bool QWin32Select::AddEvent(const QEvent &Event)
     if (Event.GetEvents() & QET_READ)
     {
         FD_SET(Event.GetFD(), &m_ReadSetIn);
-        QLog::g_Log.WriteDebug("win32select: FD = %d add read event.",
-            Event.GetFD());
+        QLog::g_Log.WriteDebug("win32select: FD = %d add read event, FD count = %d after added.",
+            Event.GetFD(), m_ReadSetIn.fd_count);
     }
 
     if (Event.GetEvents() & QET_WRITE)
     {
         FD_SET(Event.GetFD(), &m_WriteSetIn);
-        QLog::g_Log.WriteDebug("win32select: FD = %d add write event.",
-            Event.GetFD());
+        QLog::g_Log.WriteDebug("win32select: FD = %d add write event, FD count = %d after added.",
+            Event.GetFD(), m_WriteSetIn.fd_count);
     }
 
     return AddEventToMapVector(Event, QEO_ADD);
@@ -75,6 +75,11 @@ bool QWin32Select::DelEvent(const QEvent &Event)
             }
         }
     }
+
+    QLog::g_Log.WriteDebug("win32select: FD = %d add read event, FD count = %d after deleted.",
+        Event.GetFD(), m_ReadSetIn.fd_count);
+    QLog::g_Log.WriteDebug("win32select: FD = %d add write event, FD count = %d after deleted.",
+        Event.GetFD(), m_WriteSetIn.fd_count);
 
     return DelEventFromMapVector(Event);
 }

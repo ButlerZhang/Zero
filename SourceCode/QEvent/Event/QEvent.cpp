@@ -58,7 +58,10 @@ bool QEvent::IsValid() const
 
     if (m_Events & (QET_READ | QET_WRITE))
     {
-        return !(m_Events & (QET_TIMEOUT | QET_SIGNAL));
+        if (m_EventFD >= 0)
+        {
+            return !(m_Events & (QET_TIMEOUT | QET_SIGNAL));
+        }
     }
 
     if (m_Events & QET_SIGNAL)

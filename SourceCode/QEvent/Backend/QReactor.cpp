@@ -14,17 +14,26 @@
 
 QReactor::QReactor()
 {
-#ifdef _WIN32
-    m_Backend = std::make_shared<QWin32Select>();
-#else
-    m_Backend = std::make_shared<QSelect>();
-    //m_Backend = std::make_shared<QPoll>();
-    //m_Backend = std::make_shared<QEpoll>();
-#endif
 }
 
 QReactor::~QReactor()
 {
+}
+
+bool QReactor::Init()
+{
+#ifdef _WIN32
+    m_Backend = std::make_shared<QWin32Select>();
+#else
+    //m_Backend = std::make_shared<QSelect>();
+    //m_Backend = std::make_shared<QPoll>();
+    m_Backend = std::make_shared<QEpoll>();
+#endif
+
+    QLog::g_Log.WriteInfo("Enable backend : %s",
+        m_Backend->GetBackendName().c_str());
+
+    return true;
 }
 
 bool QReactor::AddEvent(const QEvent &Event)
@@ -44,8 +53,8 @@ bool QReactor::Dispatch()
         long MinTimeOut = m_Backend->GetMinHeap().GetMinTimeout();
         timeval tv = QTime::ConvertToTimeval(MinTimeOut);
 
-        QLog::g_Log.WriteDebug("%s Dispatch: min timeout = %ld, tv.sec = %d, tv.usec = %d",
-            m_Backend->GetBackendName().c_str(), MinTimeOut, tv.tv_sec, tv.tv_usec);
+        QLog::g_Log.WriteDebug("Dispatch: min timeout = %ld, tv.sec = %d, tv.usec = %d",
+            MinTimeOut, tv.tv_sec, tv.tv_usec);
 
         m_Backend->Dispatch(tv);
     }

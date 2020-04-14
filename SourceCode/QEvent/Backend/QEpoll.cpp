@@ -14,7 +14,7 @@ QEpoll::QEpoll()
     memset(m_EventArray, 0, sizeof(m_EventArray));
 
     m_EpollFD = epoll_create(FD_SETSIZE);
-    QLog::g_Log.WriteInfo("epoll: Create epoll fd = %d.", m_EpollFD);
+    QLog::g_Log.WriteDebug("epoll: Create epoll fd = %d.", m_EpollFD);
 }
 
 QEpoll::~QEpoll()
@@ -32,6 +32,11 @@ bool QEpoll::AddEvent(const QEvent &Event)
     if (AddTimeoutEvent(Event))
     {
         return true;
+    }
+
+    if (Event.GetFD() == m_EpollFD)
+    {
+        return false;
     }
 
     epoll_event NewEpollEvent;
@@ -115,8 +120,16 @@ bool QEpoll::DelEvent(const QEvent &Event)
     }
 
     epoll_event DelEpollEvent;
+    DelEpollEvent.events |= EPOLLET;
     DelEpollEvent.data.fd = Event.GetFD();
-    int EpollOP = (WatchEvents == 0) ? EPOLL_CTL_DEL : EPOLL_CTL_MOD;
+
+    int EpollOP = EPOLL_CTL_DEL;
+    if (WatchEvents > 0)
+    {
+        EpollOP = EPOLL_CTL_MOD;
+        DelEpollEvent.events |= WatchEvents;
+    }
+
     if (epoll_ctl(m_EpollFD, EpollOP, Event.GetFD(), &DelEpollEvent) != 0)
     {
         QLog::g_Log.WriteInfo("epoll : FD = %d delete failed, errno = %d, errstr = %s.",

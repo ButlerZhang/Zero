@@ -25,15 +25,15 @@ bool QBackend::AddEvent(const QEvent &Event)
 {
     if (!Event.IsValid())
     {
-        QLog::g_Log.WriteError("%s: Add event FD = %d, events = %d failed, it is not valid.",
-            m_BackendName.c_str(), Event.GetFD(), Event.GetEvents());
+        QLog::g_Log.WriteError("Add event failed, FD = %d, events = %d, it is not valid.",
+            Event.GetFD(), Event.GetEvents());
         return false;
     }
 
     if (IsExisted(Event))
     {
-        QLog::g_Log.WriteError("%s: Add event FD = %d, events = %d falied, it is existed.",
-            m_BackendName.c_str(), Event.GetFD(), Event.GetEvents());
+        QLog::g_Log.WriteError("Add event failed, FD = %d, events = %d, it is existed.",
+            Event.GetFD(), Event.GetEvents());
         return false;
     }
 
@@ -44,8 +44,8 @@ bool QBackend::DelEvent(const QEvent &Event)
 {
     if (!IsExisted(Event))
     {
-        QLog::g_Log.WriteError("%s: Del event FD = %d, events = %d falied, it is not existed.",
-            m_BackendName.c_str(), Event.GetFD(), Event.GetEvents());
+        QLog::g_Log.WriteError("Del event failed, FD = %d, events = %d, it is not existed.",
+            Event.GetFD(), Event.GetEvents());
         return false;
     }
 
@@ -83,8 +83,8 @@ bool QBackend::DelEventFromMapVector(const QEvent &Event)
     std::map<QEventFD, std::vector<QEvent>>::iterator MapIt = m_EventMap.find(MapKey);
     if (MapIt == m_EventMap.end())
     {
-        QLog::g_Log.WriteError("%s: Delete event FD = %d failed, can not find FD.",
-            m_BackendName.c_str(), Event.GetFD());
+        QLog::g_Log.WriteError("Delete event failed, can not find FD = %d.",
+            Event.GetFD());
         return false;
     }
 
@@ -100,8 +100,8 @@ bool QBackend::DelEventFromMapVector(const QEvent &Event)
 
     if (TargetIt == MapIt->second.end())
     {
-        QLog::g_Log.WriteError("%s: Delete event FD = %d failed, can not match.",
-            m_BackendName.c_str(), Event.GetFD());
+        QLog::g_Log.WriteError("Delete event failed, can not match FD = %d.",
+            Event.GetFD());
         return false;
     }
 
@@ -111,6 +111,7 @@ bool QBackend::DelEventFromMapVector(const QEvent &Event)
         m_EventMap.erase(MapIt);
     }
 
+    WriteMapVectorSnapshot();
     return true;
 }
 
@@ -118,6 +119,8 @@ bool QBackend::AddEventToMapVector(const QEvent &Event, QEventOption OP)
 {
     m_EventMap[Event.GetFD()].push_back(std::move(Event));
     WriteEventOperationLog(Event.GetFD(), Event.GetFD(), OP);
+
+    WriteMapVectorSnapshot();
     m_MinHeap.AddTimeout(Event, Event.GetFD(), m_EventMap[Event.GetFD()].size() - 1);
     return true;
 }
@@ -206,6 +209,30 @@ void QBackend::ActiveEvent(QEventFD FD, int ResultEvents)
     }
 }
 
+void QBackend::WriteMapVectorSnapshot()
+{
+    return;
+    QLog::g_Log.WriteDebug("==========map and vector snapshot==========");
+
+    int MapCount = 0;
+    std::map<QEventFD, std::vector<QEvent>>::const_iterator MapIt = m_EventMap.begin();
+    while (MapIt != m_EventMap.end())
+    {
+        QLog::g_Log.WriteDebug("map index = %d, map key = %d, vector size = %d",
+            MapCount++, MapIt->first, static_cast<int>(MapIt->second.size()));
+
+        for (std::vector<QEvent>::size_type Index = 0; Index != MapIt->second.size(); Index++)
+        {
+            QLog::g_Log.WriteDebug("\tvec index = %ld\tFD = %d\tevents = %d",
+                Index, MapIt->second[Index].GetFD(), MapIt->second[Index].GetEvents());
+        }
+
+        MapIt++;
+    }
+
+    QLog::g_Log.WriteDebug("===========================================");
+}
+
 void QBackend::WriteEventOperationLog(QEventFD MapKey, QEventFD FD, QEventOption OP)
 {
     int EventCount = 0;
@@ -217,6 +244,6 @@ void QBackend::WriteEventOperationLog(QEventFD MapKey, QEventFD FD, QEventOption
         EventCount += static_cast<int>((it++)->second.size());
     }
 
-    QLog::g_Log.WriteDebug("%s: MapKey = %d, FD = %d, OP = %s, FD Count = %d, Event Count = %d.",
+    QLog::g_Log.WriteDebug("%s: map key = %d, FD = %d, OP = %s; FD count = %d, event count = %d.",
         m_BackendName.c_str(), MapKey, FD, GetEventOptionString(OP), FDCount, EventCount);
 }

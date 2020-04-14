@@ -11,10 +11,16 @@ public:
     UnitTest();
     ~UnitTest();
 
+    int StartTest();
+
+private:
+
+    void AddIOEvents();
+    void DelIOEvents();
+    void AddAndDelIOEventsByFor();
+
     int AddMultiTimer();
     int AddAndDeleteTimer();
-    int AddAndDeleteIOEvent();
-
     int MinHeapTest();
 
 private:

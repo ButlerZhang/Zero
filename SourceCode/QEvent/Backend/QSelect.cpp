@@ -47,7 +47,7 @@ bool QSelect::AddEvent(const QEvent &Event)
     if (m_HighestEventFD <= Event.GetFD())
     {
         m_HighestEventFD = Event.GetFD() + 1;
-        QLog::g_Log.WriteDebug("select: Highest event FD = %d.",
+        QLog::g_Log.WriteDebug("select: Highest event FD = %d after added.",
             m_HighestEventFD);
     }
 
@@ -94,6 +94,9 @@ bool QSelect::DelEvent(const QEvent &Event)
 
         --m_HighestEventFD;
     }
+
+    QLog::g_Log.WriteDebug("select: Highest event FD = %d after deleted.",
+        m_HighestEventFD);
 
     return DelEventFromMapVector(Event);
 }

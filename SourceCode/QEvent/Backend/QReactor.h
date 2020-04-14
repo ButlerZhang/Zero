@@ -15,6 +15,8 @@ public:
     QReactor();
     ~QReactor();
 
+    bool Init();
+
     bool AddEvent(const QEvent &Event);
     bool DelEvent(const QEvent &Event);
     bool Dispatch();
