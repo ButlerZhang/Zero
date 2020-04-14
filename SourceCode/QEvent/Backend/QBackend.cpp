@@ -52,31 +52,6 @@ bool QBackend::DelEvent(const QEvent &Event)
     return true;
 }
 
-bool QBackend::AddTimeoutEvent(const QEvent &Event)
-{
-    if (Event.GetEvents() & QET_TIMEOUT)
-    {
-        m_EventMap[m_TimerFD].push_back(std::move(Event));
-        WriteEventOperationLog(m_TimerFD, Event.GetFD(), QEO_ADD);
-        m_MinHeap.AddTimeout(Event, m_TimerFD, m_EventMap[m_TimerFD].size() - 1);
-        return true;
-    }
-
-    return false;
-}
-
-bool QBackend::DelTimeoutEvent(const QEvent &Event)
-{
-    if (Event.GetEvents() & QET_TIMEOUT)
-    {
-        DelEventFromMapVector(Event);
-        WriteEventOperationLog(m_TimerFD, Event.GetFD(), QEO_DEL);
-        return true;
-    }
-
-    return false;
-}
-
 bool QBackend::DelEventFromMapVector(const QEvent &Event)
 {
     QEventFD MapKey = GetMapKey(Event);
@@ -88,9 +63,11 @@ bool QBackend::DelEventFromMapVector(const QEvent &Event)
         return false;
     }
 
+    std::vector<QEvent>::size_type TargetIndex = -1;
     std::vector<QEvent>::iterator TargetIt = MapIt->second.end();
     for (std::vector<QEvent>::iterator VecIt = MapIt->second.begin(); VecIt != MapIt->second.end(); VecIt++)
     {
+        TargetIndex += 1;
         if (VecIt->IsEqual(Event))
         {
             TargetIt = VecIt;
@@ -105,6 +82,11 @@ bool QBackend::DelEventFromMapVector(const QEvent &Event)
         return false;
     }
 
+    if (TargetIt->GetEvents() & QET_TIMEOUT)
+    {
+        m_MinHeap.DelTimeout(MapKey, TargetIndex);
+    }
+
     MapIt->second.erase(TargetIt);
     if (MapIt->second.empty())
     {
@@ -117,11 +99,12 @@ bool QBackend::DelEventFromMapVector(const QEvent &Event)
 
 bool QBackend::AddEventToMapVector(const QEvent &Event, QEventOption OP)
 {
-    m_EventMap[Event.GetFD()].push_back(std::move(Event));
-    WriteEventOperationLog(Event.GetFD(), Event.GetFD(), OP);
+    QEventFD MapKey = GetMapKey(Event);
+    m_EventMap[MapKey].push_back(std::move(Event));
+    WriteEventOperationLog(MapKey, Event.GetFD(), OP);
 
     WriteMapVectorSnapshot();
-    m_MinHeap.AddTimeout(Event, Event.GetFD(), m_EventMap[Event.GetFD()].size() - 1);
+    m_MinHeap.AddTimeout(Event, MapKey, m_EventMap[Event.GetFD()].size() - 1);
     return true;
 }
 
@@ -211,7 +194,6 @@ void QBackend::ActiveEvent(QEventFD FD, int ResultEvents)
 
 void QBackend::WriteMapVectorSnapshot()
 {
-    return;
     QLog::g_Log.WriteDebug("==========map and vector snapshot==========");
 
     int MapCount = 0;

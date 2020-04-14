@@ -43,8 +43,33 @@ bool QMinHeap::AddTimeout(const QEvent &Event, QEventFD MapKey, std::size_t Vect
     ++m_NodeCount;
     ShiftUp(m_NodeCount - 1);
 
-    WriteHeapStatusLog();
+    WriteMinHeapSnapshot();
     return true;
+}
+
+bool QMinHeap::DelTimeout(QEventFD MapKey, std::size_t VectorIndex)
+{
+    for (std::vector<HeapNode>::size_type Index = 0; Index < m_NodeCount; Index++)
+    {
+        if (m_HeapArray[Index].m_MapKey == MapKey && m_HeapArray[Index].m_MapVectorIndex == VectorIndex)
+        {
+            std::swap(m_HeapArray[Index], m_HeapArray[--m_NodeCount]);
+            std::vector<HeapNode>::size_type Parent = (Index - 1) / 2;
+
+            if (Parent < m_NodeCount && m_HeapArray[Parent].m_Timeout < m_HeapArray[Index].m_Timeout)
+            {
+                ShiftDown(Index);
+            }
+            else
+            {
+                ShiftUp(Index);
+            }
+
+            return true;
+        }
+    }
+
+    return false;
 }
 
 bool QMinHeap::HasNode() const
@@ -69,7 +94,7 @@ void QMinHeap::MinusElapsedTime(long ElapsedTime)
         }
     }
 
-    WriteHeapStatusLog();
+    WriteMinHeapSnapshot();
 }
 
 QMinHeap::HeapNode QMinHeap::Pop()
@@ -87,7 +112,7 @@ QMinHeap::HeapNode QMinHeap::Pop()
     QLog::g_Log.WriteDebug("MinHeap: Pop heap node, map_key = %d\tvec_index=%d\ttimeout = %ld",
         Node.m_MapKey, Node.m_MapVectorIndex, Node.m_Timeout);
 
-    WriteHeapStatusLog();
+    WriteMinHeapSnapshot();
     return Node;
 }
 
@@ -125,13 +150,17 @@ void QMinHeap::ShiftDown(std::vector<HeapNode>::size_type Pos)
     }
 }
 
-void QMinHeap::WriteHeapStatusLog() const
+void QMinHeap::WriteMinHeapSnapshot() const
 {
-    QLog::g_Log.WriteDebug("MinHeap: Current heap node count = %d", static_cast<int>(m_NodeCount));
+    QLog::g_Log.WriteDebug("==========min heap snapshot==========");
+
+    QLog::g_Log.WriteDebug("MinHeap: node count = %d", static_cast<int>(m_NodeCount));
     for (std::vector<HeapNode>::size_type Index = 0; Index < m_NodeCount; Index++)
     {
         const HeapNode &Node = m_HeapArray[Index];
         QLog::g_Log.WriteDebug("MinHeap: heap_index = %d\tmap_key = %d\tvec_index=%d\ttimeout = %ld",
             Index, Node.m_MapKey, Node.m_MapVectorIndex, Node.m_Timeout / 1000);
     }
+
+    QLog::g_Log.WriteDebug("=====================================");
 }

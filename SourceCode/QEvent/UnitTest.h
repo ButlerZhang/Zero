@@ -15,13 +15,14 @@ public:
 
 private:
 
+    //IO
     void AddIOEvents();
     void DelIOEvents();
     void AddAndDelIOEventsByFor();
 
-    int AddMultiTimer();
-    int AddAndDeleteTimer();
-    int MinHeapTest();
+    //Timer
+    void MinHeapTest();
+    void AddAndDeleteTimer();
 
 private:
 

@@ -29,9 +29,9 @@ bool QEpoll::AddEvent(const QEvent &Event)
         return false;
     }
 
-    if (AddTimeoutEvent(Event))
+    if (Event.GetEvents() & QET_TIMEOUT)
     {
-        return true;
+        return AddEventToMapVector(Event, QEO_ADD);
     }
 
     if (Event.GetFD() == m_EpollFD)
@@ -97,9 +97,10 @@ bool QEpoll::DelEvent(const QEvent &Event)
         return false;
     }
 
-    if (DelTimeoutEvent(Event))
+    if (Event.GetEvents() & QET_TIMEOUT)
     {
-        return true;
+        WriteEventOperationLog(m_TimerFD, Event.GetFD(), QEO_DEL);
+        return DelEventFromMapVector(Event);
     }
 
     int WatchEvents = 0;

@@ -25,9 +25,9 @@ bool QReactor::Init()
 #ifdef _WIN32
     m_Backend = std::make_shared<QWin32Select>();
 #else
-    //m_Backend = std::make_shared<QSelect>();
+    m_Backend = std::make_shared<QSelect>();
     //m_Backend = std::make_shared<QPoll>();
-    m_Backend = std::make_shared<QEpoll>();
+    //m_Backend = std::make_shared<QEpoll>();
 #endif
 
     QLog::g_Log.WriteInfo("Enable backend : %s",

@@ -30,9 +30,9 @@ bool QPoll::AddEvent(const QEvent &Event)
         return false;
     }
 
-    if (AddTimeoutEvent(Event))
+    if (Event.GetEvents() & QET_TIMEOUT)
     {
-        return true;
+        return AddEventToMapVector(Event, QEO_ADD);
     }
 
     for (int Index = 0; Index < FD_SETSIZE; Index++)
@@ -80,9 +80,10 @@ bool QPoll::DelEvent(const QEvent &Event)
         return false;
     }
 
-    if (DelTimeoutEvent(Event))
+    if (Event.GetEvents() & QET_TIMEOUT)
     {
-        return true;
+        WriteEventOperationLog(m_TimerFD, Event.GetFD(), QEO_DEL);
+        return DelEventFromMapVector(Event);
     }
 
     int DeleteIndex = -1;

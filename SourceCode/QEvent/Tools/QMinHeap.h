@@ -25,7 +25,9 @@ public:
     bool HasNode() const;
     long GetMinTimeout() const;
     void MinusElapsedTime(long ElapsedTime);
+
     bool AddTimeout(const QEvent &Event, QEventFD MapKey, std::size_t VectorIndex);
+    bool DelTimeout(QEventFD MapKey, std::size_t VectorIndex);
 
     HeapNode Pop();
     const HeapNode& Top() const { return m_HeapArray[0]; }
@@ -35,7 +37,7 @@ private:
     void ShiftUp(std::vector<HeapNode>::size_type Pos);
     void ShiftDown(std::vector<HeapNode>::size_type Pos);
 
-    void WriteHeapStatusLog() const;
+    void WriteMinHeapSnapshot() const;
 
 private:
 

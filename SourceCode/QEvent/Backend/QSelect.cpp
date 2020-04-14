@@ -25,9 +25,9 @@ bool QSelect::AddEvent(const QEvent &Event)
         return false;
     }
 
-    if (AddTimeoutEvent(Event))
+    if (Event.GetEvents() & QET_TIMEOUT)
     {
-        return true;
+        return AddEventToMapVector(Event, QEO_ADD);
     }
 
     if (Event.GetEvents() & QET_READ)
@@ -61,9 +61,10 @@ bool QSelect::DelEvent(const QEvent &Event)
         return false;
     }
 
-    if (DelTimeoutEvent(Event))
+    if (Event.GetEvents() & QET_TIMEOUT)
     {
-        return true;
+        WriteEventOperationLog(m_TimerFD, Event.GetFD(), QEO_DEL);
+        return DelEventFromMapVector(Event);
     }
 
     FD_CLR(Event.GetFD(), &m_ReadSetIn);
