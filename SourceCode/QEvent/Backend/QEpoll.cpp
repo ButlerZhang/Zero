@@ -29,11 +29,8 @@ bool QEpoll::AddEvent(const QEvent &Event)
         return false;
     }
 
-    if (Event.GetEvents() & QET_TIMEOUT)
+    if (AddTimeoutEvent(Event))
     {
-        m_EventMap[m_TimerFD].push_back(std::move(Event));
-        WriteEventOperationLog(m_TimerFD, Event.GetFD(), QEO_ADD);
-        m_MinHeap.AddTimeout(Event, m_TimerFD, m_EventMap[m_TimerFD].size() - 1);
         return true;
     }
 
@@ -83,10 +80,7 @@ bool QEpoll::AddEvent(const QEvent &Event)
         return false;
     }
 
-    m_EventMap[Event.GetFD()].push_back(std::move(Event));
-    WriteEventOperationLog(Event.GetFD(), Event.GetFD(), static_cast<QEventOption>(EpollOP));
-    m_MinHeap.AddTimeout(Event, Event.GetFD(), m_EventMap[Event.GetFD()].size() - 1);
-    return true;
+    return AddEventToMapVector(Event, static_cast<QEventOption>(EpollOP));
 }
 
 bool QEpoll::DelEvent(const QEvent &Event)

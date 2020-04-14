@@ -25,11 +25,8 @@ bool QSelect::AddEvent(const QEvent &Event)
         return false;
     }
 
-    if (Event.GetEvents() & QET_TIMEOUT)
+    if (AddTimeoutEvent(Event))
     {
-        m_EventMap[m_TimerFD].push_back(std::move(Event));
-        WriteEventOperationLog(m_TimerFD, Event.GetFD(), QEO_ADD);
-        m_MinHeap.AddTimeout(Event, m_TimerFD, m_EventMap[m_TimerFD].size() - 1);
         return true;
     }
 
@@ -51,11 +48,7 @@ bool QSelect::AddEvent(const QEvent &Event)
         QLog::g_Log.WriteDebug("select: Highest event FD = %d.", m_HighestEventFD);
     }
 
-    m_EventMap[Event.GetFD()].push_back(std::move(Event));
-    WriteEventOperationLog(Event.GetFD(), Event.GetFD(), QEO_ADD);
-    m_MinHeap.AddTimeout(Event, Event.GetFD(), m_EventMap[Event.GetFD()].size() - 1);
-
-    return true;
+    return AddEventToMapVector(Event, QEO_ADD);
 }
 
 bool QSelect::DelEvent(const QEvent &Event)

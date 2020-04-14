@@ -30,11 +30,8 @@ bool QPoll::AddEvent(const QEvent &Event)
         return false;
     }
 
-    if (Event.GetEvents() & QET_TIMEOUT)
+    if (AddTimeoutEvent(Event))
     {
-        m_EventMap[m_TimerFD].push_back(std::move(Event));
-        WriteEventOperationLog(m_TimerFD, Event.GetFD(), QEO_ADD);
-        m_MinHeap.AddTimeout(Event, m_TimerFD, m_EventMap[m_TimerFD].size() - 1);
         return true;
     }
 
@@ -65,14 +62,11 @@ bool QPoll::AddEvent(const QEvent &Event)
                 QLog::g_Log.WriteDebug("poll: FD max index = %d.", m_FDMaxIndex);
             }
 
-            m_EventMap[Event.GetFD()].push_back(std::move(Event));
-            WriteEventOperationLog(Event.GetFD(), Event.GetFD(), OP);
-            m_MinHeap.AddTimeout(Event, Event.GetFD(), m_EventMap[Event.GetFD()].size() - 1);
-            return true;
+            return AddEventToMapVector(Event, OP);
         }
     }
 
-    QLog::g_Log.WriteError("%s: FD = %d watch events = %d add failed, no location.",
+    QLog::g_Log.WriteError("%s: FD = %d events = %d add failed, no location.",
         m_BackendName.c_str(), Event.GetFD(), Event.GetEvents());
     return false;
 }

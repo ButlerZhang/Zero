@@ -77,6 +77,27 @@ bool QBackend::DelEvent(const QEvent &Event)
     return true;
 }
 
+bool QBackend::AddTimeoutEvent(const QEvent &Event)
+{
+    if (Event.GetEvents() & QET_TIMEOUT)
+    {
+        m_EventMap[m_TimerFD].push_back(std::move(Event));
+        WriteEventOperationLog(m_TimerFD, Event.GetFD(), QEO_ADD);
+        m_MinHeap.AddTimeout(Event, m_TimerFD, m_EventMap[m_TimerFD].size() - 1);
+        return true;
+    }
+
+    return false;
+}
+
+bool QBackend::AddEventToMapVector(const QEvent &Event, QEventOption OP)
+{
+    m_EventMap[Event.GetFD()].push_back(std::move(Event));
+    WriteEventOperationLog(Event.GetFD(), Event.GetFD(), OP);
+    m_MinHeap.AddTimeout(Event, Event.GetFD(), m_EventMap[Event.GetFD()].size() - 1);
+    return true;
+}
+
 bool QBackend::IsExisted(const QEvent &Event) const
 {
     QEventFD MapKey = GetMapKey(Event);
