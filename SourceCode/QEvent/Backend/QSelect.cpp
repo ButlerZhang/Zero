@@ -33,19 +33,22 @@ bool QSelect::AddEvent(const QEvent &Event)
     if (Event.GetEvents() & QET_READ)
     {
         FD_SET(Event.GetFD(), &m_ReadSetIn);
-        QLog::g_Log.WriteDebug("select: FD = %d add read event.", Event.GetFD());
+        QLog::g_Log.WriteDebug("select: FD = %d add read event.",
+            Event.GetFD());
     }
 
     if (Event.GetEvents() & QET_WRITE)
     {
         FD_SET(Event.GetFD(), &m_WriteSetIn);
-        QLog::g_Log.WriteDebug("select: FD = %d add write event.", Event.GetFD());
+        QLog::g_Log.WriteDebug("select: FD = %d add write event.",
+            Event.GetFD());
     }
 
     if (m_HighestEventFD <= Event.GetFD())
     {
         m_HighestEventFD = Event.GetFD() + 1;
-        QLog::g_Log.WriteDebug("select: Highest event FD = %d.", m_HighestEventFD);
+        QLog::g_Log.WriteDebug("select: Highest event FD = %d.",
+            m_HighestEventFD);
     }
 
     return AddEventToMapVector(Event, QEO_ADD);
@@ -58,47 +61,41 @@ bool QSelect::DelEvent(const QEvent &Event)
         return false;
     }
 
-    if (Event.GetEvents() & QET_TIMEOUT)
+    if (DelTimeoutEvent(Event))
     {
-        WriteEventOperationLog(m_TimerFD, Event.GetFD(), QEO_DEL);
         return true;
     }
 
     FD_CLR(Event.GetFD(), &m_ReadSetIn);
     FD_CLR(Event.GetFD(), &m_WriteSetIn);
 
-    m_HighestEventFD = 0;
-    QEventOption OP = QEO_DEL;
-
-    for (std::map<QEventFD, std::vector<QEvent>>::iterator MapIt = m_EventMap.begin(); MapIt != m_EventMap.end(); MapIt++)
+    for (std::vector<QEvent>::iterator VecIt = m_EventMap[Event.GetFD()].begin(); VecIt != m_EventMap[Event.GetFD()].end(); VecIt++)
     {
-        if (MapIt->first == Event.GetFD())
+        if (!VecIt->IsEqual(Event))
         {
-            OP = QEO_MOD;
-            for (std::vector<QEvent>::iterator VecIt = MapIt->second.begin(); VecIt != MapIt->second.end(); VecIt++)
+            if (VecIt->GetEvents() & QET_READ)
             {
-                int WatchEvents = VecIt->GetEvents();
-                if (WatchEvents & QET_READ)
-                {
-                    FD_SET(VecIt->GetFD(), &m_ReadSetIn);
-                }
-
-                if (Event.GetEvents() & QET_WRITE)
-                {
-                    FD_SET(VecIt->GetFD(), &m_WriteSetIn);
-                }
+                FD_SET(VecIt->GetFD(), &m_ReadSetIn);
             }
-        }
 
-        if (m_HighestEventFD <= MapIt->first)
-        {
-            m_HighestEventFD = MapIt->first + 1;
+            if (VecIt->GetEvents() & QET_WRITE)
+            {
+                FD_SET(VecIt->GetFD(), &m_WriteSetIn);
+            }
         }
     }
 
-    QLog::g_Log.WriteDebug("select: Highest event FD = %d.", m_HighestEventFD);
-    WriteEventOperationLog(Event.GetFD(), Event.GetFD(), OP);
-    return true;
+    for (int FD = m_HighestEventFD - 1; FD >= 0; FD--)
+    {
+        if (FD_ISSET(FD, &m_ReadSetIn) || FD_ISSET(FD, &m_WriteSetIn))
+        {
+            break;
+        }
+
+        --m_HighestEventFD;
+    }
+
+    return DelEventFromMapVector(Event);
 }
 
 bool QSelect::Dispatch(timeval &tv)

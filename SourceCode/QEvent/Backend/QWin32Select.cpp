@@ -31,13 +31,15 @@ bool QWin32Select::AddEvent(const QEvent &Event)
     if (Event.GetEvents() & QET_READ)
     {
         FD_SET(Event.GetFD(), &m_ReadSetIn);
-        QLog::g_Log.WriteDebug("win32select: FD = %d add read event.", Event.GetFD());
+        QLog::g_Log.WriteDebug("win32select: FD = %d add read event.",
+            Event.GetFD());
     }
 
     if (Event.GetEvents() & QET_WRITE)
     {
         FD_SET(Event.GetFD(), &m_WriteSetIn);
-        QLog::g_Log.WriteDebug("win32select: FD = %d add write event.", Event.GetFD());
+        QLog::g_Log.WriteDebug("win32select: FD = %d add write event.",
+            Event.GetFD());
     }
 
     return AddEventToMapVector(Event, QEO_ADD);
@@ -45,27 +47,22 @@ bool QWin32Select::AddEvent(const QEvent &Event)
 
 bool QWin32Select::DelEvent(const QEvent &Event)
 {
-    QEvent CopyEvent = Event;
     if (!QBackend::DelEvent(Event))
     {
         return false;
     }
 
-    if (CopyEvent.GetEvents() & QET_TIMEOUT)
+    if (DelTimeoutEvent(Event))
     {
-        WriteEventOperationLog(m_TimerFD, CopyEvent.GetFD(), QEO_DEL);
         return true;
     }
 
-    QEventOption OP = QEO_DEL;
-    FD_CLR(CopyEvent.GetFD(), &m_ReadSetIn);
-    FD_CLR(CopyEvent.GetFD(), &m_WriteSetIn);
+    FD_CLR(Event.GetFD(), &m_ReadSetIn);
+    FD_CLR(Event.GetFD(), &m_WriteSetIn);
 
-    std::map<QEventFD, std::vector<QEvent>>::iterator MapIt = m_EventMap.find(CopyEvent.GetFD());
-    if (MapIt != m_EventMap.end())
+    for (std::vector<QEvent>::iterator VecIt = m_EventMap[Event.GetFD()].begin(); VecIt != m_EventMap[Event.GetFD()].end(); VecIt++)
     {
-        OP = QEO_MOD;
-        for (std::vector<QEvent>::iterator VecIt = MapIt->second.begin(); VecIt != MapIt->second.end(); VecIt++)
+        if (!VecIt->IsEqual(Event))
         {
             if (VecIt->GetEvents() & QET_READ)
             {
@@ -79,8 +76,7 @@ bool QWin32Select::DelEvent(const QEvent &Event)
         }
     }
 
-    WriteEventOperationLog(CopyEvent.GetFD(), CopyEvent.GetFD(), OP);
-    return true;
+    return DelEventFromMapVector(Event);
 }
 
 bool QWin32Select::Dispatch(timeval &tv)

@@ -64,13 +64,15 @@ bool QEpoll::AddEvent(const QEvent &Event)
     if (WatchEvents & QET_READ)
     {
         NewEpollEvent.events |= EPOLLIN;
-        QLog::g_Log.WriteDebug("epoll: FD = %d add read event.", Event.GetFD());
+        QLog::g_Log.WriteDebug("epoll: FD = %d add read event.",
+            Event.GetFD());
     }
 
     if (WatchEvents & QET_WRITE)
     {
         NewEpollEvent.events |= EPOLLOUT;
-        QLog::g_Log.WriteDebug("epoll: FD = %d add write event.", Event.GetFD());
+        QLog::g_Log.WriteDebug("epoll: FD = %d add write event.",
+            Event.GetFD());
     }
 
     if (epoll_ctl(m_EpollFD, EpollOP, Event.GetFD(), &NewEpollEvent) != 0)
@@ -90,24 +92,16 @@ bool QEpoll::DelEvent(const QEvent &Event)
         return false;
     }
 
-    if (Event.GetEvents() & QET_TIMEOUT)
+    if (DelTimeoutEvent(Event))
     {
-        WriteEventOperationLog(m_TimerFD, Event.GetFD(), QEO_DEL);
         return true;
     }
 
-    epoll_event DelEpollEvent;
-    DelEpollEvent.data.fd = Event.GetFD();
-
     int WatchEvents = 0;
-    int EpollOP = EPOLL_CTL_DEL;
-
-    std::map<QEventFD, std::vector<QEvent>>::iterator MapIt = m_EventMap.find(Event.GetFD());
-    if (MapIt != m_EventMap.end())
+    for (std::vector<QEvent>::iterator VecIt = m_EventMap[Event.GetFD()].begin(); VecIt != m_EventMap[Event.GetFD()].end(); VecIt++)
     {
-        for (std::vector<QEvent>::iterator VecIt = MapIt->second.begin(); VecIt != MapIt->second.end(); VecIt++)
+        if (!VecIt->IsEqual(Event))
         {
-            EpollOP = EPOLL_CTL_MOD;
             if (VecIt->GetEvents() & QET_READ)
             {
                 WatchEvents |= QET_READ;
@@ -120,6 +114,9 @@ bool QEpoll::DelEvent(const QEvent &Event)
         }
     }
 
+    epoll_event DelEpollEvent;
+    DelEpollEvent.data.fd = Event.GetFD();
+    int EpollOP = (WatchEvents == 0) ? EPOLL_CTL_DEL : EPOLL_CTL_MOD;
     if (epoll_ctl(m_EpollFD, EpollOP, Event.GetFD(), &DelEpollEvent) != 0)
     {
         QLog::g_Log.WriteInfo("epoll : FD = %d delete failed, errno = %d, errstr = %s.",
@@ -127,8 +124,7 @@ bool QEpoll::DelEvent(const QEvent &Event)
         return false;
     }
 
-    WriteEventOperationLog(Event.GetFD(), Event.GetFD(), static_cast<QEventOption>(EpollOP));
-    return true;
+    return DelEventFromMapVector(Event);
 }
 
 bool QEpoll::Dispatch(timeval &tv)

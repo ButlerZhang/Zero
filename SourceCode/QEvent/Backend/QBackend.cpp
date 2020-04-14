@@ -42,6 +42,43 @@ bool QBackend::AddEvent(const QEvent &Event)
 
 bool QBackend::DelEvent(const QEvent &Event)
 {
+    if (!IsExisted(Event))
+    {
+        QLog::g_Log.WriteError("%s: Del event FD = %d, events = %d falied, it is not existed.",
+            m_BackendName.c_str(), Event.GetFD(), Event.GetEvents());
+        return false;
+    }
+
+    return true;
+}
+
+bool QBackend::AddTimeoutEvent(const QEvent &Event)
+{
+    if (Event.GetEvents() & QET_TIMEOUT)
+    {
+        m_EventMap[m_TimerFD].push_back(std::move(Event));
+        WriteEventOperationLog(m_TimerFD, Event.GetFD(), QEO_ADD);
+        m_MinHeap.AddTimeout(Event, m_TimerFD, m_EventMap[m_TimerFD].size() - 1);
+        return true;
+    }
+
+    return false;
+}
+
+bool QBackend::DelTimeoutEvent(const QEvent &Event)
+{
+    if (Event.GetEvents() & QET_TIMEOUT)
+    {
+        DelEventFromMapVector(Event);
+        WriteEventOperationLog(m_TimerFD, Event.GetFD(), QEO_DEL);
+        return true;
+    }
+
+    return false;
+}
+
+bool QBackend::DelEventFromMapVector(const QEvent &Event)
+{
     QEventFD MapKey = GetMapKey(Event);
     std::map<QEventFD, std::vector<QEvent>>::iterator MapIt = m_EventMap.find(MapKey);
     if (MapIt == m_EventMap.end())
@@ -75,19 +112,6 @@ bool QBackend::DelEvent(const QEvent &Event)
     }
 
     return true;
-}
-
-bool QBackend::AddTimeoutEvent(const QEvent &Event)
-{
-    if (Event.GetEvents() & QET_TIMEOUT)
-    {
-        m_EventMap[m_TimerFD].push_back(std::move(Event));
-        WriteEventOperationLog(m_TimerFD, Event.GetFD(), QEO_ADD);
-        m_MinHeap.AddTimeout(Event, m_TimerFD, m_EventMap[m_TimerFD].size() - 1);
-        return true;
-    }
-
-    return false;
 }
 
 bool QBackend::AddEventToMapVector(const QEvent &Event, QEventOption OP)

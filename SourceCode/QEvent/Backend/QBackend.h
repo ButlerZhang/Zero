@@ -24,7 +24,11 @@ public:
 protected:
 
     bool AddTimeoutEvent(const QEvent &Event);
+    bool DelTimeoutEvent(const QEvent &Event);
+
+    bool DelEventFromMapVector(const QEvent &Event);
     bool AddEventToMapVector(const QEvent &Event, QEventOption OP);
+
 
     bool IsExisted(const QEvent &Event) const;
     QEventFD GetMapKey(const QEvent &Event) const;
