@@ -41,7 +41,7 @@ bool QMinHeap::AddTimeout(const QEvent &Event, QEventFD MapKey, std::size_t Vect
     LastNode.m_Timeout = QTime::ConvertToMillisecond(Event.GetTimeout());
 
     ++m_NodeCount;
-    ShiftUp(m_HeapArray.size() - 1);
+    ShiftUp(m_NodeCount - 1);
 
     WriteHeapStatusLog();
     return true;
@@ -90,7 +90,6 @@ QMinHeap::HeapNode QMinHeap::Pop()
     WriteHeapStatusLog();
     return Node;
 }
-
 
 void QMinHeap::ShiftUp(std::vector<HeapNode>::size_type Pos)
 {
