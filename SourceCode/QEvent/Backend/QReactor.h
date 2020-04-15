@@ -15,10 +15,11 @@ public:
     ~QReactor();
 
     bool Init();
+    bool Dispatch();
 
     bool AddEvent(const QEvent &Event);
     bool DelEvent(const QEvent &Event);
-    bool Dispatch();
+    bool ModEvent(const QEvent &Event);
 
     const std::shared_ptr<QBackend>& GetBackend() const { return m_Backend; }
 

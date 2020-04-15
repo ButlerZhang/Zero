@@ -52,6 +52,19 @@ bool QBackend::DelEvent(const QEvent &Event)
     return true;
 }
 
+bool QBackend::ModEvent(const QEvent &Event)
+{
+    if (!Event.IsValid())
+    {
+        QLog::g_Log.WriteError("Mod event failed, FD = %d, events = %d, it is not valid.",
+            Event.GetFD(), Event.GetEvents());
+        return false;
+    }
+
+    //TODO
+    return false;
+}
+
 bool QBackend::AddEventToMapVector(const QEvent &Event, QEventOption OP)
 {
     QEventFD MapKey = GetMapKey(Event);

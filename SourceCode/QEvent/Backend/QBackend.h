@@ -15,6 +15,7 @@ public:
 
     virtual bool AddEvent(const QEvent &Event);
     virtual bool DelEvent(const QEvent &Event);
+    virtual bool ModEvent(const QEvent &Event);
     virtual bool Dispatch(timeval &tv)  = 0;
 
     inline bool IsStop() const { return m_IsStop; }

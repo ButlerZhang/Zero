@@ -33,7 +33,7 @@ public:
     void CallBack();
     bool IsValid() const;
     bool IsPersist() const;
-    bool IsEqual(const QEvent& Right) const;
+    bool IsEqual(const QEvent &Right) const;
 
 protected:
 

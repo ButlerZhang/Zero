@@ -46,6 +46,11 @@ bool QReactor::DelEvent(const QEvent &Event)
     return m_Backend->DelEvent(Event);
 }
 
+bool QReactor::ModEvent(const QEvent &Event)
+{
+    return m_Backend->ModEvent(Event);
+}
+
 bool QReactor::Dispatch()
 {
     while (!m_Backend->IsStop())
