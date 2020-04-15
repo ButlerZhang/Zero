@@ -82,8 +82,7 @@ bool QPoll::DelEvent(const QEvent &Event)
 
     if (Event.GetEvents() & QET_TIMEOUT)
     {
-        WriteEventOperationLog(m_TimerFD, Event.GetFD(), QEO_DEL);
-        return DelEventFromMapVector(Event);
+        return DelEventFromMapVector(Event, QEO_DEL);
     }
 
     int DeleteIndex = -1;
@@ -135,7 +134,7 @@ bool QPoll::DelEvent(const QEvent &Event)
     QLog::g_Log.WriteDebug("poll: FD max index = %d after deleted.",
         m_FDMaxIndex);
 
-    return DelEventFromMapVector(Event);
+    return DelEventFromMapVector(Event, QEO_DEL);
 }
 
 bool QPoll::Dispatch(timeval &tv)

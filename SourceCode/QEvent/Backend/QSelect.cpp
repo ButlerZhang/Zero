@@ -63,8 +63,7 @@ bool QSelect::DelEvent(const QEvent &Event)
 
     if (Event.GetEvents() & QET_TIMEOUT)
     {
-        WriteEventOperationLog(m_TimerFD, Event.GetFD(), QEO_DEL);
-        return DelEventFromMapVector(Event);
+        return DelEventFromMapVector(Event, QEO_DEL);
     }
 
     FD_CLR(Event.GetFD(), &m_ReadSetIn);
@@ -99,7 +98,7 @@ bool QSelect::DelEvent(const QEvent &Event)
     QLog::g_Log.WriteDebug("select: Highest event FD = %d after deleted.",
         m_HighestEventFD);
 
-    return DelEventFromMapVector(Event);
+    return DelEventFromMapVector(Event, QEO_DEL);
 }
 
 bool QSelect::Dispatch(timeval &tv)

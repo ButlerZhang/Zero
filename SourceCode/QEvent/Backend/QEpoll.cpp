@@ -99,8 +99,7 @@ bool QEpoll::DelEvent(const QEvent &Event)
 
     if (Event.GetEvents() & QET_TIMEOUT)
     {
-        WriteEventOperationLog(m_TimerFD, Event.GetFD(), QEO_DEL);
-        return DelEventFromMapVector(Event);
+        return DelEventFromMapVector(Event, QEO_DEL);
     }
 
     int WatchEvents = 0;
@@ -138,7 +137,7 @@ bool QEpoll::DelEvent(const QEvent &Event)
         return false;
     }
 
-    return DelEventFromMapVector(Event);
+    return DelEventFromMapVector(Event, static_cast<QEventOption>(EpollOP));
 }
 
 bool QEpoll::Dispatch(timeval &tv)

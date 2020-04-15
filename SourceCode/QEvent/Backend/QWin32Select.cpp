@@ -54,8 +54,7 @@ bool QWin32Select::DelEvent(const QEvent &Event)
 
     if (Event.GetEvents() & QET_TIMEOUT)
     {
-        WriteEventOperationLog(m_TimerFD, Event.GetFD(), QEO_DEL);
-        return DelEventFromMapVector(Event);
+        return DelEventFromMapVector(Event, QEO_DEL);
     }
 
     FD_CLR(Event.GetFD(), &m_ReadSetIn);
@@ -82,7 +81,7 @@ bool QWin32Select::DelEvent(const QEvent &Event)
     QLog::g_Log.WriteDebug("win32select: FD = %d add write event, FD count = %d after deleted.",
         Event.GetFD(), m_WriteSetIn.fd_count);
 
-    return DelEventFromMapVector(Event);
+    return DelEventFromMapVector(Event, QEO_DEL);
 }
 
 bool QWin32Select::Dispatch(timeval &tv)

@@ -23,8 +23,8 @@ public:
 
 protected:
 
-    bool DelEventFromMapVector(const QEvent &Event);
     bool AddEventToMapVector(const QEvent &Event, QEventOption OP);
+    bool DelEventFromMapVector(const QEvent &Event, QEventOption OP);
 
     bool IsExisted(const QEvent &Event) const;
     QEventFD GetMapKey(const QEvent &Event) const;

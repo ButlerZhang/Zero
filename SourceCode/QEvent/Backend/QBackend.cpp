@@ -52,7 +52,16 @@ bool QBackend::DelEvent(const QEvent &Event)
     return true;
 }
 
-bool QBackend::DelEventFromMapVector(const QEvent &Event)
+bool QBackend::AddEventToMapVector(const QEvent &Event, QEventOption OP)
+{
+    QEventFD MapKey = GetMapKey(Event);
+    m_EventMap[MapKey].push_back(std::move(Event));
+    WriteEventOperationLog(MapKey, Event.GetFD(), OP);
+    m_MinHeap.AddTimeout(Event, MapKey, m_EventMap[MapKey].size() - 1);
+    return true;
+}
+
+bool QBackend::DelEventFromMapVector(const QEvent &Event, QEventOption OP)
 {
     QEventFD MapKey = GetMapKey(Event);
     std::map<QEventFD, std::vector<QEvent>>::iterator MapIt = m_EventMap.find(MapKey);
@@ -93,18 +102,7 @@ bool QBackend::DelEventFromMapVector(const QEvent &Event)
         m_EventMap.erase(MapIt);
     }
 
-    WriteMapVectorSnapshot();
-    return true;
-}
-
-bool QBackend::AddEventToMapVector(const QEvent &Event, QEventOption OP)
-{
-    QEventFD MapKey = GetMapKey(Event);
-    m_EventMap[MapKey].push_back(std::move(Event));
     WriteEventOperationLog(MapKey, Event.GetFD(), OP);
-
-    WriteMapVectorSnapshot();
-    m_MinHeap.AddTimeout(Event, MapKey, m_EventMap[Event.GetFD()].size() - 1);
     return true;
 }
 
@@ -228,4 +226,6 @@ void QBackend::WriteEventOperationLog(QEventFD MapKey, QEventFD FD, QEventOption
 
     QLog::g_Log.WriteDebug("%s: map key = %d, FD = %d, OP = %s; FD count = %d, event count = %d.",
         m_BackendName.c_str(), MapKey, FD, GetEventOptionString(OP), FDCount, EventCount);
+
+    WriteMapVectorSnapshot();
 }
