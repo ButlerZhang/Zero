@@ -1,6 +1,5 @@
 #pragma once
-#include "../Tools/QTime.h"
-
+#include "../QTime.h"
 #include <memory>
 
 class QEvent;

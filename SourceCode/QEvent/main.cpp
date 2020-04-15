@@ -1,7 +1,7 @@
 #include <cstdio>
-#include "ClientTest.h"
-#include "ServerTest.h"
-#include "UnitTest.h"
+#include "Test/ClientTest.h"
+#include "Test/ServerTest.h"
+#include "Test/UnitTest.h"
 #include <iostream>
 
 

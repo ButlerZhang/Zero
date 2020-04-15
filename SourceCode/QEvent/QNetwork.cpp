@@ -1,5 +1,5 @@
 #include "QNetwork.h"
-#include "../../QLog/QSimpleLog.h"
+#include "../QLog/QSimpleLog.h"
 
 #ifdef _WIN32
 #include <io.h>

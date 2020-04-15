@@ -1,7 +1,7 @@
 #include "QWin32Select.h"
 #include "../../QLog/QSimpleLog.h"
-#include "../Network/QNetwork.h"
-#include "../Tools/QTime.h"
+#include "../QNetwork.h"
+#include "../QTime.h"
 
 
 

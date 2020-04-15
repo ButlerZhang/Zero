@@ -1,5 +1,5 @@
 #pragma once
-#include "../QLog/QSimpleLog.h"
+#include "../../QLog/QSimpleLog.h"
 #include <string>
 
 class QEvent;

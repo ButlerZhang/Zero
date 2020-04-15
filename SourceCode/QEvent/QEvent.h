@@ -1,5 +1,5 @@
 #pragma once
-#include "../QLibBase.h"
+#include "QLibBase.h"
 #include "QEventEnum.h"
 
 #include <memory>

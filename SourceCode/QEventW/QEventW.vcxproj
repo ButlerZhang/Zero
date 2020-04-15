@@ -119,14 +119,15 @@
     <ClInclude Include="..\QEvent\Backend\QBackend.h" />
     <ClInclude Include="..\QEvent\Backend\QReactor.h" />
     <ClInclude Include="..\QEvent\Backend\QWin32Select.h" />
-    <ClInclude Include="..\QEvent\ClientTest.h" />
-    <ClInclude Include="..\QEvent\Event\QEvent.h" />
-    <ClInclude Include="..\QEvent\Event\QEventEnum.h" />
-    <ClInclude Include="..\QEvent\Network\QNetwork.h" />
-    <ClInclude Include="..\QEvent\ServerTest.h" />
-    <ClInclude Include="..\QEvent\Tools\QMinHeap.h" />
-    <ClInclude Include="..\QEvent\Tools\QTime.h" />
-    <ClInclude Include="..\QEvent\UnitTest.h" />
+    <ClInclude Include="..\QEvent\QEvent.h" />
+    <ClInclude Include="..\QEvent\QEventEnum.h" />
+    <ClInclude Include="..\QEvent\QLibBase.h" />
+    <ClInclude Include="..\QEvent\QMinHeap.h" />
+    <ClInclude Include="..\QEvent\QNetwork.h" />
+    <ClInclude Include="..\QEvent\QTime.h" />
+    <ClInclude Include="..\QEvent\Test\ClientTest.h" />
+    <ClInclude Include="..\QEvent\Test\ServerTest.h" />
+    <ClInclude Include="..\QEvent\Test\UnitTest.h" />
     <ClInclude Include="..\QLog\QLogBase.h" />
     <ClInclude Include="..\QLog\QSimpleLog.h" />
   </ItemGroup>
@@ -134,15 +135,15 @@
     <ClCompile Include="..\QEvent\Backend\QBackend.cpp" />
     <ClCompile Include="..\QEvent\Backend\QReactor.cpp" />
     <ClCompile Include="..\QEvent\Backend\QWin32Select.cpp" />
-    <ClCompile Include="..\QEvent\ClientTest.cpp" />
-    <ClCompile Include="..\QEvent\Event\QEvent.cpp" />
-    <ClCompile Include="..\QEvent\Event\QEventEnum.cpp" />
     <ClCompile Include="..\QEvent\main.cpp" />
-    <ClCompile Include="..\QEvent\Network\QNetwork.cpp" />
-    <ClCompile Include="..\QEvent\ServerTest.cpp" />
-    <ClCompile Include="..\QEvent\Tools\QMinHeap.cpp" />
-    <ClCompile Include="..\QEvent\Tools\QTime.cpp" />
-    <ClCompile Include="..\QEvent\UnitTest.cpp" />
+    <ClCompile Include="..\QEvent\QEvent.cpp" />
+    <ClCompile Include="..\QEvent\QEventEnum.cpp" />
+    <ClCompile Include="..\QEvent\QMinHeap.cpp" />
+    <ClCompile Include="..\QEvent\QNetwork.cpp" />
+    <ClCompile Include="..\QEvent\QTime.cpp" />
+    <ClCompile Include="..\QEvent\Test\ClientTest.cpp" />
+    <ClCompile Include="..\QEvent\Test\ServerTest.cpp" />
+    <ClCompile Include="..\QEvent\Test\UnitTest.cpp" />
     <ClCompile Include="..\QLog\QSimpleLog.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

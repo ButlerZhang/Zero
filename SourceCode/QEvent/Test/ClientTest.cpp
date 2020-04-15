@@ -1,7 +1,7 @@
 #include "ClientTest.h"
-#include "Event/QEvent.h"
-#include "Network/QNetwork.h"
-#include "Backend/QReactor.h"
+#include "../QEvent.h"
+#include "../QNetwork.h"
+#include "../Backend/QReactor.h"
 
 #ifdef _WIN32
 #include <io.h>

@@ -1,7 +1,7 @@
 #include "ServerTest.h"
-#include "Event/QEvent.h"
-#include "Backend/QBackend.h"
-#include "../QLog/QSimpleLog.h"
+#include "../QEvent.h"
+#include "../Backend/QBackend.h"
+#include "../../QLog/QSimpleLog.h"
 
 #ifdef _WIN32
 #else

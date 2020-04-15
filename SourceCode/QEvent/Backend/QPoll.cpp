@@ -1,5 +1,5 @@
 #include "QPoll.h"
-#include "../Tools/QTime.h"
+#include "../QTime.h"
 #include "../../QLog/QSimpleLog.h"
 
 #include <string.h>                  //strerror

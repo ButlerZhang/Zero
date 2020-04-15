@@ -5,9 +5,6 @@
     <ClCompile Include="..\QLog\QSimpleLog.cpp">
       <Filter>Reference\QLog</Filter>
     </ClCompile>
-    <ClCompile Include="Network\QNetwork.cpp">
-      <Filter>Network</Filter>
-    </ClCompile>
     <ClCompile Include="Backend\QBackend.cpp">
       <Filter>Backend</Filter>
     </ClCompile>
@@ -20,24 +17,23 @@
     <ClCompile Include="Backend\QSelect.cpp">
       <Filter>Backend</Filter>
     </ClCompile>
-    <ClCompile Include="Event\QEvent.cpp">
-      <Filter>Event</Filter>
-    </ClCompile>
     <ClCompile Include="Backend\QReactor.cpp">
       <Filter>Backend</Filter>
     </ClCompile>
-    <ClCompile Include="ClientTest.cpp" />
-    <ClCompile Include="ServerTest.cpp" />
-    <ClCompile Include="Tools\QMinHeap.cpp">
-      <Filter>Tools</Filter>
+    <ClCompile Include="Test\ClientTest.cpp">
+      <Filter>Test</Filter>
     </ClCompile>
-    <ClCompile Include="UnitTest.cpp" />
-    <ClCompile Include="Event\QEventEnum.cpp">
-      <Filter>Event</Filter>
+    <ClCompile Include="Test\ServerTest.cpp">
+      <Filter>Test</Filter>
     </ClCompile>
-    <ClCompile Include="Tools\QTime.cpp">
-      <Filter>Tools</Filter>
+    <ClCompile Include="Test\UnitTest.cpp">
+      <Filter>Test</Filter>
     </ClCompile>
+    <ClCompile Include="QEvent.cpp" />
+    <ClCompile Include="QEventEnum.cpp" />
+    <ClCompile Include="QMinHeap.cpp" />
+    <ClCompile Include="QNetwork.cpp" />
+    <ClCompile Include="QTime.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\QLog\QSimpleLog.h">
@@ -45,9 +41,6 @@
     </ClInclude>
     <ClInclude Include="..\QLog\QLogBase.h">
       <Filter>Reference\QLog</Filter>
-    </ClInclude>
-    <ClInclude Include="Network\QNetwork.h">
-      <Filter>Network</Filter>
     </ClInclude>
     <ClInclude Include="Backend\QBackend.h">
       <Filter>Backend</Filter>
@@ -62,24 +55,23 @@
       <Filter>Backend</Filter>
     </ClInclude>
     <ClInclude Include="QLibBase.h" />
-    <ClInclude Include="Event\QEvent.h">
-      <Filter>Event</Filter>
-    </ClInclude>
     <ClInclude Include="Backend\QReactor.h">
       <Filter>Backend</Filter>
     </ClInclude>
-    <ClInclude Include="ClientTest.h" />
-    <ClInclude Include="ServerTest.h" />
-    <ClInclude Include="Tools\QMinHeap.h">
-      <Filter>Tools</Filter>
+    <ClInclude Include="Test\ClientTest.h">
+      <Filter>Test</Filter>
     </ClInclude>
-    <ClInclude Include="UnitTest.h" />
-    <ClInclude Include="Event\QEventEnum.h">
-      <Filter>Event</Filter>
+    <ClInclude Include="Test\ServerTest.h">
+      <Filter>Test</Filter>
     </ClInclude>
-    <ClInclude Include="Tools\QTime.h">
-      <Filter>Tools</Filter>
+    <ClInclude Include="Test\UnitTest.h">
+      <Filter>Test</Filter>
     </ClInclude>
+    <ClInclude Include="QEvent.h" />
+    <ClInclude Include="QEventEnum.h" />
+    <ClInclude Include="QMinHeap.h" />
+    <ClInclude Include="QNetwork.h" />
+    <ClInclude Include="QTime.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Reference">
@@ -88,17 +80,11 @@
     <Filter Include="Reference\QLog">
       <UniqueIdentifier>{ce13c666-5b1f-40d0-b565-2dc7167f71f4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Network">
-      <UniqueIdentifier>{bd706e9a-44e0-4e2c-9835-cc52da762253}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Backend">
       <UniqueIdentifier>{d079858f-1adb-49d9-93e2-d3a3703b7c6e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Event">
-      <UniqueIdentifier>{82eae3ff-715e-4aa7-afb0-2f1be1ea365b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Tools">
-      <UniqueIdentifier>{a7324851-f1f6-46bc-a4f3-947ce36e33d9}</UniqueIdentifier>
+    <Filter Include="Test">
+      <UniqueIdentifier>{51dcc772-03b3-4cd7-96d7-8d9203070b61}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

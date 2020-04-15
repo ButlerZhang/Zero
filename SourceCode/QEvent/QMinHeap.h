@@ -1,5 +1,5 @@
 #pragma once
-#include "../Event/QEvent.h"
+#include "QEvent.h"
 #include <vector>
 
 

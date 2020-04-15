@@ -1,8 +1,8 @@
 #include "UnitTest.h"
-#include "Tools/QMinHeap.h"
-#include "Backend/QReactor.h"
-#include "Backend/QBackend.h"
-#include "../QLog/QSimpleLog.h"
+#include "../QMinHeap.h"
+#include "../Backend/QReactor.h"
+#include "../Backend/QBackend.h"
+#include "../../QLog/QSimpleLog.h"
 
 #include <assert.h>
 
@@ -242,11 +242,6 @@ void UnitTest::MinHeapTest()
     {
         QEventFD MapKey = -1;
         MinHeap.DelTimeout(MapKey, 1);
-        MinHeap.DelTimeout(MapKey, 0);
-        MinHeap.DelTimeout(MapKey, 0);
-        MinHeap.DelTimeout(MapKey, 0);
-        MinHeap.DelTimeout(MapKey, 0);
-        MinHeap.DelTimeout(MapKey, 0);
     }
 }
 

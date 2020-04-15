@@ -70,15 +70,15 @@
     <ClInclude Include="Backend\QPoll.h" />
     <ClInclude Include="Backend\QReactor.h" />
     <ClInclude Include="Backend\QSelect.h" />
-    <ClInclude Include="ClientTest.h" />
-    <ClInclude Include="Event\QEvent.h" />
-    <ClInclude Include="Event\QEventEnum.h" />
-    <ClInclude Include="Network\QNetwork.h" />
+    <ClInclude Include="QEvent.h" />
+    <ClInclude Include="QEventEnum.h" />
     <ClInclude Include="QLibBase.h" />
-    <ClInclude Include="ServerTest.h" />
-    <ClInclude Include="Tools\QTime.h" />
-    <ClInclude Include="UnitTest.h" />
-    <ClInclude Include="Tools\QMinHeap.h" />
+    <ClInclude Include="QMinHeap.h" />
+    <ClInclude Include="QNetwork.h" />
+    <ClInclude Include="QTime.h" />
+    <ClInclude Include="Test\ClientTest.h" />
+    <ClInclude Include="Test\ServerTest.h" />
+    <ClInclude Include="Test\UnitTest.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\QLog\QSimpleLog.cpp" />
@@ -87,15 +87,15 @@
     <ClCompile Include="Backend\QPoll.cpp" />
     <ClCompile Include="Backend\QReactor.cpp" />
     <ClCompile Include="Backend\QSelect.cpp" />
-    <ClCompile Include="ClientTest.cpp" />
-    <ClCompile Include="Event\QEvent.cpp" />
-    <ClCompile Include="Event\QEventEnum.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Network\QNetwork.cpp" />
-    <ClCompile Include="ServerTest.cpp" />
-    <ClCompile Include="Tools\QTime.cpp" />
-    <ClCompile Include="UnitTest.cpp" />
-    <ClCompile Include="Tools\QMinHeap.cpp" />
+    <ClCompile Include="QEvent.cpp" />
+    <ClCompile Include="QEventEnum.cpp" />
+    <ClCompile Include="QMinHeap.cpp" />
+    <ClCompile Include="QNetwork.cpp" />
+    <ClCompile Include="QTime.cpp" />
+    <ClCompile Include="Test\ClientTest.cpp" />
+    <ClCompile Include="Test\ServerTest.cpp" />
+    <ClCompile Include="Test\UnitTest.cpp" />
   </ItemGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Link>

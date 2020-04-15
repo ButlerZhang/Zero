@@ -1,5 +1,5 @@
 #include "QEpoll.h"
-#include "../Tools/QTime.h"
+#include "../QTime.h"
 #include "../../QLog/QSimpleLog.h"
 
 #include <unistd.h>                 //close

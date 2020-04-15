@@ -1,6 +1,6 @@
 #pragma once
 #include "../QLibBase.h"
-#include "../Tools/QMinHeap.h"
+#include "../QMinHeap.h"
 
 #include <map>
 

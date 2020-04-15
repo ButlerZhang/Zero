@@ -19,17 +19,11 @@
     <Filter Include="Reference\QLog">
       <UniqueIdentifier>{c09d67ed-d869-45dc-a816-453bb3372b97}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Network">
-      <UniqueIdentifier>{ec5900b1-4429-4018-9d04-d96d58e948ef}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Backend">
       <UniqueIdentifier>{4050bec6-383e-4361-b9c6-95bdbb2ed77a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Event">
-      <UniqueIdentifier>{6e075f06-7b27-49e0-a10c-92035ad30e6a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Tools">
-      <UniqueIdentifier>{de54bc7f-7cf9-4caf-a7f2-cfe37d69b40e}</UniqueIdentifier>
+    <Filter Include="Test">
+      <UniqueIdentifier>{bb13a3c2-d71c-4f1b-bd9a-f876f95b62fe}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -39,38 +33,41 @@
     <ClInclude Include="..\QLog\QSimpleLog.h">
       <Filter>Reference\QLog</Filter>
     </ClInclude>
-    <ClInclude Include="..\QEvent\Network\QNetwork.h">
-      <Filter>Network</Filter>
-    </ClInclude>
     <ClInclude Include="..\QEvent\Backend\QBackend.h">
       <Filter>Backend</Filter>
     </ClInclude>
     <ClInclude Include="..\QEvent\Backend\QWin32Select.h">
       <Filter>Backend</Filter>
     </ClInclude>
-    <ClInclude Include="..\QEvent\Event\QEvent.h">
-      <Filter>Event</Filter>
-    </ClInclude>
     <ClInclude Include="..\QEvent\Backend\QReactor.h">
       <Filter>Backend</Filter>
     </ClInclude>
-    <ClInclude Include="..\QEvent\ClientTest.h">
+    <ClInclude Include="..\QEvent\QEvent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\QEvent\ServerTest.h">
+    <ClInclude Include="..\QEvent\QEventEnum.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\QEvent\Tools\QMinHeap.h">
-      <Filter>Tools</Filter>
-    </ClInclude>
-    <ClInclude Include="..\QEvent\UnitTest.h">
+    <ClInclude Include="..\QEvent\QLibBase.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\QEvent\Event\QEventEnum.h">
-      <Filter>Event</Filter>
+    <ClInclude Include="..\QEvent\QMinHeap.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\QEvent\Tools\QTime.h">
-      <Filter>Tools</Filter>
+    <ClInclude Include="..\QEvent\QNetwork.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\QEvent\QTime.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\QEvent\Test\ClientTest.h">
+      <Filter>Test</Filter>
+    </ClInclude>
+    <ClInclude Include="..\QEvent\Test\ServerTest.h">
+      <Filter>Test</Filter>
+    </ClInclude>
+    <ClInclude Include="..\QEvent\Test\UnitTest.h">
+      <Filter>Test</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -80,38 +77,38 @@
     <ClCompile Include="..\QLog\QSimpleLog.cpp">
       <Filter>Reference\QLog</Filter>
     </ClCompile>
-    <ClCompile Include="..\QEvent\Network\QNetwork.cpp">
-      <Filter>Network</Filter>
-    </ClCompile>
     <ClCompile Include="..\QEvent\Backend\QBackend.cpp">
       <Filter>Backend</Filter>
     </ClCompile>
     <ClCompile Include="..\QEvent\Backend\QWin32Select.cpp">
       <Filter>Backend</Filter>
     </ClCompile>
-    <ClCompile Include="..\QEvent\Event\QEvent.cpp">
-      <Filter>Event</Filter>
-    </ClCompile>
     <ClCompile Include="..\QEvent\Backend\QReactor.cpp">
       <Filter>Backend</Filter>
     </ClCompile>
-    <ClCompile Include="..\QEvent\ClientTest.cpp">
+    <ClCompile Include="..\QEvent\QEvent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\QEvent\ServerTest.cpp">
+    <ClCompile Include="..\QEvent\QEventEnum.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\QEvent\Tools\QMinHeap.cpp">
-      <Filter>Tools</Filter>
-    </ClCompile>
-    <ClCompile Include="..\QEvent\UnitTest.cpp">
+    <ClCompile Include="..\QEvent\QMinHeap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\QEvent\Event\QEventEnum.cpp">
-      <Filter>Event</Filter>
+    <ClCompile Include="..\QEvent\QNetwork.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\QEvent\Tools\QTime.cpp">
-      <Filter>Tools</Filter>
+    <ClCompile Include="..\QEvent\QTime.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\QEvent\Test\ClientTest.cpp">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\QEvent\Test\ServerTest.cpp">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\QEvent\Test\UnitTest.cpp">
+      <Filter>Test</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

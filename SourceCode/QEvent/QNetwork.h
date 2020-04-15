@@ -1,5 +1,5 @@
 #pragma once
-#include "../QLibBase.h"
+#include "QLibBase.h"
 
 #ifdef _WIN32
 #include <WS2tcpip.h>           //SOCKET

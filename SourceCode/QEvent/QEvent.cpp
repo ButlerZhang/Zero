@@ -1,5 +1,5 @@
 #include "QEvent.h"
-#include "../../QLog/QSimpleLog.h"
+#include "../QLog/QSimpleLog.h"
 
 
 

@@ -1,6 +1,6 @@
 #pragma once
-#include "Event/QEvent.h"
-#include "Backend/QReactor.h"
+#include "../QEvent.h"
+#include "../Backend/QReactor.h"
 
 
 

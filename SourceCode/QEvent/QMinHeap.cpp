@@ -1,6 +1,6 @@
 #include "QMinHeap.h"
 #include "QTime.h"
-#include "../../QLog/QSimpleLog.h"
+#include "../QLog/QSimpleLog.h"
 
 #include <algorithm>
 
