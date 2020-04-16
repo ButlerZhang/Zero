@@ -160,6 +160,22 @@ bool QNetwork::SetListenSocketReuseable(QEventFD Socket)
     return true;
 }
 
+bool QNetwork::SocketPair(int Family, int Type, int Protocol, QEventFD FD[2])
+{
+#ifdef _WIN32
+    return false;
+#else
+    if (socketpair(Family, Type, Protocol, FD) != 0)
+    {
+        QLog::g_Log.WriteError("Network: Create socket pair failed, errnostr = %s.",
+            strerror(errno));
+        return false;
+    }
+#endif // _WIN32
+
+    return true;
+}
+
 void QNetwork::InitSockAddress(sockaddr_in &ServerAddress, const std::string &IP, int Port)
 {
     memset(&ServerAddress, 0, sizeof(ServerAddress));

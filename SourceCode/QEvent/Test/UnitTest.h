@@ -24,15 +24,20 @@ private:
     void MinHeapTest();
     void AddAndDeleteTimer();
 
+    //Signal
+    void AddAndDeleteSignal();
+
 private:
+
+    void CallBack_AddIOEvent1(const QEvent &Event);
+    void CallBack_AddIOEvent2(const QEvent &Event);
 
     void CallBack_TimeOut1(const QEvent &Event);
     void CallBack_TimeOut2(const QEvent &Event);
     void CallBack_TimeOut3(const QEvent &Event);
     void CallBack_TimeOut4(const QEvent &Event);
 
-    void CallBack_AddEvent1(const QEvent &Event);
-    void CallBack_AddEvent2(const QEvent &Event);
+    void CallBack_Signal1(const QEvent &Event);
 
 private:
 

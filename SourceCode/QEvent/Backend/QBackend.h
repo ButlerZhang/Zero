@@ -18,6 +18,8 @@ public:
     virtual bool ModEvent(const QEvent &Event);
     virtual bool Dispatch(timeval &tv)  = 0;
 
+    bool InitSignal();
+
     inline bool IsStop() const { return m_IsStop; }
     inline QMinHeap& GetMinHeap() { return m_MinHeap; }
     inline const std::string& GetBackendName() const { return m_BackendName; }
@@ -26,6 +28,8 @@ protected:
 
     bool AddEventToMapVector(const QEvent &Event, QEventOption OP);
     bool DelEventFromMapVector(const QEvent &Event, QEventOption OP);
+
+    bool AddSignal(const QEvent &Event);
 
     bool IsExisted(const QEvent &Event) const;
     QEventFD GetMapKey(const QEvent &Event) const;
@@ -36,6 +40,9 @@ protected:
     void WriteMapVectorSnapshot();
     void WriteEventOperationLog(QEventFD MapKey, QEventFD FD, QEventOption OP);
 
+    void Callback_Signal(const QEvent &Event);
+    static void Callback_SignalHandler(QEventFD Signal);
+
 protected:
 
     bool                                            m_IsStop;
@@ -44,4 +51,6 @@ protected:
     std::map<QEventFD, std::vector<QEvent>>         m_EventMap;
 
     static QEventFD                                 m_TimerFD;
+    static QEventFD                                 m_SignalReadFD;
+    static QEventFD                                 m_SignalWriteFD;
 };

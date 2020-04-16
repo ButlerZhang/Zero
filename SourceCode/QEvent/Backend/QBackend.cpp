@@ -1,9 +1,18 @@
 #include "QBackend.h"
+#include "../QNetwork.h"
 #include "../../QLog/QSimpleLog.h"
+
+#ifdef _WIN32
+#else
+#include <signal.h>
+#include <unistd.h>
+#endif // _WIN32
 
 
 
 QEventFD QBackend::m_TimerFD = -1;
+QEventFD QBackend::m_SignalReadFD = -1;
+QEventFD QBackend::m_SignalWriteFD = -1;
 
 QBackend::QBackend()
 {
@@ -65,6 +74,33 @@ bool QBackend::ModEvent(const QEvent &Event)
     return false;
 }
 
+bool QBackend::InitSignal()
+{
+    if (m_SignalReadFD != -1 && m_SignalWriteFD != -1)
+    {
+        return true;
+    }
+
+    QEventFD FD[2] = { -1, -1 };
+    if (!QNetwork::SocketPair(AF_UNIX, SOCK_STREAM, 0, FD))
+    {
+        return false;
+    }
+
+    QLog::g_Log.WriteDebug("Create socket pair, fd0 = %d, fd1 = %d",
+        FD[0], FD[1]);
+
+    QNetwork::SetSocketNonblocking(FD[0]);
+    QNetwork::SetSocketNonblocking(FD[1]);
+
+    m_SignalReadFD = FD[0];
+    m_SignalWriteFD = FD[1];
+
+    QEvent SignalEvent(m_SignalReadFD, QET_READ);
+    SignalEvent.SetCallBack(std::bind(&QBackend::Callback_Signal, this, std::placeholders::_1));
+    return AddEvent(SignalEvent);
+}
+
 bool QBackend::AddEventToMapVector(const QEvent &Event, QEventOption OP)
 {
     QEventFD MapKey = GetMapKey(Event);
@@ -119,6 +155,12 @@ bool QBackend::DelEventFromMapVector(const QEvent &Event, QEventOption OP)
     return true;
 }
 
+bool QBackend::AddSignal(const QEvent & Event)
+{
+    signal(Event.GetFD(), &QBackend::Callback_SignalHandler);
+    return true;
+}
+
 bool QBackend::IsExisted(const QEvent &Event) const
 {
     QEventFD MapKey = GetMapKey(Event);
@@ -148,7 +190,7 @@ QEventFD QBackend::GetMapKey(const QEvent &Event) const
 
     if (Event.GetEvents() & QET_SIGNAL)
     {
-        //TODO
+        return m_SignalReadFD;
     }
 
     return Event.GetFD();
@@ -189,16 +231,24 @@ void QBackend::ProcessTimeout()
 
 void QBackend::ActiveEvent(QEventFD FD, int ResultEvents)
 {
-    for (std::vector<QEvent>::size_type Index = 0; Index < m_EventMap[FD].size(); Index++)
+    QLog::g_Log.WriteDebug("Active event: FD = %d, events = %d", FD, ResultEvents);
+    if (FD == m_SignalReadFD)
     {
-        if (ResultEvents & QET_READ)
+        m_EventMap[m_SignalReadFD][0].CallBack();
+    }
+    else
+    {
+        for (std::vector<QEvent>::size_type Index = 0; Index < m_EventMap[FD].size(); Index++)
         {
-            m_EventMap[FD][Index].CallBack();
-        }
+            if (ResultEvents & QET_READ)
+            {
+                m_EventMap[FD][Index].CallBack();
+            }
 
-        if (ResultEvents & QET_WRITE)
-        {
-            m_EventMap[FD][Index].CallBack();
+            if (ResultEvents & QET_WRITE)
+            {
+                m_EventMap[FD][Index].CallBack();
+            }
         }
     }
 }
@@ -241,4 +291,34 @@ void QBackend::WriteEventOperationLog(QEventFD MapKey, QEventFD FD, QEventOption
         m_BackendName.c_str(), MapKey, FD, GetEventOptionString(OP), FDCount, EventCount);
 
     WriteMapVectorSnapshot();
+}
+
+void QBackend::Callback_Signal(const QEvent &Event)
+{
+    QEventFD Signal;
+    if (read(m_SignalReadFD, &Signal, sizeof(QEventFD)) != sizeof(QEventFD))
+    {
+        QLog::g_Log.WriteDebug("Can not read signal = %d", Event.GetFD());
+    }
+    else
+    {
+        QLog::g_Log.WriteDebug("Read signal = %d", Signal);
+        for (std::vector<QEvent>::size_type Index = 1; Index < m_EventMap[m_SignalReadFD].size(); Index++)
+        {
+            if (m_EventMap[m_SignalReadFD][Index].GetFD() == Signal)
+            {
+                m_EventMap[m_SignalReadFD][Index].CallBack();
+                break;
+            }
+        }
+    }
+}
+
+void QBackend::Callback_SignalHandler(QEventFD Signal)
+{
+    QLog::g_Log.WriteDebug("SignalHandler start...");
+    if (write(m_SignalWriteFD, &Signal, sizeof(Signal)) != sizeof(QEventFD))
+    {
+        QLog::g_Log.WriteDebug("Signal Handler: Can not write signal = %d", Signal);
+    }
 }

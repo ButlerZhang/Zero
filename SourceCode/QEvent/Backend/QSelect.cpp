@@ -30,6 +30,12 @@ bool QSelect::AddEvent(const QEvent &Event)
         return AddEventToMapVector(Event, QEO_ADD);
     }
 
+    if (Event.GetEvents() & QET_SIGNAL)
+    {
+        AddSignal(Event);
+        return AddEventToMapVector(Event, QEO_ADD);
+    }
+
     if (Event.GetEvents() & QET_READ)
     {
         FD_SET(Event.GetFD(), &m_ReadSetIn);
@@ -113,9 +119,12 @@ bool QSelect::Dispatch(timeval &tv)
 
     if (Result < 0)
     {
-        QLog::g_Log.WriteError("select error : %s", strerror(errno));
-        m_IsStop = true;
-        return false;
+        if (errno != EINTR)
+        {
+            QLog::g_Log.WriteError("select error : %s", strerror(errno));
+            m_IsStop = true;
+            return false;
+        }
     }
 
     if (Result == 0)
@@ -137,7 +146,10 @@ bool QSelect::Dispatch(timeval &tv)
                 ResultEvents |= QET_WRITE;
             }
 
-            ActiveEvent(FD, ResultEvents);
+            if (ResultEvents > 0)
+            {
+                ActiveEvent(FD, ResultEvents);
+            }
         }
     }
 

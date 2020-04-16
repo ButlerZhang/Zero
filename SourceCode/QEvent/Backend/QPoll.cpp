@@ -146,9 +146,12 @@ bool QPoll::Dispatch(timeval &tv)
 
     if (Result < 0)
     {
-        QLog::g_Log.WriteError("poll error : %s", strerror(errno));
-        m_IsStop = true;
-        return false;
+        if (errno != EINTR)
+        {
+            QLog::g_Log.WriteError("poll error : %s", strerror(errno));
+            m_IsStop = true;
+            return false;
+        }
     }
 
     if (Result == 0)

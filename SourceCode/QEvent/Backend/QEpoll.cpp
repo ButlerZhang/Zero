@@ -149,9 +149,12 @@ bool QEpoll::Dispatch(timeval &tv)
 
     if (ActiveEventCount < 0)
     {
-        QLog::g_Log.WriteError("epoll error : %s", strerror(errno));
-        m_IsStop = true;
-        return false;
+        if (errno != EINTR)
+        {
+            QLog::g_Log.WriteError("epoll error : %s", strerror(errno));
+            m_IsStop = true;
+            return false;
+        }
     }
 
     if (ActiveEventCount == 0)

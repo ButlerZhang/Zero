@@ -26,6 +26,7 @@ public:
     static bool CloseSocket(QEventFD Socket);
     static bool SetSocketNonblocking(QEventFD Socket);
     static bool SetListenSocketReuseable(QEventFD Socket);
+    static bool SocketPair(int Family, int Type, int Protocol, QEventFD FD[2]);
     static void InitSockAddress(struct sockaddr_in &ServerAddress, const std::string &IP, int Port);
 
 private:
