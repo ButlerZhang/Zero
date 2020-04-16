@@ -33,7 +33,7 @@ bool QReactor::Init()
     QLog::g_Log.WriteInfo("Enable backend : %s",
         m_Backend->GetBackendName().c_str());
 
-    return m_Backend->InitSignal();
+    return m_Backend->GetSignal().Init(*m_Backend);
 }
 
 bool QReactor::AddEvent(const QEvent &Event)

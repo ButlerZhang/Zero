@@ -32,8 +32,7 @@ bool QSelect::AddEvent(const QEvent &Event)
 
     if (Event.GetEvents() & QET_SIGNAL)
     {
-        AddSignal(Event);
-        return AddEventToMapVector(Event, QEO_ADD);
+        return m_Signal.Register(Event) && AddEventToMapVector(Event, QEO_ADD);
     }
 
     if (Event.GetEvents() & QET_READ)

@@ -1,6 +1,7 @@
 #pragma once
 #include "../QLibBase.h"
 #include "../QMinHeap.h"
+#include "../QSignal.h"
 
 #include <map>
 
@@ -18,18 +19,16 @@ public:
     virtual bool ModEvent(const QEvent &Event);
     virtual bool Dispatch(timeval &tv)  = 0;
 
-    bool InitSignal();
-
     inline bool IsStop() const { return m_IsStop; }
+    inline QSignal& GetSignal() { return m_Signal; }
     inline QMinHeap& GetMinHeap() { return m_MinHeap; }
     inline const std::string& GetBackendName() const { return m_BackendName; }
+    inline const std::map<QEventFD, std::vector<QEvent>>& GetEventMap() const { return m_EventMap; }
 
 protected:
 
     bool AddEventToMapVector(const QEvent &Event, QEventOption OP);
     bool DelEventFromMapVector(const QEvent &Event, QEventOption OP);
-
-    bool AddSignal(const QEvent &Event);
 
     bool IsExisted(const QEvent &Event) const;
     QEventFD GetMapKey(const QEvent &Event) const;
@@ -40,17 +39,12 @@ protected:
     void WriteMapVectorSnapshot();
     void WriteEventOperationLog(QEventFD MapKey, QEventFD FD, QEventOption OP);
 
-    void Callback_Signal(const QEvent &Event);
-    static void Callback_SignalHandler(QEventFD Signal);
-
 protected:
 
     bool                                            m_IsStop;
     std::string                                     m_BackendName;
+    QEventFD                                        m_TimerFD;
     QMinHeap                                        m_MinHeap;
+    QSignal                                         m_Signal;
     std::map<QEventFD, std::vector<QEvent>>         m_EventMap;
-
-    static QEventFD                                 m_TimerFD;
-    static QEventFD                                 m_SignalReadFD;
-    static QEventFD                                 m_SignalWriteFD;
 };
