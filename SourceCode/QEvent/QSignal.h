@@ -15,6 +15,7 @@ public:
 
     bool Init(QBackend &Backend);
     bool Register(const QEvent &Event);
+    bool CancelRegister(const QEvent &Event);
 
     QEventFD GetFD() const { return m_ReadFD; }
 

@@ -34,6 +34,11 @@ bool QEpoll::AddEvent(const QEvent &Event)
         return AddEventToMapVector(Event, QEO_ADD);
     }
 
+    if (Event.GetEvents() & QET_SIGNAL)
+    {
+        return m_Signal.Register(Event) && AddEventToMapVector(Event, QEO_ADD);
+    }
+
     if (Event.GetFD() == m_EpollFD)
     {
         return false;
@@ -100,6 +105,11 @@ bool QEpoll::DelEvent(const QEvent &Event)
     if (Event.GetEvents() & QET_TIMEOUT)
     {
         return DelEventFromMapVector(Event, QEO_DEL);
+    }
+
+    if (Event.GetEvents() & QET_SIGNAL)
+    {
+        return m_Signal.CancelRegister(Event) && DelEventFromMapVector(Event, QEO_DEL);
     }
 
     int WatchEvents = 0;
@@ -177,7 +187,10 @@ bool QEpoll::Dispatch(timeval &tv)
                 ResultEvents |= QET_WRITE;
             }
 
-            ActiveEvent(FD, ResultEvents);
+            if (ResultEvents > 0)
+            {
+                ActiveEvent(FD, ResultEvents);
+            }
         }
     }
 

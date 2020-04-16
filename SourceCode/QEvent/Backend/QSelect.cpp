@@ -71,6 +71,11 @@ bool QSelect::DelEvent(const QEvent &Event)
         return DelEventFromMapVector(Event, QEO_DEL);
     }
 
+    if (Event.GetEvents() & QET_SIGNAL)
+    {
+        return m_Signal.CancelRegister(Event) && DelEventFromMapVector(Event, QEO_DEL);
+    }
+
     FD_CLR(Event.GetFD(), &m_ReadSetIn);
     FD_CLR(Event.GetFD(), &m_WriteSetIn);
 

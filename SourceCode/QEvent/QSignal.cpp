@@ -60,6 +60,12 @@ bool QSignal::Register(const QEvent &Event)
     return true;
 }
 
+bool QSignal::CancelRegister(const QEvent &Event)
+{
+    signal(Event.GetFD(), NULL);
+    return true;
+}
+
 void QSignal::CallBack_Process(const QEvent &Event)
 {
     QEventFD Signal;

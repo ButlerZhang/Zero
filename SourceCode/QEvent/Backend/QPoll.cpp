@@ -35,6 +35,11 @@ bool QPoll::AddEvent(const QEvent &Event)
         return AddEventToMapVector(Event, QEO_ADD);
     }
 
+    if (Event.GetEvents() & QET_SIGNAL)
+    {
+        return m_Signal.Register(Event) && AddEventToMapVector(Event, QEO_ADD);
+    }
+
     for (int Index = 0; Index < FD_SETSIZE; Index++)
     {
         if (m_FDArray[Index].fd < 0 || m_FDArray[Index].fd == Event.GetFD())
@@ -83,6 +88,11 @@ bool QPoll::DelEvent(const QEvent &Event)
     if (Event.GetEvents() & QET_TIMEOUT)
     {
         return DelEventFromMapVector(Event, QEO_DEL);
+    }
+
+    if (Event.GetEvents() & QET_SIGNAL)
+    {
+        return m_Signal.CancelRegister(Event) && DelEventFromMapVector(Event, QEO_DEL);
     }
 
     int DeleteIndex = -1;
@@ -173,7 +183,10 @@ bool QPoll::Dispatch(timeval &tv)
                 ResultEvents |= QET_WRITE;
             }
 
-            ActiveEvent(m_FDArray[FDIndex].fd, ResultEvents);
+            if (ResultEvents > 0)
+            {
+                ActiveEvent(m_FDArray[FDIndex].fd, ResultEvents);
+            }
         }
     }
 

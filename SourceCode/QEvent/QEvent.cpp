@@ -79,9 +79,19 @@ bool QEvent::IsPersist() const
 
 bool QEvent::IsEqual(const QEvent &Right) const
 {
-    if ((Right.m_Events & QET_TIMEOUT) || (Right.m_Events & QET_SIGNAL))
+    if ((Right.m_Events & QET_TIMEOUT))
     {
         return m_EventFD == Right.m_EventFD;
+    }
+
+    if (Right.m_Events & QET_SIGNAL)
+    {
+        if (m_Events & QET_SIGNAL)
+        {
+            return m_EventFD == Right.m_EventFD;
+        }
+
+        return false;
     }
 
     if (m_EventFD != Right.m_EventFD)
