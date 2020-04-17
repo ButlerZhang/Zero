@@ -4,9 +4,10 @@
 #include "Backend/QBackend.h"
 #include "../QLog/QSimpleLog.h"
 
+#include <signal.h>
+
 #ifdef _WIN32
 #else
-#include <signal.h>
 #include <unistd.h>
 #endif // _WIN32
 
@@ -68,12 +69,22 @@ bool QSignal::CancelRegister(const QEvent &Event)
 
 void QSignal::CallBack_Process(const QEvent &Event)
 {
-    QEventFD Signal;
+    int Signal = -1;
+
+#ifdef _WIN32
+    char Signals[1024];
+    if (recv(m_ReadFD, Signals, sizeof(Signals), 0) > 0)
+    {
+        Signal = Signals[0];
+    }
+#else
     if (read(m_ReadFD, &Signal, sizeof(QEventFD)) != sizeof(QEventFD))
     {
         QLog::g_Log.WriteDebug("Can not read signal = %d", Event.GetFD());
     }
-    else
+#endif // _WIN32
+
+    if (Signal >= 0)
     {
         QLog::g_Log.WriteDebug("Read signal = %d", Signal);
         std::map<QEventFD, std::vector<QEvent>> &EventMap = *(std::map<QEventFD, std::vector<QEvent>>*)Event.GetExtendArg();
@@ -88,10 +99,15 @@ void QSignal::CallBack_Process(const QEvent &Event)
     }
 }
 
-void QSignal::CallBack_Catch(QEventFD Signal)
+void QSignal::CallBack_Catch(int Signal)
 {
     QLog::g_Log.WriteDebug("Catch signal = %d", Signal);
+
+#ifdef _WIN32
+    if(send(m_WriteFD, (char*)&Signal, 1, 0) != 1)
+#else
     if (write(m_WriteFD, &Signal, sizeof(Signal)) != sizeof(QEventFD))
+#endif // _WIN32
     {
         QLog::g_Log.WriteDebug("Can not write signal = %d to read socket.", Signal);
     }

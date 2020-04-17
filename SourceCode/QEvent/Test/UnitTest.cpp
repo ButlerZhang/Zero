@@ -4,12 +4,8 @@
 #include "../Backend/QBackend.h"
 #include "../../QLog/QSimpleLog.h"
 
-#include <assert.h>
-
-#ifdef _WIN32
-#else
 #include <signal.h>
-#endif // _WIN32
+#include <assert.h>
 
 
 
@@ -381,8 +377,8 @@ void UnitTest::AddAndDeleteSignal()
     QLog::g_Log.WriteDebug("Test delete existed signal");
     assert(m_Reactor.DelEvent(Signal_SIGILL) == true);
 
-    QLog::g_Log.WriteDebug("Test delete existed signal");
-    assert(m_Reactor.DelEvent(Signal_SIGINT) == true);
+    //QLog::g_Log.WriteDebug("Test delete existed signal");
+    //assert(m_Reactor.DelEvent(Signal_SIGINT) == true);
 }
 
 void UnitTest::CallBack_AddIOEvent1(const QEvent &Event)

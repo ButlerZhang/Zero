@@ -29,7 +29,7 @@ QNetwork::~QNetwork()
 bool QNetwork::Listen(const std::string &IP, int Port)
 {
     m_Socket = socket(PF_INET, SOCK_STREAM, 0);
-    if (m_Socket <= 0)
+    if (m_Socket == SOCKET_ERROR)
     {
         WriteSocketErrorLog("Socket");
         return false;
@@ -56,7 +56,7 @@ bool QNetwork::Listen(const std::string &IP, int Port)
 bool QNetwork::Connect(const std::string &IP, int Port)
 {
     m_Socket = socket(PF_INET, SOCK_STREAM, 0);
-    if (m_Socket <= 0)
+    if (m_Socket == SOCKET_ERROR)
     {
         WriteSocketErrorLog("Socket");
         return false;
@@ -163,7 +163,98 @@ bool QNetwork::SetListenSocketReuseable(QEventFD Socket)
 bool QNetwork::SocketPair(int Family, int Type, int Protocol, QEventFD FD[2])
 {
 #ifdef _WIN32
-    return false;
+
+    QEventFD ListenFD = socket(AF_INET, Type, 0);
+    if (ListenFD == SOCKET_ERROR)
+    {
+        QLog::g_Log.WriteError("Can not create listen socket, error = %d", WSAGetLastError());
+        return false;
+    }
+
+    struct sockaddr_in ListenAddress;
+    memset(&ListenAddress, 0, sizeof(sockaddr_in));
+    ListenAddress.sin_family = AF_INET;
+    ListenAddress.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+    ListenAddress.sin_port = 0;
+
+    if (bind(ListenFD, (struct sockaddr*)&ListenAddress, sizeof(ListenAddress)) == -1)
+    {
+        QLog::g_Log.WriteError("Can not bind listen socket, error = %d", WSAGetLastError());
+        ::closesocket(ListenFD);
+        return false;
+    }
+
+    if (listen(ListenFD, 1) == -1)
+    {
+        QLog::g_Log.WriteError("Can not start listen, error = %d", WSAGetLastError());
+        ::closesocket(ListenFD);
+        return false;
+    }
+
+    QEventFD ConnectFD = socket(AF_INET, Type, 0);
+    if (ConnectFD == SOCKET_ERROR)
+    {
+        QLog::g_Log.WriteError("Can not create connect socket, error = %d", WSAGetLastError());
+        ::closesocket(ListenFD);
+        return false;
+    }
+
+    struct sockaddr_in ConnectAddress;
+    memset(&ConnectAddress, 0, sizeof(sockaddr_in));
+
+    int AddressSize = sizeof(ConnectAddress);
+    if (getsockname(ListenFD, (struct sockaddr*)&ConnectAddress, &AddressSize) == -1)
+    {
+        QLog::g_Log.WriteError("Can not get sock name, error = %d", WSAGetLastError());
+        ::closesocket(ConnectFD);
+        ::closesocket(ListenFD);
+        return false;
+    }
+
+    if (connect(ConnectFD, (struct sockaddr*)&ConnectAddress, sizeof(ConnectAddress)) == -1)
+    {
+        QLog::g_Log.WriteError("Can not connect, error = %d", WSAGetLastError());
+        ::closesocket(ConnectFD);
+        ::closesocket(ListenFD);
+        return false;
+    }
+
+    AddressSize = sizeof(ListenAddress);
+    QEventFD AcceptFD = accept(ListenFD, (struct sockaddr*)&ListenAddress, &AddressSize);
+    if (AcceptFD == SOCKET_ERROR)
+    {
+        QLog::g_Log.WriteError("Can not accept, error = %d", WSAGetLastError());
+        ::closesocket(ConnectFD);
+        ::closesocket(ListenFD);
+        return false;
+    }
+
+    if (getsockname(ConnectFD, (struct sockaddr*)&ConnectAddress, &AddressSize) == -1)
+    {
+        QLog::g_Log.WriteError("Can not get sock name, error = %d", WSAGetLastError());
+        ::closesocket(ConnectFD);
+        ::closesocket(ListenFD);
+        ::closesocket(AcceptFD);
+        return false;
+    }
+
+    if (AddressSize != sizeof(ConnectAddress)
+        || ListenAddress.sin_family != ConnectAddress.sin_family
+        || ListenAddress.sin_addr.s_addr != ConnectAddress.sin_addr.s_addr
+        || ListenAddress.sin_port != ConnectAddress.sin_port)
+    {
+        QLog::g_Log.WriteError("Listen and connect address are not match");
+        ::closesocket(ConnectFD);
+        ::closesocket(ListenFD);
+        ::closesocket(AcceptFD);
+        return false;
+    }
+
+    ::closesocket(ListenFD);
+    FD[0] = ConnectFD;
+    FD[1] = AcceptFD;
+    return true;
+
 #else
     if (socketpair(Family, Type, Protocol, FD) != 0)
     {
@@ -171,9 +262,9 @@ bool QNetwork::SocketPair(int Family, int Type, int Protocol, QEventFD FD[2])
             strerror(errno));
         return false;
     }
-#endif // _WIN32
 
     return true;
+#endif // _WIN32
 }
 
 void QNetwork::InitSockAddress(sockaddr_in &ServerAddress, const std::string &IP, int Port)

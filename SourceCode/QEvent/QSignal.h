@@ -22,7 +22,7 @@ public:
 private:
 
     void CallBack_Process(const QEvent &Event);
-    static void CallBack_Catch(QEventFD Signal);
+    static void CallBack_Catch(int Signal);
 
 private:
 

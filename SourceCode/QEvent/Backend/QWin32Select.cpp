@@ -28,6 +28,11 @@ bool QWin32Select::AddEvent(const QEvent &Event)
         return AddEventToMapVector(Event, QEO_ADD);
     }
 
+    if (Event.GetEvents() & QET_SIGNAL)
+    {
+        return m_Signal.Register(Event) && AddEventToMapVector(Event, QEO_ADD);
+    }
+
     if (Event.GetEvents() & QET_READ)
     {
         FD_SET(Event.GetFD(), &m_ReadSetIn);
@@ -55,6 +60,11 @@ bool QWin32Select::DelEvent(const QEvent &Event)
     if (Event.GetEvents() & QET_TIMEOUT)
     {
         return DelEventFromMapVector(Event, QEO_DEL);
+    }
+
+    if (Event.GetEvents() & QET_SIGNAL)
+    {
+        return m_Signal.CancelRegister(Event) && DelEventFromMapVector(Event, QEO_DEL);
     }
 
     FD_CLR(Event.GetFD(), &m_ReadSetIn);
