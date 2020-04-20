@@ -5,11 +5,17 @@
 
 QChannel::QChannel()
 {
+    m_Events = 0;
+    m_ResultEvents = 0;
+    m_EventFD = 0;
+    m_ReadCallback = nullptr;
+    m_WriteCallback = nullptr;
 }
 
 QChannel::QChannel(QEventFD EventFD)
 {
     m_Events = 0;
+    m_ResultEvents = 0;
     m_EventFD = EventFD;
     m_ReadCallback = nullptr;
     m_WriteCallback = nullptr;
@@ -38,9 +44,6 @@ void QChannel::SetWriteCallback(EventCallback WriteCallback)
 
 void QChannel::HandlerEvent()
 {
-    QLog::g_Log.WriteDebug("QChannel: FD = %d, result events = %d.",
-        m_EventFD, m_Events);
-
     if (m_ResultEvents & QET_READ)
     {
         if (m_ReadCallback != nullptr)

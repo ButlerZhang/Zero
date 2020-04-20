@@ -9,12 +9,9 @@
 
 QEpoll::QEpoll()
 {
-    m_EpollFD = -1;
     m_BackendName = "epoll";
-    memset(m_EventArray, 0, sizeof(m_EventArray));
-
     m_EpollFD = epoll_create(FD_SETSIZE);
-    QLog::g_Log.WriteDebug("epoll: Create epoll fd = %d.", m_EpollFD);
+    memset(m_EventArray, 0, sizeof(m_EventArray));
 }
 
 QEpoll::~QEpoll()
@@ -22,24 +19,24 @@ QEpoll::~QEpoll()
     close(m_EpollFD);
 }
 
-bool QEpoll::AddEvent(const QChannel &Event)
+bool QEpoll::AddEvent(const QChannel &Channel)
 {
-    if (!QBackend::AddEvent(Event))
+    if (!QBackend::AddEvent(Channel))
     {
         return false;
     }
 
-    //if (Event.GetEvents() & QET_TIMEOUT)
-    //{
-    //    return AddEventToMapVector(Event, QEO_ADD);
-    //}
+    if (Channel.GetEvents() & QET_TIMEOUT)
+    {
+        return AddEventToChannelMap(Channel, QEO_ADD);
+    }
 
-    //if (Event.GetEvents() & QET_SIGNAL)
-    //{
-    //    return m_Signal.Register(Event) && AddEventToMapVector(Event, QEO_ADD);
-    //}
+    if (Channel.GetEvents() & QET_SIGNAL)
+    {
+        return m_Signal.Register(Channel) && AddEventToChannelMap(Channel, QEO_ADD);
+    }
 
-    if (Event.GetFD() == m_EpollFD)
+    if (Channel.GetFD() == m_EpollFD)
     {
         return false;
     }
@@ -48,103 +45,66 @@ bool QEpoll::AddEvent(const QChannel &Event)
     memset(&NewEpollEvent, 0, sizeof(epoll_event));
 
     NewEpollEvent.events |= EPOLLET;
-    NewEpollEvent.data.fd = Event.GetFD();
+    NewEpollEvent.data.fd = Channel.GetFD();
 
-    int EpollOP = EPOLL_CTL_ADD;
-    int WatchEvents = Event.GetEvents();
-
-    std::map<QEventFD, QChannel>::iterator MapIt = m_ChannelMap.find(Event.GetFD());
-    if (MapIt != m_ChannelMap.end())
-    {
-        EpollOP = EPOLL_CTL_MOD;
-        if (MapIt->second.GetEvents() & QET_READ)
-        {
-            WatchEvents |= QET_READ;
-        }
-
-        if (MapIt->second.GetEvents() & QET_WRITE)
-        {
-            WatchEvents |= QET_WRITE;
-        }
-    }
-
-    if (WatchEvents & QET_READ)
+    if (Channel.GetEvents() & QET_READ)
     {
         NewEpollEvent.events |= EPOLLIN;
         QLog::g_Log.WriteDebug("epoll: FD = %d add read event.",
-            Event.GetFD());
+            Channel.GetFD());
     }
 
-    if (WatchEvents & QET_WRITE)
+    if (Channel.GetEvents() & QET_WRITE)
     {
         NewEpollEvent.events |= EPOLLOUT;
         QLog::g_Log.WriteDebug("epoll: FD = %d add write event.",
-            Event.GetFD());
+            Channel.GetFD());
     }
 
-    if (epoll_ctl(m_EpollFD, EpollOP, Event.GetFD(), &NewEpollEvent) != 0)
+    if (epoll_ctl(m_EpollFD, EPOLL_CTL_ADD, Channel.GetFD(), &NewEpollEvent) != 0)
     {
         QLog::g_Log.WriteError("epoll: FD = %d op = %d failed, errno = %d, errstr = %s.",
-            Event.GetFD(), EpollOP, errno, strerror(errno));
+            Channel.GetFD(), EPOLL_CTL_ADD, errno, strerror(errno));
         return false;
     }
 
-    return AddEventToMapVector(Event, static_cast<QEventOption>(EpollOP));
+    return AddEventToChannelMap(Channel, static_cast<QEventOption>(EPOLL_CTL_ADD));
 }
 
-bool QEpoll::DelEvent(const QChannel &Event)
+bool QEpoll::DelEvent(const QChannel &Channel)
 {
-    if (!QBackend::DelEvent(Event))
+    if (!QBackend::DelEvent(Channel))
     {
         return false;
     }
 
-    if (Event.GetEvents() & QET_TIMEOUT)
+    if (Channel.GetEvents() & QET_TIMEOUT)
     {
-        return DelEventFromMapVector(Event, QEO_DEL);
+        return DelEventFromChannelMap(Channel, QEO_DEL);
     }
 
-    if (Event.GetEvents() & QET_SIGNAL)
+    if (Channel.GetEvents() & QET_SIGNAL)
     {
-        return m_Signal.CancelRegister(Event) && DelEventFromMapVector(Event, QEO_DEL);
+        return m_Signal.CancelRegister(Channel) && DelEventFromChannelMap(Channel, QEO_DEL);
     }
 
-    int WatchEvents = 0;
-    //for (std::vector<QChannel>::iterator VecIt = m_ChannelMap[Event.GetFD()].begin(); VecIt != m_ChannelMap[Event.GetFD()].end(); VecIt++)
-    //{
-    //    if (!VecIt->IsEqual(Event))
-    //    {
-    //        if (VecIt->GetEvents() & QET_READ)
-    //        {
-    //            WatchEvents |= QET_READ;
-    //        }
-
-    //        if (VecIt->GetEvents() & QET_WRITE)
-    //        {
-    //            WatchEvents |= QET_WRITE;
-    //        }
-    //    }
-    //}
+    if (Channel.GetFD() == m_EpollFD)
+    {
+        return false;
+    }
 
     epoll_event DelEpollEvent;
     DelEpollEvent.events |= EPOLLET;
-    DelEpollEvent.data.fd = Event.GetFD();
+    DelEpollEvent.data.fd = Channel.GetFD();
 
-    int EpollOP = EPOLL_CTL_DEL;
-    if (WatchEvents > 0)
-    {
-        EpollOP = EPOLL_CTL_MOD;
-        DelEpollEvent.events |= WatchEvents;
-    }
-
-    if (epoll_ctl(m_EpollFD, EpollOP, Event.GetFD(), &DelEpollEvent) != 0)
+    if (epoll_ctl(m_EpollFD, EPOLL_CTL_DEL, Channel.GetFD(), &DelEpollEvent) != 0)
     {
         QLog::g_Log.WriteInfo("epoll : FD = %d delete failed, errno = %d, errstr = %s.",
-            Event.GetFD(), errno, strerror(errno));
+            Channel.GetFD(), errno, strerror(errno));
         return false;
     }
 
-    return DelEventFromMapVector(Event, static_cast<QEventOption>(EpollOP));
+    return DelEventFromChannelMap(Channel, static_cast<QEventOption>(EPOLL_CTL_DEL));
 }
 
 bool QEpoll::Dispatch(timeval &tv)

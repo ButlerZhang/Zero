@@ -27,12 +27,12 @@ bool QSelect::AddEvent(const QChannel &Channel)
 
     if (Channel.GetEvents() & QET_TIMEOUT)
     {
-        return AddEventToMapVector(Channel, QEO_ADD);
+        return AddEventToChannelMap(Channel, QEO_ADD);
     }
 
     if (Channel.GetEvents() & QET_SIGNAL)
     {
-        return m_Signal.Register(Channel) && AddEventToMapVector(Channel, QEO_ADD);
+        return m_Signal.Register(Channel) && AddEventToChannelMap(Channel, QEO_ADD);
     }
 
     if (Channel.GetEvents() & QET_READ)
@@ -56,7 +56,7 @@ bool QSelect::AddEvent(const QChannel &Channel)
             m_HighestEventFD);
     }
 
-    return AddEventToMapVector(Channel, QEO_ADD);
+    return AddEventToChannelMap(Channel, QEO_ADD);
 }
 
 bool QSelect::DelEvent(const QChannel &Channel)
@@ -68,12 +68,12 @@ bool QSelect::DelEvent(const QChannel &Channel)
 
     if (Channel.GetEvents() & QET_TIMEOUT)
     {
-        return DelEventFromMapVector(Channel, QEO_DEL);
+        return DelEventFromChannelMap(Channel, QEO_DEL);
     }
 
     if (Channel.GetEvents() & QET_SIGNAL)
     {
-        return m_Signal.CancelRegister(Channel) && DelEventFromMapVector(Channel, QEO_DEL);
+        return m_Signal.CancelRegister(Channel) && DelEventFromChannelMap(Channel, QEO_DEL);
     }
 
     FD_CLR(Channel.GetFD(), &m_ReadSetIn);
@@ -92,7 +92,7 @@ bool QSelect::DelEvent(const QChannel &Channel)
     QLog::g_Log.WriteDebug("select: Highest event FD = %d after deleted.",
         m_HighestEventFD);
 
-    return DelEventFromMapVector(Channel, QEO_DEL);
+    return DelEventFromChannelMap(Channel, QEO_DEL);
 }
 
 bool QSelect::Dispatch(timeval &tv)

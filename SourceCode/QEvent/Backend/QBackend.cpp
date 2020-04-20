@@ -15,53 +15,59 @@ QBackend::~QBackend()
     m_ChannelMap.clear();
 }
 
-bool QBackend::AddEvent(const QChannel &Event)
+bool QBackend::AddEvent(const QChannel &Channel)
 {
-    if (IsExisted(Event))
+    if (m_ChannelMap.find(Channel.GetFD()) != m_ChannelMap.end())
     {
-        QLog::g_Log.WriteError("Add event failed, FD = %d, events = %d, it is existed.",
-            Event.GetFD(), Event.GetEvents());
+        QLog::g_Log.WriteError("Add channel failed, FD = %d, events = %d, it is existed.",
+            Channel.GetFD(), Channel.GetEvents());
         return false;
     }
 
     return true;
 }
 
-bool QBackend::DelEvent(const QChannel &Event)
+bool QBackend::DelEvent(const QChannel &Channel)
 {
-    if (!IsExisted(Event))
+    if (m_ChannelMap.find(Channel.GetFD()) == m_ChannelMap.end())
     {
-        QLog::g_Log.WriteError("Del event failed, FD = %d, events = %d, it is not existed.",
-            Event.GetFD(), Event.GetEvents());
+        QLog::g_Log.WriteError("Del channel failed, FD = %d, events = %d, it is not existed.",
+            Channel.GetFD(), Channel.GetEvents());
         return false;
     }
 
     return true;
 }
 
-bool QBackend::ModEvent(const QChannel &Event)
+bool QBackend::ModEvent(const QChannel &Channel)
 {
+    if (m_ChannelMap.find(Channel.GetFD()) == m_ChannelMap.end())
+    {
+        QLog::g_Log.WriteError("Mod channel failed, FD = %d, events = %d, it is not existed.",
+            Channel.GetFD(), Channel.GetEvents());
+        return false;
+    }
+
     //TODO
-    return false;
+    return true;
 }
 
-bool QBackend::AddEventToMapVector(const QChannel &Event, QEventOption OP)
+bool QBackend::AddEventToChannelMap(const QChannel &Channel, QEventOption OP)
 {
-    QEventFD MapKey = GetMapKey(Event);
-    m_ChannelMap[MapKey] = std::move(Event);
+    m_ChannelMap[Channel.GetFD()] = std::move(Channel);
     WriteMapVectorSnapshot();
+
     //m_MinHeap.AddTimeout(Event, MapKey, m_ChannelMap[MapKey].size() - 1);
     return true;
 }
 
-bool QBackend::DelEventFromMapVector(const QChannel &Event, QEventOption OP)
+bool QBackend::DelEventFromChannelMap(const QChannel &Channel, QEventOption OP)
 {
-    QEventFD MapKey = GetMapKey(Event);
-    std::map<QEventFD, QChannel>::iterator it = m_ChannelMap.find(MapKey);
+    std::map<QEventFD, QChannel>::iterator it = m_ChannelMap.find(Channel.GetFD());
     if (it == m_ChannelMap.end())
     {
-        QLog::g_Log.WriteError("Delete event failed, can not find FD = %d.",
-            Event.GetFD());
+        QLog::g_Log.WriteError("Delete channel failed, can not find FD = %d.",
+            Channel.GetFD());
         return false;
     }
 
@@ -73,28 +79,6 @@ bool QBackend::DelEventFromMapVector(const QChannel &Event, QEventOption OP)
     m_ChannelMap.erase(it);
     WriteMapVectorSnapshot();
     return true;
-}
-
-bool QBackend::IsExisted(const QChannel &Event) const
-{
-    QEventFD MapKey = GetMapKey(Event);
-    std::map<QEventFD, QChannel>::const_iterator it = m_ChannelMap.find(MapKey);
-    return it != m_ChannelMap.end();
-}
-
-QEventFD QBackend::GetMapKey(const QChannel &Event) const
-{
-    if (Event.GetEvents() & QET_TIMEOUT)
-    {
-        return m_TimerFD;
-    }
-
-    if (Event.GetEvents() & QET_SIGNAL)
-    {
-        return m_Signal.GetFD();
-    }
-
-    return Event.GetFD();
 }
 
 void QBackend::ProcessTimeout()

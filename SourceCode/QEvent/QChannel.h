@@ -47,7 +47,6 @@ protected:
     EventCallback                               m_ReadCallback;
     EventCallback                               m_WriteCallback;
 
-
     timeval                                     m_Timeout;
     std::shared_ptr<QBackend>                   m_Backend;
 };

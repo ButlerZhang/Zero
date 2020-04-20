@@ -14,9 +14,9 @@ public:
     QBackend();
     virtual ~QBackend();
 
-    virtual bool AddEvent(const QChannel &Event);
-    virtual bool DelEvent(const QChannel &Event);
-    virtual bool ModEvent(const QChannel &Event);
+    virtual bool AddEvent(const QChannel &Channel);
+    virtual bool DelEvent(const QChannel &Channel);
+    virtual bool ModEvent(const QChannel &Channel);
     virtual bool Dispatch(timeval &tv)  = 0;
 
     inline bool IsStop() const { return m_IsStop; }
@@ -27,11 +27,8 @@ public:
 
 protected:
 
-    bool AddEventToMapVector(const QChannel &Event, QEventOption OP);
-    bool DelEventFromMapVector(const QChannel &Event, QEventOption OP);
-
-    bool IsExisted(const QChannel &Event) const;
-    QEventFD GetMapKey(const QChannel &Event) const;
+    bool AddEventToChannelMap(const QChannel &Event, QEventOption OP);
+    bool DelEventFromChannelMap(const QChannel &Event, QEventOption OP);
 
     void ProcessTimeout();
     void ActiveEvent(QEventFD FD, int ResultEvents);

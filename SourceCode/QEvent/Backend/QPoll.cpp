@@ -23,43 +23,43 @@ QPoll::~QPoll()
 {
 }
 
-bool QPoll::AddEvent(const QChannel &Event)
+bool QPoll::AddEvent(const QChannel &Channel)
 {
-    if (!QBackend::AddEvent(Event))
+    if (!QBackend::AddEvent(Channel))
     {
         return false;
     }
 
-    //if (Event.GetEvents() & QET_TIMEOUT)
-    //{
-    //    return AddEventToMapVector(Event, QEO_ADD);
-    //}
+    if (Channel.GetEvents() & QET_TIMEOUT)
+    {
+        return AddEventToChannelMap(Channel, QEO_ADD);
+    }
 
-    //if (Event.GetEvents() & QET_SIGNAL)
-    //{
-    //    return m_Signal.Register(Event) && AddEventToMapVector(Event, QEO_ADD);
-    //}
+    if (Channel.GetEvents() & QET_SIGNAL)
+    {
+        return m_Signal.Register(Channel) && AddEventToChannelMap(Channel, QEO_ADD);
+    }
 
     for (int Index = 0; Index < FD_SETSIZE; Index++)
     {
-        if (m_FDArray[Index].fd < 0 || m_FDArray[Index].fd == Event.GetFD())
+        if (m_FDArray[Index].fd < 0 || m_FDArray[Index].fd == Channel.GetFD())
         {
             QEventOption OP = (m_FDArray[Index].fd < 0) ? QEO_ADD : QEO_MOD;
-            m_FDArray[Index].fd = Event.GetFD();
+            m_FDArray[Index].fd = Channel.GetFD();
             m_FDArray[Index].revents = 0;
 
-            if (Event.GetEvents() & QET_READ)
+            if (Channel.GetEvents() & QET_READ)
             {
                 m_FDArray[Index].events |= POLLIN;
                 QLog::g_Log.WriteDebug("poll: FD = %d add read event.",
-                    Event.GetFD());
+                    Channel.GetFD());
             }
 
-            if (Event.GetEvents() & QET_WRITE)
+            if (Channel.GetEvents() & QET_WRITE)
             {
                 m_FDArray[Index].events |= POLLOUT;
                 QLog::g_Log.WriteDebug("poll: FD = %d add write event.",
-                    Event.GetFD());
+                    Channel.GetFD());
             }
 
             if (m_FDMaxIndex <= Index)
@@ -69,64 +69,46 @@ bool QPoll::AddEvent(const QChannel &Event)
                     m_FDMaxIndex);
             }
 
-            return AddEventToMapVector(Event, OP);
+            return AddEventToChannelMap(Channel, OP);
         }
     }
 
     QLog::g_Log.WriteError("poll: FD = %d, events = %d add failed, no location.",
-        Event.GetFD(), Event.GetEvents());
+        Channel.GetFD(), Channel.GetEvents());
     return false;
 }
 
-bool QPoll::DelEvent(const QChannel &Event)
+bool QPoll::DelEvent(const QChannel &Channel)
 {
-    if (!QBackend::DelEvent(Event))
+    if (!QBackend::DelEvent(Channel))
     {
         return false;
     }
 
-    if (Event.GetEvents() & QET_TIMEOUT)
+    if (Channel.GetEvents() & QET_TIMEOUT)
     {
-        return DelEventFromMapVector(Event, QEO_DEL);
+        return DelEventFromChannelMap(Channel, QEO_DEL);
     }
 
-    if (Event.GetEvents() & QET_SIGNAL)
+    if (Channel.GetEvents() & QET_SIGNAL)
     {
-        return m_Signal.CancelRegister(Event) && DelEventFromMapVector(Event, QEO_DEL);
+        return m_Signal.CancelRegister(Channel) && DelEventFromChannelMap(Channel, QEO_DEL);
     }
 
     int DeleteIndex = -1;
     for (int Index = 0; Index < FD_SETSIZE; Index++)
     {
-        if (m_FDArray[Index].fd == Event.GetFD())
+        if (m_FDArray[Index].fd == Channel.GetFD())
         {
             DeleteIndex = Index;
             m_FDArray[Index].fd = -1;
             m_FDArray[Index].events = 0;
             m_FDArray[Index].revents = 0;
-
-            //for (std::vector<QChannel>::iterator VecIt = m_ChannelMap[Event.GetFD()].begin(); VecIt != m_ChannelMap[Event.GetFD()].end(); VecIt++)
-            //{
-            //    if (!VecIt->IsEqual(Event))
-            //    {
-            //        m_FDArray[Index].fd = Event.GetFD();
-            //        if (VecIt->GetEvents() & QET_READ)
-            //        {
-            //            m_FDArray[Index].events |= POLLIN;
-            //        }
-
-            //        if (VecIt->GetEvents() & QET_WRITE)
-            //        {
-            //            m_FDArray[Index].events |= POLLOUT;
-            //        }
-            //    }
-            //}
-
             break;
         }
     }
 
-    if (DeleteIndex >= 0 && m_FDArray[DeleteIndex].fd < 0)
+    if (DeleteIndex >= 0)
     {
         m_FDMaxIndex -= 1;
         if (DeleteIndex < m_FDMaxIndex)
@@ -144,7 +126,7 @@ bool QPoll::DelEvent(const QChannel &Event)
     QLog::g_Log.WriteDebug("poll: FD max index = %d after deleted.",
         m_FDMaxIndex);
 
-    return DelEventFromMapVector(Event, QEO_DEL);
+    return DelEventFromChannelMap(Channel, QEO_DEL);
 }
 
 bool QPoll::Dispatch(timeval &tv)
