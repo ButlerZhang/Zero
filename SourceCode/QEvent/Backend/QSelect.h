@@ -11,8 +11,8 @@ public:
     QSelect();
     virtual ~QSelect();
 
-    virtual bool AddEvent(const QChannel &Event);
-    virtual bool DelEvent(const QChannel &Event);
+    virtual bool AddEvent(const QChannel &Channel);
+    virtual bool DelEvent(const QChannel &Channel);
     virtual bool Dispatch(timeval &tv);
 
 private:

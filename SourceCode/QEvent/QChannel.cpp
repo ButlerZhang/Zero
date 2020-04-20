@@ -19,6 +19,11 @@ QChannel::~QChannel()
 {
 }
 
+void QChannel::SetResultEvents(int ResultEvents)
+{
+    m_ResultEvents = ResultEvents;
+}
+
 void QChannel::SetReadCallback(EventCallback ReadCallback)
 {
     m_ReadCallback = ReadCallback;
@@ -33,15 +38,32 @@ void QChannel::SetWriteCallback(EventCallback WriteCallback)
 
 void QChannel::HandlerEvent()
 {
-    if (m_ReadCallback != nullptr)
+    QLog::g_Log.WriteDebug("QChannel: FD = %d, result events = %d.",
+        m_EventFD, m_Events);
+
+    if (m_ResultEvents & QET_READ)
     {
-        QLog::g_Log.WriteDebug("QEvent: Start process call back.");
-        m_ReadCallback(*this);
-        QLog::g_Log.WriteDebug("QEvent: Stop process call back.");
+        if (m_ReadCallback != nullptr)
+        {
+            m_ReadCallback(*this);
+        }
+        else
+        {
+            QLog::g_Log.WriteDebug("QChannel: FD = %d read callback is nullptr.",
+                m_EventFD);
+        }
     }
-    else
+
+    if (m_ResultEvents & QET_WRITE)
     {
-        QLog::g_Log.WriteDebug("QEvent: CallBack is nullptr, FD = %d, events = %d.",
-            m_EventFD, m_Events);
+        if (m_WriteCallback != nullptr)
+        {
+            m_WriteCallback(*this);
+        }
+        else
+        {
+            QLog::g_Log.WriteDebug("QChannel: FD = %d write callback is nullptr.",
+                m_EventFD);
+        }
     }
 }

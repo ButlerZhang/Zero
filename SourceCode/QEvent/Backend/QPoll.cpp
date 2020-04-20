@@ -30,15 +30,15 @@ bool QPoll::AddEvent(const QChannel &Event)
         return false;
     }
 
-    if (Event.GetEvents() & QET_TIMEOUT)
-    {
-        return AddEventToMapVector(Event, QEO_ADD);
-    }
+    //if (Event.GetEvents() & QET_TIMEOUT)
+    //{
+    //    return AddEventToMapVector(Event, QEO_ADD);
+    //}
 
-    if (Event.GetEvents() & QET_SIGNAL)
-    {
-        return m_Signal.Register(Event) && AddEventToMapVector(Event, QEO_ADD);
-    }
+    //if (Event.GetEvents() & QET_SIGNAL)
+    //{
+    //    return m_Signal.Register(Event) && AddEventToMapVector(Event, QEO_ADD);
+    //}
 
     for (int Index = 0; Index < FD_SETSIZE; Index++)
     {
@@ -105,7 +105,7 @@ bool QPoll::DelEvent(const QChannel &Event)
             m_FDArray[Index].events = 0;
             m_FDArray[Index].revents = 0;
 
-            //for (std::vector<QChannel>::iterator VecIt = m_EventMap[Event.GetFD()].begin(); VecIt != m_EventMap[Event.GetFD()].end(); VecIt++)
+            //for (std::vector<QChannel>::iterator VecIt = m_ChannelMap[Event.GetFD()].begin(); VecIt != m_ChannelMap[Event.GetFD()].end(); VecIt++)
             //{
             //    if (!VecIt->IsEqual(Event))
             //    {

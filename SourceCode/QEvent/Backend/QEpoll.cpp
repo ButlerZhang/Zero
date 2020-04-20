@@ -29,15 +29,15 @@ bool QEpoll::AddEvent(const QChannel &Event)
         return false;
     }
 
-    if (Event.GetEvents() & QET_TIMEOUT)
-    {
-        return AddEventToMapVector(Event, QEO_ADD);
-    }
+    //if (Event.GetEvents() & QET_TIMEOUT)
+    //{
+    //    return AddEventToMapVector(Event, QEO_ADD);
+    //}
 
-    if (Event.GetEvents() & QET_SIGNAL)
-    {
-        return m_Signal.Register(Event) && AddEventToMapVector(Event, QEO_ADD);
-    }
+    //if (Event.GetEvents() & QET_SIGNAL)
+    //{
+    //    return m_Signal.Register(Event) && AddEventToMapVector(Event, QEO_ADD);
+    //}
 
     if (Event.GetFD() == m_EpollFD)
     {
@@ -53,21 +53,18 @@ bool QEpoll::AddEvent(const QChannel &Event)
     int EpollOP = EPOLL_CTL_ADD;
     int WatchEvents = Event.GetEvents();
 
-    std::map<QEventFD, std::vector<QChannel>>::iterator MapIt = m_EventMap.find(Event.GetFD());
-    if (MapIt != m_EventMap.end())
+    std::map<QEventFD, QChannel>::iterator MapIt = m_ChannelMap.find(Event.GetFD());
+    if (MapIt != m_ChannelMap.end())
     {
-        for (std::vector<QChannel>::iterator VecIt = MapIt->second.begin(); VecIt != MapIt->second.end(); VecIt++)
+        EpollOP = EPOLL_CTL_MOD;
+        if (MapIt->second.GetEvents() & QET_READ)
         {
-            EpollOP = EPOLL_CTL_MOD;
-            if (VecIt->GetEvents() & QET_READ)
-            {
-                WatchEvents |= QET_READ;
-            }
+            WatchEvents |= QET_READ;
+        }
 
-            if (VecIt->GetEvents() & QET_WRITE)
-            {
-                WatchEvents |= QET_WRITE;
-            }
+        if (MapIt->second.GetEvents() & QET_WRITE)
+        {
+            WatchEvents |= QET_WRITE;
         }
     }
 
@@ -113,7 +110,7 @@ bool QEpoll::DelEvent(const QChannel &Event)
     }
 
     int WatchEvents = 0;
-    //for (std::vector<QChannel>::iterator VecIt = m_EventMap[Event.GetFD()].begin(); VecIt != m_EventMap[Event.GetFD()].end(); VecIt++)
+    //for (std::vector<QChannel>::iterator VecIt = m_ChannelMap[Event.GetFD()].begin(); VecIt != m_ChannelMap[Event.GetFD()].end(); VecIt++)
     //{
     //    if (!VecIt->IsEqual(Event))
     //    {

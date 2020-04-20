@@ -18,82 +18,66 @@ QSelect::~QSelect()
 {
 }
 
-bool QSelect::AddEvent(const QChannel &Event)
+bool QSelect::AddEvent(const QChannel &Channel)
 {
-    if (!QBackend::AddEvent(Event))
+    if (!QBackend::AddEvent(Channel))
     {
         return false;
     }
 
-    if (Event.GetEvents() & QET_TIMEOUT)
+    if (Channel.GetEvents() & QET_TIMEOUT)
     {
-        return AddEventToMapVector(Event, QEO_ADD);
+        return AddEventToMapVector(Channel, QEO_ADD);
     }
 
-    if (Event.GetEvents() & QET_SIGNAL)
+    if (Channel.GetEvents() & QET_SIGNAL)
     {
-        return m_Signal.Register(Event) && AddEventToMapVector(Event, QEO_ADD);
+        return m_Signal.Register(Channel) && AddEventToMapVector(Channel, QEO_ADD);
     }
 
-    if (Event.GetEvents() & QET_READ)
+    if (Channel.GetEvents() & QET_READ)
     {
-        FD_SET(Event.GetFD(), &m_ReadSetIn);
+        FD_SET(Channel.GetFD(), &m_ReadSetIn);
         QLog::g_Log.WriteDebug("select: FD = %d add read event.",
-            Event.GetFD());
+            Channel.GetFD());
     }
 
-    if (Event.GetEvents() & QET_WRITE)
+    if (Channel.GetEvents() & QET_WRITE)
     {
-        FD_SET(Event.GetFD(), &m_WriteSetIn);
+        FD_SET(Channel.GetFD(), &m_WriteSetIn);
         QLog::g_Log.WriteDebug("select: FD = %d add write event.",
-            Event.GetFD());
+            Channel.GetFD());
     }
 
-    if (m_HighestEventFD <= Event.GetFD())
+    if (m_HighestEventFD <= Channel.GetFD())
     {
-        m_HighestEventFD = Event.GetFD() + 1;
+        m_HighestEventFD = Channel.GetFD() + 1;
         QLog::g_Log.WriteDebug("select: Highest event FD = %d after added.",
             m_HighestEventFD);
     }
 
-    return AddEventToMapVector(Event, QEO_ADD);
+    return AddEventToMapVector(Channel, QEO_ADD);
 }
 
-bool QSelect::DelEvent(const QChannel &Event)
+bool QSelect::DelEvent(const QChannel &Channel)
 {
-    if (!QBackend::DelEvent(Event))
+    if (!QBackend::DelEvent(Channel))
     {
         return false;
     }
 
-    if (Event.GetEvents() & QET_TIMEOUT)
+    if (Channel.GetEvents() & QET_TIMEOUT)
     {
-        return DelEventFromMapVector(Event, QEO_DEL);
+        return DelEventFromMapVector(Channel, QEO_DEL);
     }
 
-    if (Event.GetEvents() & QET_SIGNAL)
+    if (Channel.GetEvents() & QET_SIGNAL)
     {
-        return m_Signal.CancelRegister(Event) && DelEventFromMapVector(Event, QEO_DEL);
+        return m_Signal.CancelRegister(Channel) && DelEventFromMapVector(Channel, QEO_DEL);
     }
 
-    FD_CLR(Event.GetFD(), &m_ReadSetIn);
-    FD_CLR(Event.GetFD(), &m_WriteSetIn);
-
-    //for (std::vector<QChannel>::iterator VecIt = m_EventMap[Event.GetFD()].begin(); VecIt != m_EventMap[Event.GetFD()].end(); VecIt++)
-    //{
-    //    if (!VecIt->IsEqual(Event))
-    //    {
-    //        if (VecIt->GetEvents() & QET_READ)
-    //        {
-    //            FD_SET(VecIt->GetFD(), &m_ReadSetIn);
-    //        }
-
-    //        if (VecIt->GetEvents() & QET_WRITE)
-    //        {
-    //            FD_SET(VecIt->GetFD(), &m_WriteSetIn);
-    //        }
-    //    }
-    //}
+    FD_CLR(Channel.GetFD(), &m_ReadSetIn);
+    FD_CLR(Channel.GetFD(), &m_WriteSetIn);
 
     for (int FD = m_HighestEventFD - 1; FD >= 0; FD--)
     {
@@ -108,7 +92,7 @@ bool QSelect::DelEvent(const QChannel &Event)
     QLog::g_Log.WriteDebug("select: Highest event FD = %d after deleted.",
         m_HighestEventFD);
 
-    return DelEventFromMapVector(Event, QEO_DEL);
+    return DelEventFromMapVector(Channel, QEO_DEL);
 }
 
 bool QSelect::Dispatch(timeval &tv)

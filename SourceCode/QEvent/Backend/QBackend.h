@@ -23,7 +23,7 @@ public:
     inline QSignal& GetSignal() { return m_Signal; }
     inline QMinHeap& GetMinHeap() { return m_MinHeap; }
     inline const std::string& GetBackendName() const { return m_BackendName; }
-    inline const std::map<QEventFD, std::vector<QChannel>>& GetEventMap() const { return m_EventMap; }
+    inline const std::map<QEventFD, QChannel>& GetEventMap() const { return m_ChannelMap; }
 
 protected:
 
@@ -37,7 +37,6 @@ protected:
     void ActiveEvent(QEventFD FD, int ResultEvents);
 
     void WriteMapVectorSnapshot();
-    void WriteEventOperationLog(QEventFD MapKey, QEventFD FD, QEventOption OP);
 
 protected:
 
@@ -46,5 +45,5 @@ protected:
     QEventFD                                        m_TimerFD;
     QMinHeap                                        m_MinHeap;
     QSignal                                         m_Signal;
-    std::map<QEventFD, std::vector<QChannel>>         m_EventMap;
+    std::map<QEventFD, QChannel>                    m_ChannelMap;
 };
