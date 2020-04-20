@@ -4,7 +4,7 @@
 
 enum QEventType
 {
-    QET_TIMEOUT = 0x01,
+    QET_NONE    = 0x00,
     QET_READ    = 0x02,
     QET_WRITE   = 0x04,
 };

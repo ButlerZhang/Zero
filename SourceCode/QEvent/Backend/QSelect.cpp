@@ -26,11 +26,6 @@ bool QSelect::AddEvent(const QChannel &Channel)
         return false;
     }
 
-    if (Channel.GetEvents() & QET_TIMEOUT)
-    {
-        return AddEventToChannelMap(Channel, QEO_ADD);
-    }
-
     if (Channel.GetEvents() & QET_READ)
     {
         FD_SET(Channel.GetFD(), &m_ReadSetIn);
@@ -60,11 +55,6 @@ bool QSelect::DelEvent(const QChannel &Channel)
     if (!QBackend::DelEvent(Channel))
     {
         return false;
-    }
-
-    if (Channel.GetEvents() & QET_TIMEOUT)
-    {
-        return DelEventFromChannelMap(Channel, QEO_DEL);
     }
 
     FD_CLR(Channel.GetFD(), &m_ReadSetIn);
@@ -108,7 +98,7 @@ bool QSelect::Dispatch(timeval &tv)
 
     if (Result == 0)
     {
-        ProcessTimeout();
+        ActiveEvent(m_Timer.GetFD(), 0);
     }
     else
     {

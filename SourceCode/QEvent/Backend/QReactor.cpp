@@ -33,7 +33,7 @@ bool QReactor::Init()
     QLog::g_Log.WriteInfo("Enable backend : %s",
         m_Backend->GetBackendName().c_str());
 
-    return m_Backend->GetSignal().Init(*m_Backend);
+    return m_Backend->GetTimer().Init(*m_Backend) && m_Backend->GetSignal().Init(*m_Backend);
 }
 
 bool QReactor::AddEvent(const QChannel &Event)
@@ -61,11 +61,21 @@ bool QReactor::DelSignal(int Signal)
     return m_Backend->GetSignal().DelSignal(Signal);
 }
 
+int64_t QReactor::AddTimer(int Interval, TimerCallback Callback)
+{
+    return m_Backend->GetTimer().AddTimer(Interval, Callback);
+}
+
+bool QReactor::DelTimer(int64_t TimerID)
+{
+    return m_Backend->GetTimer().DelTimer(TimerID);
+}
+
 bool QReactor::Dispatch()
 {
     while (!m_Backend->IsStop())
     {
-        long MinTimeOut = m_Backend->GetMinHeap().GetMinTimeout();
+        long MinTimeOut = m_Backend->GetTimer().GetMinTimeout();
         timeval tv = QTime::ConvertToTimeval(MinTimeOut);
 
         QLog::g_Log.WriteDebug("Dispatch: min timeout = %ld, tv.sec = %d, tv.usec = %d",

@@ -1,9 +1,10 @@
 #pragma once
+#include <functional>
 
 
 
 #ifndef QEVENT_NS_BEGIN
-#define QEVENT_NS_BEGIN namespace QChannel {
+#define QEVENT_NS_BEGIN namespace QE {
 #endif
 
 #ifndef QEVENT_NS_END
@@ -19,3 +20,6 @@ typedef int QEventFD;
 #endif
 
 const int BUFFER_SIZE = 2048;
+
+typedef std::function<void()> TimerCallback;
+typedef std::function<void()> SignalCallback;

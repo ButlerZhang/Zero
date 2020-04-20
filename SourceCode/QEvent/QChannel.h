@@ -8,7 +8,7 @@
 class QChannel;
 class QBackend;
 
-typedef std::function<void(const QChannel &Event)> EventCallback;
+typedef std::function<void(const QChannel &Event)> IOEventCallback;
 
 
 
@@ -23,8 +23,8 @@ public:
     void HandlerEvent() const;
 
     void SetResultEvents(int ResultEvents);
-    void SetReadCallback(EventCallback ReadCallback);
-    void SetWriteCallback(EventCallback WriteCallback);
+    void SetReadCallback(IOEventCallback ReadCallback);
+    void SetWriteCallback(IOEventCallback WriteCallback);
 
     inline int GetEvents() const { return m_Events; }
     inline int GetResultEvents() const { return m_ResultEvents; }
@@ -44,8 +44,8 @@ protected:
 
     QEventFD                                    m_EventFD;
 
-    EventCallback                               m_ReadCallback;
-    EventCallback                               m_WriteCallback;
+    IOEventCallback                             m_ReadCallback;
+    IOEventCallback                             m_WriteCallback;
 
     timeval                                     m_Timeout;
     std::shared_ptr<QBackend>                   m_Backend;

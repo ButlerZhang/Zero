@@ -30,13 +30,13 @@ void QChannel::SetResultEvents(int ResultEvents)
     m_ResultEvents = ResultEvents;
 }
 
-void QChannel::SetReadCallback(EventCallback ReadCallback)
+void QChannel::SetReadCallback(IOEventCallback ReadCallback)
 {
     m_ReadCallback = ReadCallback;
     m_Events |= QET_READ;
 }
 
-void QChannel::SetWriteCallback(EventCallback WriteCallback)
+void QChannel::SetWriteCallback(IOEventCallback WriteCallback)
 {
     m_WriteCallback = WriteCallback;
     m_Events |= QET_WRITE;

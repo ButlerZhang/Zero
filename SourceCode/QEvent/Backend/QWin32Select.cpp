@@ -23,16 +23,6 @@ bool QWin32Select::AddEvent(const QChannel &Channel)
         return false;
     }
 
-    if (Channel.GetEvents() & QET_TIMEOUT)
-    {
-        return AddEventToChannelMap(Channel, QEO_ADD);
-    }
-
-    if (Channel.GetEvents() & QET_SIGNAL)
-    {
-        return m_Signal.Register(Channel) && AddEventToChannelMap(Channel, QEO_ADD);
-    }
-
     if (Channel.GetEvents() & QET_READ)
     {
         FD_SET(Channel.GetFD(), &m_ReadSetIn);
@@ -55,16 +45,6 @@ bool QWin32Select::DelEvent(const QChannel &Channel)
     if (!QBackend::DelEvent(Channel))
     {
         return false;
-    }
-
-    if (Channel.GetEvents() & QET_TIMEOUT)
-    {
-        return DelEventFromChannelMap(Channel, QEO_DEL);
-    }
-
-    if (Channel.GetEvents() & QET_SIGNAL)
-    {
-        return m_Signal.CancelRegister(Channel) && DelEventFromChannelMap(Channel, QEO_DEL);
     }
 
     FD_CLR(Channel.GetFD(), &m_ReadSetIn);
@@ -126,11 +106,6 @@ bool QWin32Select::UseSleepSimulateSelect(timeval &tv)
         return false;
     }
 
-    if (!m_MinHeap.HasNode())
-    {
-        return false;
-    }
-
     long SleepTime = QTime::ConvertToMillisecond(tv);
     if (SleepTime < 0)
     {
@@ -138,6 +113,6 @@ bool QWin32Select::UseSleepSimulateSelect(timeval &tv)
     }
 
     Sleep(SleepTime);
-    ProcessTimeout();
+    ActiveEvent(m_Timer.GetFD(), 0);
     return true;
 }

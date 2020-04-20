@@ -206,47 +206,47 @@ void UnitTest::AddAndDelIOEventsByFor()
 
 void UnitTest::MinHeapTest()
 {
-    QChannel Timer1(1);
-    Timer1.SetTimeout({ 10, 0 });
-    assert(m_Reactor.AddEvent(Timer1) == true);
+    //QChannel Timer1(1);
+    //Timer1.SetTimeout({ 10, 0 });
+    //assert(m_Reactor.AddEvent(Timer1) == true);
 
-    QChannel Timer2(2);
-    Timer2.SetTimeout({ 8, 0 });
-    assert(m_Reactor.AddEvent(Timer2) == true);
+    //QChannel Timer2(2);
+    //Timer2.SetTimeout({ 8, 0 });
+    //assert(m_Reactor.AddEvent(Timer2) == true);
 
-    QChannel Timer3(3);
-    Timer3.SetTimeout({ 17, 0 });
-    assert(m_Reactor.AddEvent(Timer3) == true);
+    //QChannel Timer3(3);
+    //Timer3.SetTimeout({ 17, 0 });
+    //assert(m_Reactor.AddEvent(Timer3) == true);
 
-    QChannel Timer4(4);
-    Timer4.SetTimeout({ 56, 0 });
-    assert(m_Reactor.AddEvent(Timer4) == true);
+    //QChannel Timer4(4);
+    //Timer4.SetTimeout({ 56, 0 });
+    //assert(m_Reactor.AddEvent(Timer4) == true);
 
-    QChannel Timer5(5);
-    Timer5.SetTimeout({ 9, 0 });
-    assert(m_Reactor.AddEvent(Timer5) == true);
+    //QChannel Timer5(5);
+    //Timer5.SetTimeout({ 9, 0 });
+    //assert(m_Reactor.AddEvent(Timer5) == true);
 
-    QChannel Timer6(6);
-    Timer6.SetTimeout({ 2, 0 });
-    assert(m_Reactor.AddEvent(Timer6) == true);
+    //QChannel Timer6(6);
+    //Timer6.SetTimeout({ 2, 0 });
+    //assert(m_Reactor.AddEvent(Timer6) == true);
 
-    bool IsTestPop = false;
-    QMinHeap &MinHeap = m_Reactor.GetBackend()->GetMinHeap();
+    //bool IsTestPop = false;
+    //QMinHeap &MinHeap = m_Reactor.GetBackend()->GetMinHeap();
 
-    if (IsTestPop)
-    {
-        MinHeap.Pop();
-        MinHeap.Pop();
-        MinHeap.Pop();
-        MinHeap.Pop();
-        MinHeap.Pop();
-        MinHeap.Pop();
-    }
-    else
-    {
-        QEventFD MapKey = -1;
-        MinHeap.DelTimeout(MapKey, 1);
-    }
+    //if (IsTestPop)
+    //{
+    //    MinHeap.Pop();
+    //    MinHeap.Pop();
+    //    MinHeap.Pop();
+    //    MinHeap.Pop();
+    //    MinHeap.Pop();
+    //    MinHeap.Pop();
+    //}
+    //else
+    //{
+    //    QEventFD MapKey = -1;
+    //    MinHeap.DelTimeout(MapKey, 1);
+    //}
 }
 
 void UnitTest::AddAndDeleteTimer()

@@ -1,9 +1,7 @@
 #pragma once
 #include "../QLibBase.h"
-#include "../QMinHeap.h"
 #include "../QSignal.h"
-
-#include <map>
+#include "../QTimer.h"
 
 
 
@@ -21,18 +19,16 @@ public:
 
     inline bool IsStop() const { return m_IsStop; }
     inline QSignal& GetSignal() { return m_Signal; }
-    inline QMinHeap& GetMinHeap() { return m_MinHeap; }
+    inline QTimer& GetTimer() { return m_Timer; }
     inline const std::string& GetBackendName() const { return m_BackendName; }
     inline const std::map<QEventFD, QChannel>& GetEventMap() const { return m_ChannelMap; }
-
-protected:
 
     bool AddEventToChannelMap(const QChannel &Event, QEventOption OP);
     bool DelEventFromChannelMap(const QChannel &Event, QEventOption OP);
 
-    void ProcessTimeout();
-    void ActiveEvent(QEventFD FD, int ResultEvents);
+protected:
 
+    void ActiveEvent(QEventFD FD, int ResultEvents);
     void WriteMapVectorSnapshot();
 
 protected:
@@ -40,7 +36,7 @@ protected:
     bool                                            m_IsStop;
     std::string                                     m_BackendName;
     QEventFD                                        m_TimerFD;
-    QMinHeap                                        m_MinHeap;
     QSignal                                         m_Signal;
+    QTimer                                          m_Timer;
     std::map<QEventFD, QChannel>                    m_ChannelMap;
 };

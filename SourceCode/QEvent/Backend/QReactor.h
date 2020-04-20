@@ -1,9 +1,7 @@
 #pragma once
 #include "../QTime.h"
+#include "../QLibBase.h"
 #include <memory>
-#include <functional>
-
-typedef std::function<void()> SignalCallback;
 
 class QChannel;
 class QBackend;
@@ -26,6 +24,9 @@ public:
 
     bool AddSignal(int Signal, SignalCallback Callback);
     bool DelSignal(int Signal);
+
+    int64_t AddTimer(int Interval, TimerCallback Callback);
+    bool DelTimer(int64_t TimerID);
 
     const std::shared_ptr<QBackend>& GetBackend() const { return m_Backend; }
 

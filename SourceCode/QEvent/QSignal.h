@@ -2,9 +2,6 @@
 #include "QLibBase.h"
 #include "QChannel.h"
 #include <map>
-#include <functional>
-
-typedef std::function<void()> SignalCallback;
 
 
 

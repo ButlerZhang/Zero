@@ -35,6 +35,7 @@
     <ClCompile Include="QTime.cpp" />
     <ClCompile Include="QSignal.cpp" />
     <ClCompile Include="QChannel.cpp" />
+    <ClCompile Include="QTimer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\QLog\QSimpleLog.h">
@@ -74,6 +75,7 @@
     <ClInclude Include="QTime.h" />
     <ClInclude Include="QSignal.h" />
     <ClInclude Include="QChannel.h" />
+    <ClInclude Include="QTimer.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Reference">

@@ -81,39 +81,6 @@ bool QBackend::DelEventFromChannelMap(const QChannel &Channel, QEventOption OP)
     return true;
 }
 
-void QBackend::ProcessTimeout()
-{
-    //if (m_MinHeap.HasNode())
-    //{
-    //    m_MinHeap.MinusElapsedTime(m_MinHeap.GetMinTimeout());
-
-    //    while (m_MinHeap.HasNode() && m_MinHeap.Top().m_Timeout <= 0)
-    //    {
-    //        const QMinHeap::HeapNode &PopNode = m_MinHeap.Pop();
-    //        if (m_ChannelMap.find(PopNode.m_MapKey) == m_ChannelMap.end())
-    //        {
-    //            QLog::g_Log.WriteDebug("Process timeout: Can not find map key = %d", PopNode.m_MapKey);
-    //            continue;
-    //        }
-
-    //        if (!(PopNode.m_MapVectorIndex >= 0 && PopNode.m_MapVectorIndex < m_ChannelMap[PopNode.m_MapKey].size()))
-    //        {
-    //            QLog::g_Log.WriteDebug("Process timeout: map key = %d has wrong vec index = %d",
-    //                PopNode.m_MapKey, PopNode.m_MapVectorIndex);
-    //            continue;
-    //        }
-
-    //        QChannel &Event = m_ChannelMap[PopNode.m_MapKey][PopNode.m_MapVectorIndex];
-
-    //        Event.HandlerEvent();
-    //        //if (Event.IsPersist())
-    //        //{
-    //        //    m_MinHeap.AddTimeout(Event, PopNode.m_MapKey, PopNode.m_MapVectorIndex);
-    //        //}
-    //    }
-    //}
-}
-
 void QBackend::ActiveEvent(QEventFD FD, int ResultEvents)
 {
     QLog::g_Log.WriteDebug("Active event: FD = %d, events = %d", FD, ResultEvents);
