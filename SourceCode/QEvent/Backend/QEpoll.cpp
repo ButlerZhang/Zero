@@ -113,21 +113,21 @@ bool QEpoll::DelEvent(const QChannel &Event)
     }
 
     int WatchEvents = 0;
-    for (std::vector<QChannel>::iterator VecIt = m_EventMap[Event.GetFD()].begin(); VecIt != m_EventMap[Event.GetFD()].end(); VecIt++)
-    {
-        if (!VecIt->IsEqual(Event))
-        {
-            if (VecIt->GetEvents() & QET_READ)
-            {
-                WatchEvents |= QET_READ;
-            }
+    //for (std::vector<QChannel>::iterator VecIt = m_EventMap[Event.GetFD()].begin(); VecIt != m_EventMap[Event.GetFD()].end(); VecIt++)
+    //{
+    //    if (!VecIt->IsEqual(Event))
+    //    {
+    //        if (VecIt->GetEvents() & QET_READ)
+    //        {
+    //            WatchEvents |= QET_READ;
+    //        }
 
-            if (VecIt->GetEvents() & QET_WRITE)
-            {
-                WatchEvents |= QET_WRITE;
-            }
-        }
-    }
+    //        if (VecIt->GetEvents() & QET_WRITE)
+    //        {
+    //            WatchEvents |= QET_WRITE;
+    //        }
+    //    }
+    //}
 
     epoll_event DelEpollEvent;
     DelEpollEvent.events |= EPOLLET;

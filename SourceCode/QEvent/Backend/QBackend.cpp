@@ -23,13 +23,6 @@ QBackend::~QBackend()
 
 bool QBackend::AddEvent(const QChannel &Event)
 {
-    if (!Event.IsValid())
-    {
-        QLog::g_Log.WriteError("Add event failed, FD = %d, events = %d, it is not valid.",
-            Event.GetFD(), Event.GetEvents());
-        return false;
-    }
-
     if (IsExisted(Event))
     {
         QLog::g_Log.WriteError("Add event failed, FD = %d, events = %d, it is existed.",
@@ -54,13 +47,6 @@ bool QBackend::DelEvent(const QChannel &Event)
 
 bool QBackend::ModEvent(const QChannel &Event)
 {
-    if (!Event.IsValid())
-    {
-        QLog::g_Log.WriteError("Mod event failed, FD = %d, events = %d, it is not valid.",
-            Event.GetFD(), Event.GetEvents());
-        return false;
-    }
-
     //TODO
     return false;
 }
@@ -70,7 +56,7 @@ bool QBackend::AddEventToMapVector(const QChannel &Event, QEventOption OP)
     QEventFD MapKey = GetMapKey(Event);
     m_EventMap[MapKey].push_back(std::move(Event));
     WriteEventOperationLog(MapKey, Event.GetFD(), OP);
-    m_MinHeap.AddTimeout(Event, MapKey, m_EventMap[MapKey].size() - 1);
+    //m_MinHeap.AddTimeout(Event, MapKey, m_EventMap[MapKey].size() - 1);
     return true;
 }
 
@@ -89,12 +75,12 @@ bool QBackend::DelEventFromMapVector(const QChannel &Event, QEventOption OP)
     std::vector<QChannel>::iterator TargetIt = MapIt->second.end();
     for (std::vector<QChannel>::iterator VecIt = MapIt->second.begin(); VecIt != MapIt->second.end(); VecIt++)
     {
-        TargetIndex += 1;
-        if (VecIt->IsEqual(Event))
-        {
-            TargetIt = VecIt;
-            break;
-        }
+        //TargetIndex += 1;
+        //if (VecIt->IsEqual(Event))
+        //{
+        //    TargetIt = VecIt;
+        //    break;
+        //}
     }
 
     if (TargetIt == MapIt->second.end())
@@ -128,13 +114,13 @@ bool QBackend::IsExisted(const QChannel &Event) const
         return false;
     }
 
-    for (std::vector<QChannel>::const_iterator VecIt = MapIt->second.begin(); VecIt != MapIt->second.end(); VecIt++)
-    {
-        if (VecIt->IsEqual(Event))
-        {
-            return true;
-        }
-    }
+    //for (std::vector<QChannel>::const_iterator VecIt = MapIt->second.begin(); VecIt != MapIt->second.end(); VecIt++)
+    //{
+    //    if (VecIt->IsEqual(Event))
+    //    {
+    //        return true;
+    //    }
+    //}
 
     return false;
 }
@@ -178,11 +164,11 @@ void QBackend::ProcessTimeout()
 
             QChannel &Event = m_EventMap[PopNode.m_MapKey][PopNode.m_MapVectorIndex];
 
-            Event.CallBack();
-            if (Event.IsPersist())
-            {
-                m_MinHeap.AddTimeout(Event, PopNode.m_MapKey, PopNode.m_MapVectorIndex);
-            }
+            Event.HandlerEvent();
+            //if (Event.IsPersist())
+            //{
+            //    m_MinHeap.AddTimeout(Event, PopNode.m_MapKey, PopNode.m_MapVectorIndex);
+            //}
         }
     }
 }
@@ -192,7 +178,7 @@ void QBackend::ActiveEvent(QEventFD FD, int ResultEvents)
     QLog::g_Log.WriteDebug("Active event: FD = %d, events = %d", FD, ResultEvents);
     if (FD == m_Signal.GetFD())
     {
-        m_EventMap[m_Signal.GetFD()][0].CallBack();
+        m_EventMap[m_Signal.GetFD()][0].HandlerEvent();
     }
     else
     {
@@ -200,12 +186,12 @@ void QBackend::ActiveEvent(QEventFD FD, int ResultEvents)
         {
             if (ResultEvents & QET_READ)
             {
-                m_EventMap[FD][Index].CallBack();
+                m_EventMap[FD][Index].HandlerEvent();
             }
 
             if (ResultEvents & QET_WRITE)
             {
-                m_EventMap[FD][Index].CallBack();
+                m_EventMap[FD][Index].HandlerEvent();
             }
         }
     }

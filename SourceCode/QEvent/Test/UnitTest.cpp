@@ -49,120 +49,120 @@ void UnitTest::AddIOEvents()
     //////////////////////////////////////////////////////////////////////
 #ifndef _WIN32
     QLog::g_Log.WriteInfo("ADD Test wrong FD:");
-    QChannel WrongReadFD(-1, QET_READ);
+    QChannel WrongReadFD(-1);
     assert(m_Reactor.AddEvent(WrongReadFD) == false);
 
-    QChannel WrongWriteFD(-2, QET_WRITE);
+    QChannel WrongWriteFD(-2);
     assert(m_Reactor.AddEvent(WrongWriteFD) == false);
 
-    QChannel WrongReadWriteFD(-1, QET_READ | QET_WRITE);
+    QChannel WrongReadWriteFD(-1);
     assert(m_Reactor.AddEvent(WrongReadWriteFD) == false);
 #endif // !_WIN32
 
     //////////////////////////////////////////////////////////////////////
     QLog::g_Log.WriteInfo("ADD Test wrong events:");
-    QChannel ZeroEvents(BaseFD, 0);
+    QChannel ZeroEvents(BaseFD);
     assert(m_Reactor.AddEvent(ZeroEvents) == false);
 
-    QChannel ReadTimeoutEvents(BaseFD, QET_READ | QET_TIMEOUT);
+    QChannel ReadTimeoutEvents(BaseFD);
     assert(m_Reactor.AddEvent(ReadTimeoutEvents) == false);
 
-    QChannel WriteTimeoutEvents(BaseFD, QET_WRITE | QET_TIMEOUT);
+    QChannel WriteTimeoutEvents(BaseFD);
     assert(m_Reactor.AddEvent(WriteTimeoutEvents) == false);
 
-    QChannel ReadWriteTimeoutEvents(BaseFD, QET_READ | QET_WRITE | QET_TIMEOUT);
+    QChannel ReadWriteTimeoutEvents(BaseFD);
     assert(m_Reactor.AddEvent(ReadWriteTimeoutEvents) == false);
 
-    QChannel ReadSignalEvents(BaseFD, QET_READ | QET_SIGNAL);
+    QChannel ReadSignalEvents(BaseFD);
     assert(m_Reactor.AddEvent(ReadSignalEvents) == false);
 
-    QChannel WriteSignalEvents(BaseFD, QET_WRITE | QET_SIGNAL);
+    QChannel WriteSignalEvents(BaseFD);
     assert(m_Reactor.AddEvent(WriteTimeoutEvents) == false);
 
-    QChannel ReadWriteSignalEvents(BaseFD, QET_READ | QET_WRITE | QET_SIGNAL);
+    QChannel ReadWriteSignalEvents(BaseFD);
     assert(m_Reactor.AddEvent(ReadWriteSignalEvents) == false);
 
-    QChannel ReadWriteSignalTimeoutEvents(BaseFD, QET_READ | QET_WRITE | QET_SIGNAL | QET_TIMEOUT);
+    QChannel ReadWriteSignalTimeoutEvents(BaseFD);
     assert(m_Reactor.AddEvent(ReadWriteSignalTimeoutEvents) == false);
 
-    QChannel OnlyPersistEvent(BaseFD, QET_PERSIST);
+    QChannel OnlyPersistEvent(BaseFD);
     assert(m_Reactor.AddEvent(OnlyPersistEvent) == false);
 
     //////////////////////////////////////////////////////////////////////
     QLog::g_Log.WriteDebug("ADD Test normal IO events:");
-    QChannel ReadEvent(BaseFD, QET_READ);
+    QChannel ReadEvent(BaseFD);
     assert(m_Reactor.AddEvent(ReadEvent) == true);
 
-    QChannel WriteEvent(BaseFD, QET_WRITE);
+    QChannel WriteEvent(BaseFD);
     assert(m_Reactor.AddEvent(WriteEvent) == true);
 
-    QChannel ReadWriteEvent(BaseFD, QET_READ | QET_WRITE);
+    QChannel ReadWriteEvent(BaseFD);
     assert(m_Reactor.AddEvent(ReadWriteEvent) == true);
 
-    QChannel ReadPersistEvent(BaseFD + 1, QET_READ | QET_PERSIST);
+    QChannel ReadPersistEvent(BaseFD + 1);
     assert(m_Reactor.AddEvent(ReadPersistEvent) == true);
 
-    QChannel WritePersistEvent(BaseFD + 1, QET_WRITE | QET_PERSIST);
+    QChannel WritePersistEvent(BaseFD + 1);
     assert(m_Reactor.AddEvent(WritePersistEvent) == true);
 
-    QChannel ReadWritePersistEvent(BaseFD + 1, QET_READ | QET_WRITE | QET_PERSIST);
+    QChannel ReadWritePersistEvent(BaseFD + 1);
     assert(m_Reactor.AddEvent(ReadWritePersistEvent) == true);
 
     //////////////////////////////////////////////////////////////////////
     QLog::g_Log.WriteDebug("ADD Test add repeatedly:");
-    QChannel ReadAgainEvent(BaseFD, QET_READ);
+    QChannel ReadAgainEvent(BaseFD);
     assert(m_Reactor.AddEvent(ReadAgainEvent) == false);
 
-    QChannel WriteAgainEvent(BaseFD, QET_WRITE);
+    QChannel WriteAgainEvent(BaseFD);
     assert(m_Reactor.AddEvent(WriteAgainEvent) == false);
 
-    QChannel ReadWriteAgainEvent(BaseFD, QET_READ | QET_WRITE);
+    QChannel ReadWriteAgainEvent(BaseFD);
     assert(m_Reactor.AddEvent(ReadWriteAgainEvent) == false);
 
-    QChannel ReadPersistAgainEvent(BaseFD + 1, QET_READ | QET_PERSIST);
+    QChannel ReadPersistAgainEvent(BaseFD + 1);
     assert(m_Reactor.AddEvent(ReadPersistAgainEvent) == false);
 
-    QChannel WritePersistAgainEvent(BaseFD + 1, QET_WRITE | QET_PERSIST);
+    QChannel WritePersistAgainEvent(BaseFD + 1);
     assert(m_Reactor.AddEvent(WritePersistAgainEvent) == false);
 
-    QChannel ReadWritePersistAgainEvent(BaseFD + 1, QET_READ | QET_WRITE | QET_PERSIST);
+    QChannel ReadWritePersistAgainEvent(BaseFD + 1);
     assert(m_Reactor.AddEvent(ReadWritePersistAgainEvent) == false);
 
     //////////////////////////////////////////////////////////////////////
     BaseFD = 2;
 
-    QChannel NormalEvent(BaseFD, QET_READ);
-    NormalEvent.SetCallBack(std::bind(&UnitTest::CallBack_AddIOEvent1, this, std::placeholders::_1));
+    QChannel NormalEvent(BaseFD);
+    NormalEvent.SetReadCallback(std::bind(&UnitTest::CallBack_AddIOEvent1, this, std::placeholders::_1));
     assert(m_Reactor.AddEvent(NormalEvent) == true);
 
     QLog::g_Log.WriteDebug("ADD Test add same object:");
     assert(m_Reactor.AddEvent(NormalEvent) == false);
 
     QLog::g_Log.WriteDebug("ADD Test different object but same context");
-    QChannel CopyEvent(BaseFD, QET_READ);
-    CopyEvent.SetCallBack(std::bind(&UnitTest::CallBack_AddIOEvent1, this, std::placeholders::_1));
+    QChannel CopyEvent(BaseFD);
+    CopyEvent.SetReadCallback(std::bind(&UnitTest::CallBack_AddIOEvent1, this, std::placeholders::_1));
     assert(m_Reactor.AddEvent(CopyEvent) == false);
 
     QLog::g_Log.WriteDebug("ADD Test different CallBackFunction event");
-    QChannel DifferentCBEvent(BaseFD, QET_READ);
-    DifferentCBEvent.SetCallBack(std::bind(&UnitTest::CallBack_AddIOEvent2, this, std::placeholders::_1));
+    QChannel DifferentCBEvent(BaseFD);
+    DifferentCBEvent.SetReadCallback(std::bind(&UnitTest::CallBack_AddIOEvent2, this, std::placeholders::_1));
     assert(m_Reactor.AddEvent(DifferentCBEvent) == false);
 
     QLog::g_Log.WriteDebug("ADD Test different WatchEvents");
-    QChannel DifferentEventsEvent(BaseFD, QET_READ | QET_WRITE);
-    DifferentEventsEvent.SetCallBack(std::bind(&UnitTest::CallBack_AddIOEvent1, this, std::placeholders::_1));
+    QChannel DifferentEventsEvent(BaseFD);
+    DifferentEventsEvent.SetReadCallback(std::bind(&UnitTest::CallBack_AddIOEvent1, this, std::placeholders::_1));
     assert(m_Reactor.AddEvent(DifferentEventsEvent) == true);
 }
 
 void UnitTest::DelIOEvents()
 {
     QEventFD BaseFD = 0;
-    QChannel ReadEvent(BaseFD, QET_READ);
-    QChannel WriteEvent(BaseFD, QET_WRITE);
-    QChannel ReadWriteEvent(BaseFD, QET_READ | QET_WRITE);
-    QChannel ReadPersistEvent(BaseFD + 1, QET_READ | QET_PERSIST);
-    QChannel WritePersistEvent(BaseFD + 1, QET_WRITE | QET_PERSIST);
-    QChannel ReadWritePersistEvent(BaseFD + 1, QET_READ | QET_WRITE | QET_PERSIST);
+    QChannel ReadEvent(BaseFD);
+    QChannel WriteEvent(BaseFD);
+    QChannel ReadWriteEvent(BaseFD);
+    QChannel ReadPersistEvent(BaseFD + 1);
+    QChannel WritePersistEvent(BaseFD + 1);
+    QChannel ReadWritePersistEvent(BaseFD + 1);
 
     QLog::g_Log.WriteDebug("DEL Test, existed events");
     assert(m_Reactor.DelEvent(ReadEvent) == true);
@@ -183,7 +183,7 @@ void UnitTest::DelIOEvents()
     if (m_Reactor.GetBackend()->GetBackendName() != "epoll")
     {
         QLog::g_Log.WriteDebug("DEL Test, max FD index");
-        QChannel MaxFDEvent(1000, QET_READ);
+        QChannel MaxFDEvent(1000);
         assert(m_Reactor.AddEvent(MaxFDEvent) == true);
         assert(m_Reactor.DelEvent(MaxFDEvent) == true);
     }
@@ -193,40 +193,40 @@ void UnitTest::AddAndDelIOEventsByFor()
 {
     for (int FD = 0; FD < FD_SETSIZE; FD++)
     {
-        QChannel TempEvent(FD, QET_READ | QET_WRITE);
+        QChannel TempEvent(FD);
         assert(m_Reactor.AddEvent(TempEvent) == true);
     }
 
     for (int FD = FD_SETSIZE - 1; FD >= 0; FD--)
     {
-        QChannel TempEvent(FD, QET_READ | QET_WRITE);
+        QChannel TempEvent(FD);
         assert(m_Reactor.DelEvent(TempEvent) == true);
     }
 }
 
 void UnitTest::MinHeapTest()
 {
-    QChannel Timer1(1, QET_TIMEOUT);
+    QChannel Timer1(1);
     Timer1.SetTimeout({ 10, 0 });
     assert(m_Reactor.AddEvent(Timer1) == true);
 
-    QChannel Timer2(2, QET_TIMEOUT);
+    QChannel Timer2(2);
     Timer2.SetTimeout({ 8, 0 });
     assert(m_Reactor.AddEvent(Timer2) == true);
 
-    QChannel Timer3(3, QET_TIMEOUT);
+    QChannel Timer3(3);
     Timer3.SetTimeout({ 17, 0 });
     assert(m_Reactor.AddEvent(Timer3) == true);
 
-    QChannel Timer4(4, QET_TIMEOUT);
+    QChannel Timer4(4);
     Timer4.SetTimeout({ 56, 0 });
     assert(m_Reactor.AddEvent(Timer4) == true);
 
-    QChannel Timer5(5, QET_TIMEOUT);
+    QChannel Timer5(5);
     Timer5.SetTimeout({ 9, 0 });
     assert(m_Reactor.AddEvent(Timer5) == true);
 
-    QChannel Timer6(6, QET_TIMEOUT);
+    QChannel Timer6(6);
     Timer6.SetTimeout({ 2, 0 });
     assert(m_Reactor.AddEvent(Timer6) == true);
 
@@ -257,29 +257,29 @@ void UnitTest::AddAndDeleteTimer()
     //////////////////////////////////////////////////////////////////////
     //test different type
     QLog::g_Log.WriteDebug("Test add timer: no timeout");
-    QChannel TimerNoTimeout(BaseTimerFD, QET_TIMEOUT);
+    QChannel TimerNoTimeout(BaseTimerFD);
     assert(m_Reactor.AddEvent(TimerNoTimeout) == false);
 
     QLog::g_Log.WriteDebug("Test add timer again: copy, no timeout");
     assert(m_Reactor.AddEvent(TimerNoTimeout) == false);
 
     QLog::g_Log.WriteDebug("Test add timer and siganl");
-    QChannel TimerSignal(BaseTimerFD, QET_TIMEOUT | QET_SIGNAL);
+    QChannel TimerSignal(BaseTimerFD);
     TimerSignal.SetTimeout(BaseTimeout);
     assert(m_Reactor.AddEvent(TimerSignal) == false);
 
     QLog::g_Log.WriteDebug("Test add timer and read");
-    QChannel TimerRead(BaseTimerFD, QET_TIMEOUT | QET_READ);
+    QChannel TimerRead(BaseTimerFD);
     TimerRead.SetTimeout(BaseTimeout);
     assert(m_Reactor.AddEvent(TimerRead) == false);
 
     QLog::g_Log.WriteDebug("Test add timer and write");
-    QChannel TimerWrite(BaseTimerFD, QET_TIMEOUT | QET_WRITE);
+    QChannel TimerWrite(BaseTimerFD);
     TimerWrite.SetTimeout(BaseTimeout);
     assert(m_Reactor.AddEvent(TimerWrite) == false);
 
     QLog::g_Log.WriteDebug("Test add timer and all type");
-    QChannel TimerAllType(BaseTimerFD, QET_TIMEOUT | QET_WRITE | QET_READ | QET_SIGNAL);
+    QChannel TimerAllType(BaseTimerFD);
     TimerAllType.SetTimeout(BaseTimeout);
     assert(m_Reactor.AddEvent(TimerAllType) == false);
 
@@ -290,21 +290,21 @@ void UnitTest::AddAndDeleteTimer()
     QEventFD ChangeTimerFD = BaseTimerFD + 1;
 
     QLog::g_Log.WriteDebug("Test add normal timer");
-    QChannel NormalTimer(BaseTimerFD, QET_TIMEOUT);
+    QChannel NormalTimer(BaseTimerFD);
     NormalTimer.SetTimeout(BaseTimeout);
-    NormalTimer.SetCallBack(std::bind(&UnitTest::CallBack_TimeOut1, this, std::placeholders::_1));
+    NormalTimer.SetReadCallback(std::bind(&UnitTest::CallBack_TimeOut1, this, std::placeholders::_1));
     assert(m_Reactor.AddEvent(NormalTimer) == true);
 
     QLog::g_Log.WriteDebug("Test add different Callback timer");
-    QChannel DifferentCBTimer(BaseTimerFD, QET_TIMEOUT);
+    QChannel DifferentCBTimer(BaseTimerFD);
     DifferentCBTimer.SetTimeout(BaseTimeout);
-    DifferentCBTimer.SetCallBack(std::bind(&UnitTest::CallBack_TimeOut2, this, std::placeholders::_1));
+    DifferentCBTimer.SetReadCallback(std::bind(&UnitTest::CallBack_TimeOut2, this, std::placeholders::_1));
     assert(m_Reactor.AddEvent(DifferentCBTimer) == false);
 
     QLog::g_Log.WriteDebug("Test add different fd timer");
-    QChannel DifferentFDTimer(ChangeTimerFD, QET_TIMEOUT);
+    QChannel DifferentFDTimer(ChangeTimerFD);
     DifferentFDTimer.SetTimeout(BaseTimeout);
-    DifferentFDTimer.SetCallBack(std::bind(&UnitTest::CallBack_TimeOut2, this, std::placeholders::_1));
+    DifferentFDTimer.SetReadCallback(std::bind(&UnitTest::CallBack_TimeOut2, this, std::placeholders::_1));
     assert(m_Reactor.AddEvent(DifferentFDTimer) == true);
 
     //////////////////////////////////////////////////////////////////////
@@ -317,7 +317,7 @@ void UnitTest::AddAndDeleteTimer()
     assert(m_Reactor.DelEvent(NormalTimer) == true);
 
     QLog::g_Log.WriteDebug("Test delete new timer who has same fd");
-    QChannel NewTimer(ChangeTimerFD, QET_TIMEOUT);
+    QChannel NewTimer(ChangeTimerFD);
     assert(m_Reactor.DelEvent(NewTimer) == true);
 
     //////////////////////////////////////////////////////////////////////
@@ -326,53 +326,53 @@ void UnitTest::AddAndDeleteTimer()
     BaseTimerFD = 3;
 
     QLog::g_Log.WriteDebug("Test add 5 seoncds timer:");
-    QChannel Timer5(BaseTimerFD, QET_TIMEOUT);
+    QChannel Timer5(BaseTimerFD);
     Timer5.SetTimeout(BaseTimeout);
-    Timer5.SetCallBack(std::bind(&UnitTest::CallBack_TimeOut1, this, std::placeholders::_1));
+    Timer5.SetReadCallback(std::bind(&UnitTest::CallBack_TimeOut1, this, std::placeholders::_1));
     assert(m_Reactor.AddEvent(Timer5) == true);
 
     QLog::g_Log.WriteDebug("Test add 5 seoncds timer again, but persist");
-    QChannel Timer5Again(BaseTimerFD + 1, QET_TIMEOUT | QET_PERSIST);
+    QChannel Timer5Again(BaseTimerFD + 1);
     Timer5Again.SetTimeout(BaseTimeout);
-    Timer5Again.SetCallBack(std::bind(&UnitTest::CallBack_TimeOut2, this, std::placeholders::_1));
+    Timer5Again.SetReadCallback(std::bind(&UnitTest::CallBack_TimeOut2, this, std::placeholders::_1));
     assert(m_Reactor.AddEvent(Timer5Again) == true);
 
     QLog::g_Log.WriteDebug("Test add 20 seoncds timer");
-    QChannel Timer20(BaseTimerFD + 2, QET_TIMEOUT);
+    QChannel Timer20(BaseTimerFD + 2);
     Timer20.SetTimeout({ 20, 0 });
-    Timer20.SetCallBack(std::bind(&UnitTest::CallBack_TimeOut3, this, std::placeholders::_1));
+    Timer20.SetReadCallback(std::bind(&UnitTest::CallBack_TimeOut3, this, std::placeholders::_1));
     assert(m_Reactor.AddEvent(Timer20) == true);
 
     QLog::g_Log.WriteDebug("Test add 60 seoncds timer");
-    QChannel Timer60(BaseTimerFD + 3, QET_TIMEOUT | QET_PERSIST);
+    QChannel Timer60(BaseTimerFD + 3);
     Timer60.SetTimeout({ 60, 0 });
-    Timer60.SetCallBack(std::bind(&UnitTest::CallBack_TimeOut3, this, std::placeholders::_1));
+    Timer60.SetReadCallback(std::bind(&UnitTest::CallBack_TimeOut3, this, std::placeholders::_1));
     assert(m_Reactor.AddEvent(Timer60) == true);
 
     QLog::g_Log.WriteDebug("Test add IO event, once");
-    QChannel IOEvent(1, QET_READ);
+    QChannel IOEvent(1);
     IOEvent.SetTimeout({ 40, 0 });
-    IOEvent.SetCallBack(std::bind(&UnitTest::CallBack_AddIOEvent1, this, std::placeholders::_1));
+    IOEvent.SetReadCallback(std::bind(&UnitTest::CallBack_AddIOEvent1, this, std::placeholders::_1));
     assert(m_Reactor.AddEvent(IOEvent) == true);
 }
 
 void UnitTest::AddAndDeleteSignal()
 {
     QLog::g_Log.WriteDebug("Test add signal");
-    QChannel Signal_SIGINT(SIGINT, QET_SIGNAL);
-    Signal_SIGINT.SetCallBack(std::bind(&UnitTest::CallBack_Signal1, this, std::placeholders::_1));
+    QChannel Signal_SIGINT(SIGINT);
+    Signal_SIGINT.SetReadCallback(std::bind(&UnitTest::CallBack_Signal1, this, std::placeholders::_1));
     assert(m_Reactor.AddEvent(Signal_SIGINT) == true);
 
     QLog::g_Log.WriteDebug("Test add signal copy");
     assert(m_Reactor.AddEvent(Signal_SIGINT) == false);
 
     QLog::g_Log.WriteDebug("Test add signal which use for socket");
-    QChannel Signal_SIGILL(SIGILL, QET_SIGNAL);
-    Signal_SIGILL.SetCallBack(std::bind(&UnitTest::CallBack_Signal1, this, std::placeholders::_1));
+    QChannel Signal_SIGILL(SIGILL);
+    Signal_SIGILL.SetReadCallback(std::bind(&UnitTest::CallBack_Signal1, this, std::placeholders::_1));
     assert(m_Reactor.AddEvent(Signal_SIGILL) == true);
 
     QLog::g_Log.WriteDebug("Test delete not existed signal");
-    assert(m_Reactor.DelEvent(QChannel(SIGTERM, QET_SIGNAL)) == false);
+    assert(m_Reactor.DelEvent(QChannel(SIGTERM)) == false);
 
     QLog::g_Log.WriteDebug("Test delete existed signal");
     assert(m_Reactor.DelEvent(Signal_SIGILL) == true);

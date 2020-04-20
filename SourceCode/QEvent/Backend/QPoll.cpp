@@ -105,22 +105,22 @@ bool QPoll::DelEvent(const QChannel &Event)
             m_FDArray[Index].events = 0;
             m_FDArray[Index].revents = 0;
 
-            for (std::vector<QChannel>::iterator VecIt = m_EventMap[Event.GetFD()].begin(); VecIt != m_EventMap[Event.GetFD()].end(); VecIt++)
-            {
-                if (!VecIt->IsEqual(Event))
-                {
-                    m_FDArray[Index].fd = Event.GetFD();
-                    if (VecIt->GetEvents() & QET_READ)
-                    {
-                        m_FDArray[Index].events |= POLLIN;
-                    }
+            //for (std::vector<QChannel>::iterator VecIt = m_EventMap[Event.GetFD()].begin(); VecIt != m_EventMap[Event.GetFD()].end(); VecIt++)
+            //{
+            //    if (!VecIt->IsEqual(Event))
+            //    {
+            //        m_FDArray[Index].fd = Event.GetFD();
+            //        if (VecIt->GetEvents() & QET_READ)
+            //        {
+            //            m_FDArray[Index].events |= POLLIN;
+            //        }
 
-                    if (VecIt->GetEvents() & QET_WRITE)
-                    {
-                        m_FDArray[Index].events |= POLLOUT;
-                    }
-                }
-            }
+            //        if (VecIt->GetEvents() & QET_WRITE)
+            //        {
+            //            m_FDArray[Index].events |= POLLOUT;
+            //        }
+            //    }
+            //}
 
             break;
         }

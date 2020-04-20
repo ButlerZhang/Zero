@@ -21,6 +21,7 @@ ServerTest::~ServerTest()
 
 bool ServerTest::Start(const std::string &BindIP, int Port)
 {
+    m_Reactor.Init();
     QLog::g_Log.SetLogFile(m_Reactor.GetBackend()->GetBackendName() + ".txt");
 
     if (!m_Network.Listen(BindIP, Port))
@@ -31,8 +32,8 @@ bool ServerTest::Start(const std::string &BindIP, int Port)
     QNetwork::SetListenSocketReuseable(m_Network.GetSocket());
     QNetwork::SetSocketNonblocking(m_Network.GetSocket());
 
-    QChannel ListenEvent(m_Network.GetSocket(), QET_READ);
-    ListenEvent.SetCallBack(std::bind(&ServerTest::Accept, this, ListenEvent));
+    QChannel ListenEvent(m_Network.GetSocket());
+    ListenEvent.SetReadCallback(std::bind(&ServerTest::Accept, this, ListenEvent));
     m_Reactor.AddEvent(ListenEvent);
 
     return m_Reactor.Dispatch();
@@ -46,8 +47,8 @@ void ServerTest::Accept(const QChannel &Event)
     QLog::g_Log.WriteInfo("Client = %d connected.", ClientFD);
 
     QNetwork::SetSocketNonblocking(ClientFD);
-    QChannel ClientEvent(ClientFD, QET_READ);
-    ClientEvent.SetCallBack(std::bind(&ServerTest::Recevie, this, ClientEvent));
+    QChannel ClientEvent(ClientFD);
+    ClientEvent.SetReadCallback(std::bind(&ServerTest::Recevie, this, ClientEvent));
     m_Reactor.AddEvent(ClientEvent);
 }
 

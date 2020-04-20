@@ -79,21 +79,21 @@ bool QSelect::DelEvent(const QChannel &Event)
     FD_CLR(Event.GetFD(), &m_ReadSetIn);
     FD_CLR(Event.GetFD(), &m_WriteSetIn);
 
-    for (std::vector<QChannel>::iterator VecIt = m_EventMap[Event.GetFD()].begin(); VecIt != m_EventMap[Event.GetFD()].end(); VecIt++)
-    {
-        if (!VecIt->IsEqual(Event))
-        {
-            if (VecIt->GetEvents() & QET_READ)
-            {
-                FD_SET(VecIt->GetFD(), &m_ReadSetIn);
-            }
+    //for (std::vector<QChannel>::iterator VecIt = m_EventMap[Event.GetFD()].begin(); VecIt != m_EventMap[Event.GetFD()].end(); VecIt++)
+    //{
+    //    if (!VecIt->IsEqual(Event))
+    //    {
+    //        if (VecIt->GetEvents() & QET_READ)
+    //        {
+    //            FD_SET(VecIt->GetFD(), &m_ReadSetIn);
+    //        }
 
-            if (VecIt->GetEvents() & QET_WRITE)
-            {
-                FD_SET(VecIt->GetFD(), &m_WriteSetIn);
-            }
-        }
-    }
+    //        if (VecIt->GetEvents() & QET_WRITE)
+    //        {
+    //            FD_SET(VecIt->GetFD(), &m_WriteSetIn);
+    //        }
+    //    }
+    //}
 
     for (int FD = m_HighestEventFD - 1; FD >= 0; FD--)
     {

@@ -67,8 +67,8 @@ bool ClientTest::SingleThread(int ClientCount)
         {
             QNetwork::SetSocketNonblocking(Network.GetSocket());
 
-            QChannel ReceiveEvent(Network.GetSocket(), QET_READ);
-            ReceiveEvent.SetCallBack(std::bind(&ClientTest::Recevie, this, std::placeholders::_1));
+            QChannel ReceiveEvent(Network.GetSocket());
+            ReceiveEvent.SetReadCallback(std::bind(&ClientTest::Recevie, this, std::placeholders::_1));
             Reactor.AddEvent(ReceiveEvent);
         }
     }
@@ -149,9 +149,9 @@ void ClientTest::CMDInput(const QChannel &Event)
         return;
     }
 
-    int TargetFD = *((int*)Event.GetExtendArg());
-    int WriteSize = static_cast<int>(write(TargetFD, InputMsg, ReadSize));
-    QLog::g_Log.WriteInfo("Send input msg = %s, size = %d.", InputMsg, WriteSize);
+    //int TargetFD = *((int*)Event.GetExtendArg());
+    //int WriteSize = static_cast<int>(write(TargetFD, InputMsg, ReadSize));
+    //QLog::g_Log.WriteInfo("Send input msg = %s, size = %d.", InputMsg, WriteSize);
 }
 
 void ClientTest::Recevie(const QChannel &Event)

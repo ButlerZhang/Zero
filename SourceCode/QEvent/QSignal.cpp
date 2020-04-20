@@ -48,9 +48,8 @@ bool QSignal::Init(QBackend &Backend)
     m_ReadFD = FD[0];
     m_WriteFD = FD[1];
 
-    QChannel SignalEvent(m_ReadFD, QET_READ);
-    SignalEvent.SetCallBack(std::bind(&QSignal::CallBack_Process, this, std::placeholders::_1),
-        (void*)&(Backend.GetEventMap()));
+    QChannel SignalEvent(m_ReadFD);
+    SignalEvent.SetReadCallback(std::bind(&QSignal::CallBack_Process, this, std::placeholders::_1));
 
     return Backend.AddEvent(SignalEvent);
 }
@@ -86,16 +85,16 @@ void QSignal::CallBack_Process(const QChannel &Event)
 
     if (Signal >= 0)
     {
-        QLog::g_Log.WriteDebug("Read signal = %d", Signal);
-        std::map<QEventFD, std::vector<QChannel>> &EventMap = *(std::map<QEventFD, std::vector<QChannel>>*)Event.GetExtendArg();
-        for (std::vector<QChannel>::size_type Index = 1; Index < EventMap[m_ReadFD].size(); Index++)
-        {
-            if (EventMap[m_ReadFD][Index].GetFD() == Signal)
-            {
-                EventMap[m_ReadFD][Index].CallBack();
-                break;
-            }
-        }
+        //QLog::g_Log.WriteDebug("Read signal = %d", Signal);
+        //std::map<QEventFD, std::vector<QChannel>> &EventMap = *(std::map<QEventFD, std::vector<QChannel>>*)Event.GetExtendArg();
+        //for (std::vector<QChannel>::size_type Index = 1; Index < EventMap[m_ReadFD].size(); Index++)
+        //{
+        //    if (EventMap[m_ReadFD][Index].GetFD() == Signal)
+        //    {
+        //        EventMap[m_ReadFD][Index].HandlerEvent();
+        //        break;
+        //    }
+        //}
     }
 }
 

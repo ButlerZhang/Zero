@@ -33,8 +33,8 @@ int main(int argc, char *argv[])
 
 #endif
 
-    UnitTest Test;
-    return Test.StartTest();
+    //UnitTest Test;
+    //return Test.StartTest();
 
     const int ServerPort = 9000;
     const std::string ServerIP("127.0.0.1");
@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
     else
     {
         ClientTest MyClient;
-        const int ClientCount = 100;// FD_SETSIZE;
+        const int ClientCount = 1;// FD_SETSIZE;
         MyClient.Start(ServerIP, ServerPort, ClientCount);
 
         std::cin >> Choose;
