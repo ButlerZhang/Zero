@@ -36,17 +36,17 @@ bool QReactor::Init()
     return m_Backend->GetSignal().Init(*m_Backend);
 }
 
-bool QReactor::AddEvent(const QEvent &Event)
+bool QReactor::AddEvent(const QChannel &Event)
 {
     return m_Backend->AddEvent(Event);
 }
 
-bool QReactor::DelEvent(const QEvent &Event)
+bool QReactor::DelEvent(const QChannel &Event)
 {
     return m_Backend->DelEvent(Event);
 }
 
-bool QReactor::ModEvent(const QEvent &Event)
+bool QReactor::ModEvent(const QChannel &Event)
 {
     return m_Backend->ModEvent(Event);
 }

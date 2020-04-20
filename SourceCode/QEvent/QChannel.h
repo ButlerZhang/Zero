@@ -5,20 +5,20 @@
 #include <memory>
 #include <functional>
 
-class QEvent;
+class QChannel;
 class QBackend;
 
-typedef std::function<void(const QEvent &Event)> CallBackFunction;
+typedef std::function<void(const QChannel &Event)> CallBackFunction;
 
 
 
-class QEvent
+class QChannel
 {
 public:
 
-    QEvent();
-    QEvent(QEventFD EventFD, int Events);
-    virtual ~QEvent();
+    QChannel();
+    QChannel(QEventFD EventFD, int Events);
+    virtual ~QChannel();
 
     inline int GetEvents() const { return m_Events; }
     inline QEventFD GetFD() const { return m_EventFD; }
@@ -33,7 +33,7 @@ public:
     void CallBack();
     bool IsValid() const;
     bool IsPersist() const;
-    bool IsEqual(const QEvent &Right) const;
+    bool IsEqual(const QChannel &Right) const;
 
 protected:
 

@@ -2,7 +2,7 @@
 #include "../../QLog/QSimpleLog.h"
 #include <string>
 
-class QEvent;
+class QChannel;
 
 
 
@@ -25,8 +25,8 @@ private:
 
 private:
 
-    void CMDInput(const QEvent &Event);
-    void Recevie(const QEvent &Event);
+    void CMDInput(const QChannel &Event);
+    void Recevie(const QChannel &Event);
 
 private:
 

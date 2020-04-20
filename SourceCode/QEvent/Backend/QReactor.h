@@ -2,7 +2,7 @@
 #include "../QTime.h"
 #include <memory>
 
-class QEvent;
+class QChannel;
 class QBackend;
 
 
@@ -17,9 +17,9 @@ public:
     bool Init();
     bool Dispatch();
 
-    bool AddEvent(const QEvent &Event);
-    bool DelEvent(const QEvent &Event);
-    bool ModEvent(const QEvent &Event);
+    bool AddEvent(const QChannel &Event);
+    bool DelEvent(const QChannel &Event);
+    bool ModEvent(const QChannel &Event);
 
     const std::shared_ptr<QBackend>& GetBackend() const { return m_Backend; }
 

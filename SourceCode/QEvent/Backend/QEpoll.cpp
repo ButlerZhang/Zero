@@ -22,7 +22,7 @@ QEpoll::~QEpoll()
     close(m_EpollFD);
 }
 
-bool QEpoll::AddEvent(const QEvent &Event)
+bool QEpoll::AddEvent(const QChannel &Event)
 {
     if (!QBackend::AddEvent(Event))
     {
@@ -53,10 +53,10 @@ bool QEpoll::AddEvent(const QEvent &Event)
     int EpollOP = EPOLL_CTL_ADD;
     int WatchEvents = Event.GetEvents();
 
-    std::map<QEventFD, std::vector<QEvent>>::iterator MapIt = m_EventMap.find(Event.GetFD());
+    std::map<QEventFD, std::vector<QChannel>>::iterator MapIt = m_EventMap.find(Event.GetFD());
     if (MapIt != m_EventMap.end())
     {
-        for (std::vector<QEvent>::iterator VecIt = MapIt->second.begin(); VecIt != MapIt->second.end(); VecIt++)
+        for (std::vector<QChannel>::iterator VecIt = MapIt->second.begin(); VecIt != MapIt->second.end(); VecIt++)
         {
             EpollOP = EPOLL_CTL_MOD;
             if (VecIt->GetEvents() & QET_READ)
@@ -95,7 +95,7 @@ bool QEpoll::AddEvent(const QEvent &Event)
     return AddEventToMapVector(Event, static_cast<QEventOption>(EpollOP));
 }
 
-bool QEpoll::DelEvent(const QEvent &Event)
+bool QEpoll::DelEvent(const QChannel &Event)
 {
     if (!QBackend::DelEvent(Event))
     {
@@ -113,7 +113,7 @@ bool QEpoll::DelEvent(const QEvent &Event)
     }
 
     int WatchEvents = 0;
-    for (std::vector<QEvent>::iterator VecIt = m_EventMap[Event.GetFD()].begin(); VecIt != m_EventMap[Event.GetFD()].end(); VecIt++)
+    for (std::vector<QChannel>::iterator VecIt = m_EventMap[Event.GetFD()].begin(); VecIt != m_EventMap[Event.GetFD()].end(); VecIt++)
     {
         if (!VecIt->IsEqual(Event))
         {

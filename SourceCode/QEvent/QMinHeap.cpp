@@ -23,7 +23,7 @@ QMinHeap::~QMinHeap()
     m_HeapArray.clear();
 }
 
-bool QMinHeap::AddTimeout(const QEvent &Event, QEventFD MapKey, std::size_t VectorIndex)
+bool QMinHeap::AddTimeout(const QChannel &Event, QEventFD MapKey, std::size_t VectorIndex)
 {
     if (!QTime::IsValid(Event.GetTimeout()))
     {

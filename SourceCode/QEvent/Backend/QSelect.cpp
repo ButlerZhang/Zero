@@ -18,7 +18,7 @@ QSelect::~QSelect()
 {
 }
 
-bool QSelect::AddEvent(const QEvent &Event)
+bool QSelect::AddEvent(const QChannel &Event)
 {
     if (!QBackend::AddEvent(Event))
     {
@@ -59,7 +59,7 @@ bool QSelect::AddEvent(const QEvent &Event)
     return AddEventToMapVector(Event, QEO_ADD);
 }
 
-bool QSelect::DelEvent(const QEvent &Event)
+bool QSelect::DelEvent(const QChannel &Event)
 {
     if (!QBackend::DelEvent(Event))
     {
@@ -79,7 +79,7 @@ bool QSelect::DelEvent(const QEvent &Event)
     FD_CLR(Event.GetFD(), &m_ReadSetIn);
     FD_CLR(Event.GetFD(), &m_WriteSetIn);
 
-    for (std::vector<QEvent>::iterator VecIt = m_EventMap[Event.GetFD()].begin(); VecIt != m_EventMap[Event.GetFD()].end(); VecIt++)
+    for (std::vector<QChannel>::iterator VecIt = m_EventMap[Event.GetFD()].begin(); VecIt != m_EventMap[Event.GetFD()].end(); VecIt++)
     {
         if (!VecIt->IsEqual(Event))
         {

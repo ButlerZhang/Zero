@@ -23,7 +23,7 @@ QPoll::~QPoll()
 {
 }
 
-bool QPoll::AddEvent(const QEvent &Event)
+bool QPoll::AddEvent(const QChannel &Event)
 {
     if (!QBackend::AddEvent(Event))
     {
@@ -78,7 +78,7 @@ bool QPoll::AddEvent(const QEvent &Event)
     return false;
 }
 
-bool QPoll::DelEvent(const QEvent &Event)
+bool QPoll::DelEvent(const QChannel &Event)
 {
     if (!QBackend::DelEvent(Event))
     {
@@ -105,7 +105,7 @@ bool QPoll::DelEvent(const QEvent &Event)
             m_FDArray[Index].events = 0;
             m_FDArray[Index].revents = 0;
 
-            for (std::vector<QEvent>::iterator VecIt = m_EventMap[Event.GetFD()].begin(); VecIt != m_EventMap[Event.GetFD()].end(); VecIt++)
+            for (std::vector<QChannel>::iterator VecIt = m_EventMap[Event.GetFD()].begin(); VecIt != m_EventMap[Event.GetFD()].end(); VecIt++)
             {
                 if (!VecIt->IsEqual(Event))
                 {

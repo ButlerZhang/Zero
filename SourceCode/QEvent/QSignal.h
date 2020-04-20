@@ -1,7 +1,7 @@
 #pragma once
 #include "QLibBase.h"
 
-class QEvent;
+class QChannel;
 class QBackend;
 
 
@@ -14,14 +14,14 @@ public:
     ~QSignal();
 
     bool Init(QBackend &Backend);
-    bool Register(const QEvent &Event);
-    bool CancelRegister(const QEvent &Event);
+    bool Register(const QChannel &Event);
+    bool CancelRegister(const QChannel &Event);
 
     QEventFD GetFD() const { return m_ReadFD; }
 
 private:
 
-    void CallBack_Process(const QEvent &Event);
+    void CallBack_Process(const QChannel &Event);
     static void CallBack_Catch(int Signal);
 
 private:

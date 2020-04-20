@@ -2,7 +2,7 @@
 #include "../Backend/QReactor.h"
 #include "../QNetwork.h"
 
-class QEvent;
+class QChannel;
 
 
 
@@ -17,8 +17,8 @@ public:
 
 private:
 
-    void Accept(const QEvent &Event);
-    void Recevie(const QEvent &Event);
+    void Accept(const QChannel &Event);
+    void Recevie(const QChannel &Event);
 
 private:
 

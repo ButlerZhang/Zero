@@ -12,7 +12,7 @@ QBackend::QBackend()
 
 QBackend::~QBackend()
 {
-    std::map<QEventFD, std::vector<QEvent>>::iterator it = m_EventMap.begin();
+    std::map<QEventFD, std::vector<QChannel>>::iterator it = m_EventMap.begin();
     while (it != m_EventMap.end())
     {
         it->second.clear();
@@ -21,7 +21,7 @@ QBackend::~QBackend()
     m_EventMap.clear();
 }
 
-bool QBackend::AddEvent(const QEvent &Event)
+bool QBackend::AddEvent(const QChannel &Event)
 {
     if (!Event.IsValid())
     {
@@ -40,7 +40,7 @@ bool QBackend::AddEvent(const QEvent &Event)
     return true;
 }
 
-bool QBackend::DelEvent(const QEvent &Event)
+bool QBackend::DelEvent(const QChannel &Event)
 {
     if (!IsExisted(Event))
     {
@@ -52,7 +52,7 @@ bool QBackend::DelEvent(const QEvent &Event)
     return true;
 }
 
-bool QBackend::ModEvent(const QEvent &Event)
+bool QBackend::ModEvent(const QChannel &Event)
 {
     if (!Event.IsValid())
     {
@@ -65,7 +65,7 @@ bool QBackend::ModEvent(const QEvent &Event)
     return false;
 }
 
-bool QBackend::AddEventToMapVector(const QEvent &Event, QEventOption OP)
+bool QBackend::AddEventToMapVector(const QChannel &Event, QEventOption OP)
 {
     QEventFD MapKey = GetMapKey(Event);
     m_EventMap[MapKey].push_back(std::move(Event));
@@ -74,10 +74,10 @@ bool QBackend::AddEventToMapVector(const QEvent &Event, QEventOption OP)
     return true;
 }
 
-bool QBackend::DelEventFromMapVector(const QEvent &Event, QEventOption OP)
+bool QBackend::DelEventFromMapVector(const QChannel &Event, QEventOption OP)
 {
     QEventFD MapKey = GetMapKey(Event);
-    std::map<QEventFD, std::vector<QEvent>>::iterator MapIt = m_EventMap.find(MapKey);
+    std::map<QEventFD, std::vector<QChannel>>::iterator MapIt = m_EventMap.find(MapKey);
     if (MapIt == m_EventMap.end())
     {
         QLog::g_Log.WriteError("Delete event failed, can not find FD = %d.",
@@ -85,9 +85,9 @@ bool QBackend::DelEventFromMapVector(const QEvent &Event, QEventOption OP)
         return false;
     }
 
-    std::vector<QEvent>::size_type TargetIndex = -1;
-    std::vector<QEvent>::iterator TargetIt = MapIt->second.end();
-    for (std::vector<QEvent>::iterator VecIt = MapIt->second.begin(); VecIt != MapIt->second.end(); VecIt++)
+    std::vector<QChannel>::size_type TargetIndex = -1;
+    std::vector<QChannel>::iterator TargetIt = MapIt->second.end();
+    for (std::vector<QChannel>::iterator VecIt = MapIt->second.begin(); VecIt != MapIt->second.end(); VecIt++)
     {
         TargetIndex += 1;
         if (VecIt->IsEqual(Event))
@@ -119,16 +119,16 @@ bool QBackend::DelEventFromMapVector(const QEvent &Event, QEventOption OP)
     return true;
 }
 
-bool QBackend::IsExisted(const QEvent &Event) const
+bool QBackend::IsExisted(const QChannel &Event) const
 {
     QEventFD MapKey = GetMapKey(Event);
-    std::map<QEventFD, std::vector<QEvent>>::const_iterator MapIt = m_EventMap.find(MapKey);
+    std::map<QEventFD, std::vector<QChannel>>::const_iterator MapIt = m_EventMap.find(MapKey);
     if (MapIt == m_EventMap.end())
     {
         return false;
     }
 
-    for (std::vector<QEvent>::const_iterator VecIt = MapIt->second.begin(); VecIt != MapIt->second.end(); VecIt++)
+    for (std::vector<QChannel>::const_iterator VecIt = MapIt->second.begin(); VecIt != MapIt->second.end(); VecIt++)
     {
         if (VecIt->IsEqual(Event))
         {
@@ -139,7 +139,7 @@ bool QBackend::IsExisted(const QEvent &Event) const
     return false;
 }
 
-QEventFD QBackend::GetMapKey(const QEvent &Event) const
+QEventFD QBackend::GetMapKey(const QChannel &Event) const
 {
     if (Event.GetEvents() & QET_TIMEOUT)
     {
@@ -176,7 +176,7 @@ void QBackend::ProcessTimeout()
                 continue;
             }
 
-            QEvent &Event = m_EventMap[PopNode.m_MapKey][PopNode.m_MapVectorIndex];
+            QChannel &Event = m_EventMap[PopNode.m_MapKey][PopNode.m_MapVectorIndex];
 
             Event.CallBack();
             if (Event.IsPersist())
@@ -196,7 +196,7 @@ void QBackend::ActiveEvent(QEventFD FD, int ResultEvents)
     }
     else
     {
-        for (std::vector<QEvent>::size_type Index = 0; Index < m_EventMap[FD].size(); Index++)
+        for (std::vector<QChannel>::size_type Index = 0; Index < m_EventMap[FD].size(); Index++)
         {
             if (ResultEvents & QET_READ)
             {
@@ -216,13 +216,13 @@ void QBackend::WriteMapVectorSnapshot()
     QLog::g_Log.WriteDebug("==========map and vector snapshot==========");
 
     int MapCount = 0;
-    std::map<QEventFD, std::vector<QEvent>>::const_iterator MapIt = m_EventMap.begin();
+    std::map<QEventFD, std::vector<QChannel>>::const_iterator MapIt = m_EventMap.begin();
     while (MapIt != m_EventMap.end())
     {
         QLog::g_Log.WriteDebug("map index = %d, map key = %d, vector size = %d",
             MapCount++, MapIt->first, static_cast<int>(MapIt->second.size()));
 
-        for (std::vector<QEvent>::size_type Index = 0; Index != MapIt->second.size(); Index++)
+        for (std::vector<QChannel>::size_type Index = 0; Index != MapIt->second.size(); Index++)
         {
             QLog::g_Log.WriteDebug("\tvec index = %ld\tFD = %d\tevents = %d",
                 Index, MapIt->second[Index].GetFD(), MapIt->second[Index].GetEvents());
@@ -239,7 +239,7 @@ void QBackend::WriteEventOperationLog(QEventFD MapKey, QEventFD FD, QEventOption
     int EventCount = 0;
     int FDCount = static_cast<int>(m_EventMap.size());
 
-    std::map<QEventFD, std::vector<QEvent>>::const_iterator it = m_EventMap.begin();
+    std::map<QEventFD, std::vector<QChannel>>::const_iterator it = m_EventMap.begin();
     while (it != m_EventMap.end())
     {
         EventCount += static_cast<int>((it++)->second.size());

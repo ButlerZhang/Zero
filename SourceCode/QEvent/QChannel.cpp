@@ -1,9 +1,9 @@
-#include "QEvent.h"
+#include "QChannel.h"
 #include "../QLog/QSimpleLog.h"
 
 
 
-QEvent::QEvent()
+QChannel::QChannel()
 {
     m_Events = 0;
     m_EventFD = -1;
@@ -12,7 +12,7 @@ QEvent::QEvent()
     m_Timeout.tv_sec = m_Timeout.tv_usec = -1;
 }
 
-QEvent::QEvent(QEventFD EventFD, int Events)
+QChannel::QChannel(QEventFD EventFD, int Events)
 {
     m_Events = Events;
     m_EventFD = EventFD;
@@ -21,17 +21,17 @@ QEvent::QEvent(QEventFD EventFD, int Events)
     m_Timeout.tv_sec = m_Timeout.tv_usec = -1;
 }
 
-QEvent::~QEvent()
+QChannel::~QChannel()
 {
 }
 
-void QEvent::SetCallBack(CallBackFunction CallBack, void *ExtendArg)
+void QChannel::SetCallBack(CallBackFunction CallBack, void *ExtendArg)
 {
     m_ExtendArg = ExtendArg;
     m_CallBack = std::move(CallBack);
 }
 
-void QEvent::CallBack()
+void QChannel::CallBack()
 {
     if (m_CallBack != nullptr)
     {
@@ -46,7 +46,7 @@ void QEvent::CallBack()
     }
 }
 
-bool QEvent::IsValid() const
+bool QChannel::IsValid() const
 {
     if (m_Events & QET_TIMEOUT)
     {
@@ -72,12 +72,12 @@ bool QEvent::IsValid() const
     return false;
 }
 
-bool QEvent::IsPersist() const
+bool QChannel::IsPersist() const
 {
     return (m_Events & QET_PERSIST) > 0;
 }
 
-bool QEvent::IsEqual(const QEvent &Right) const
+bool QChannel::IsEqual(const QChannel &Right) const
 {
     if ((Right.m_Events & QET_TIMEOUT))
     {

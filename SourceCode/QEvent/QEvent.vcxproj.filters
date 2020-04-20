@@ -29,12 +29,12 @@
     <ClCompile Include="Test\UnitTest.cpp">
       <Filter>Test</Filter>
     </ClCompile>
-    <ClCompile Include="QEvent.cpp" />
     <ClCompile Include="QEventEnum.cpp" />
     <ClCompile Include="QMinHeap.cpp" />
     <ClCompile Include="QNetwork.cpp" />
     <ClCompile Include="QTime.cpp" />
     <ClCompile Include="QSignal.cpp" />
+    <ClCompile Include="QChannel.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\QLog\QSimpleLog.h">
@@ -68,12 +68,12 @@
     <ClInclude Include="Test\UnitTest.h">
       <Filter>Test</Filter>
     </ClInclude>
-    <ClInclude Include="QEvent.h" />
     <ClInclude Include="QEventEnum.h" />
     <ClInclude Include="QMinHeap.h" />
     <ClInclude Include="QNetwork.h" />
     <ClInclude Include="QTime.h" />
     <ClInclude Include="QSignal.h" />
+    <ClInclude Include="QChannel.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Reference">

@@ -29,7 +29,7 @@ QNetwork::~QNetwork()
 bool QNetwork::Listen(const std::string &IP, int Port)
 {
     m_Socket = socket(PF_INET, SOCK_STREAM, 0);
-    if (m_Socket == SOCKET_ERROR)
+    if (m_Socket < 0)
     {
         WriteSocketErrorLog("Socket");
         return false;
@@ -56,7 +56,7 @@ bool QNetwork::Listen(const std::string &IP, int Port)
 bool QNetwork::Connect(const std::string &IP, int Port)
 {
     m_Socket = socket(PF_INET, SOCK_STREAM, 0);
-    if (m_Socket == SOCKET_ERROR)
+    if (m_Socket < 0)
     {
         WriteSocketErrorLog("Socket");
         return false;

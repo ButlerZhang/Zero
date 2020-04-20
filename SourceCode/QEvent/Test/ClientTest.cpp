@@ -1,5 +1,5 @@
 #include "ClientTest.h"
-#include "../QEvent.h"
+#include "../QChannel.h"
 #include "../QNetwork.h"
 #include "../Backend/QReactor.h"
 
@@ -67,7 +67,7 @@ bool ClientTest::SingleThread(int ClientCount)
         {
             QNetwork::SetSocketNonblocking(Network.GetSocket());
 
-            QEvent ReceiveEvent(Network.GetSocket(), QET_READ);
+            QChannel ReceiveEvent(Network.GetSocket(), QET_READ);
             ReceiveEvent.SetCallBack(std::bind(&ClientTest::Recevie, this, std::placeholders::_1));
             Reactor.AddEvent(ReceiveEvent);
         }
@@ -77,7 +77,7 @@ bool ClientTest::SingleThread(int ClientCount)
 
     QEventFD TargetFD = NetworkVector[0].GetSocket();
 
-    QEvent CMDEvent(STDIN_FILENO, QET_READ);
+    QChannel CMDEvent(STDIN_FILENO, QET_READ);
     CMDEvent.SetCallBack(std::bind(&ClientTest::CMDInput, this, std::placeholders::_1), (void*)&TargetFD);
     Reactor.AddEvent(CMDEvent);
 
@@ -130,7 +130,7 @@ void ClientTest::CallBack_Thread(void *ClientObject, int ClientID)
     }
 }
 
-void ClientTest::CMDInput(const QEvent &Event)
+void ClientTest::CMDInput(const QChannel &Event)
 {
     char InputMsg[BUFFER_SIZE];
     memset(InputMsg, 0, BUFFER_SIZE);
@@ -154,7 +154,7 @@ void ClientTest::CMDInput(const QEvent &Event)
     QLog::g_Log.WriteInfo("Send input msg = %s, size = %d.", InputMsg, WriteSize);
 }
 
-void ClientTest::Recevie(const QEvent &Event)
+void ClientTest::Recevie(const QChannel &Event)
 {
     char Message[BUFFER_SIZE];
     memset(Message, 0, BUFFER_SIZE);

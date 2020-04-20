@@ -1,5 +1,5 @@
 #pragma once
-#include "../QEvent.h"
+#include "../QChannel.h"
 #include "../Backend/QReactor.h"
 
 
@@ -29,15 +29,15 @@ private:
 
 private:
 
-    void CallBack_AddIOEvent1(const QEvent &Event);
-    void CallBack_AddIOEvent2(const QEvent &Event);
+    void CallBack_AddIOEvent1(const QChannel &Event);
+    void CallBack_AddIOEvent2(const QChannel &Event);
 
-    void CallBack_TimeOut1(const QEvent &Event);
-    void CallBack_TimeOut2(const QEvent &Event);
-    void CallBack_TimeOut3(const QEvent &Event);
-    void CallBack_TimeOut4(const QEvent &Event);
+    void CallBack_TimeOut1(const QChannel &Event);
+    void CallBack_TimeOut2(const QChannel &Event);
+    void CallBack_TimeOut3(const QChannel &Event);
+    void CallBack_TimeOut4(const QChannel &Event);
 
-    void CallBack_Signal1(const QEvent &Event);
+    void CallBack_Signal1(const QChannel &Event);
 
 private:
 

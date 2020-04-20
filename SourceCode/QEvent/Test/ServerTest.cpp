@@ -1,5 +1,5 @@
 #include "ServerTest.h"
-#include "../QEvent.h"
+#include "../QChannel.h"
 #include "../Backend/QBackend.h"
 #include "../../QLog/QSimpleLog.h"
 
@@ -31,14 +31,14 @@ bool ServerTest::Start(const std::string &BindIP, int Port)
     QNetwork::SetListenSocketReuseable(m_Network.GetSocket());
     QNetwork::SetSocketNonblocking(m_Network.GetSocket());
 
-    QEvent ListenEvent(m_Network.GetSocket(), QET_READ);
+    QChannel ListenEvent(m_Network.GetSocket(), QET_READ);
     ListenEvent.SetCallBack(std::bind(&ServerTest::Accept, this, ListenEvent));
     m_Reactor.AddEvent(ListenEvent);
 
     return m_Reactor.Dispatch();
 }
 
-void ServerTest::Accept(const QEvent &Event)
+void ServerTest::Accept(const QChannel &Event)
 {
     struct sockaddr_in ClientAddress;
     socklen_t AddLength = sizeof(ClientAddress);
@@ -46,12 +46,12 @@ void ServerTest::Accept(const QEvent &Event)
     QLog::g_Log.WriteInfo("Client = %d connected.", ClientFD);
 
     QNetwork::SetSocketNonblocking(ClientFD);
-    QEvent ClientEvent(ClientFD, QET_READ);
+    QChannel ClientEvent(ClientFD, QET_READ);
     ClientEvent.SetCallBack(std::bind(&ServerTest::Recevie, this, ClientEvent));
     m_Reactor.AddEvent(ClientEvent);
 }
 
-void ServerTest::Recevie(const QEvent &Event)
+void ServerTest::Recevie(const QChannel &Event)
 {
     char DataBuffer[BUFFER_SIZE];
     memset(DataBuffer, 0, sizeof(DataBuffer));

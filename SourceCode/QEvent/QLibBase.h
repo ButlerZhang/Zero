@@ -3,7 +3,7 @@
 
 
 #ifndef QEVENT_NS_BEGIN
-#define QEVENT_NS_BEGIN namespace QEvent {
+#define QEVENT_NS_BEGIN namespace QChannel {
 #endif
 
 #ifndef QEVENT_NS_END

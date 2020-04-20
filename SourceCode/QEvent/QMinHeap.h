@@ -1,5 +1,5 @@
 #pragma once
-#include "QEvent.h"
+#include "QChannel.h"
 #include <vector>
 
 
@@ -26,7 +26,7 @@ public:
     long GetMinTimeout() const;
     void MinusElapsedTime(long ElapsedTime);
 
-    bool AddTimeout(const QEvent &Event, QEventFD MapKey, std::size_t VectorIndex);
+    bool AddTimeout(const QChannel &Event, QEventFD MapKey, std::size_t VectorIndex);
     bool DelTimeout(QEventFD MapKey, std::size_t VectorIndex);
 
     HeapNode Pop();
