@@ -42,7 +42,7 @@ void QChannel::SetWriteCallback(EventCallback WriteCallback)
     m_Events |= QET_WRITE;
 }
 
-void QChannel::HandlerEvent()
+void QChannel::HandlerEvent() const
 {
     if (m_ResultEvents & QET_READ)
     {

@@ -37,7 +37,7 @@ private:
     void CallBack_TimeOut3(const QChannel &Event);
     void CallBack_TimeOut4(const QChannel &Event);
 
-    void CallBack_Signal1(const QChannel &Event);
+    void CallBack_Signal1();
 
 private:
 

@@ -25,16 +25,15 @@ bool QReactor::Init()
 #ifdef _WIN32
     m_Backend = std::make_shared<QWin32Select>();
 #else
-    //m_Backend = std::make_shared<QSelect>();
+    m_Backend = std::make_shared<QSelect>();
     //m_Backend = std::make_shared<QPoll>();
-    m_Backend = std::make_shared<QEpoll>();
+    //m_Backend = std::make_shared<QEpoll>();
 #endif
 
     QLog::g_Log.WriteInfo("Enable backend : %s",
         m_Backend->GetBackendName().c_str());
 
-    return true;
-    //return m_Backend->GetSignal().Init(*m_Backend);
+    return m_Backend->GetSignal().Init(*m_Backend);
 }
 
 bool QReactor::AddEvent(const QChannel &Event)
@@ -50,6 +49,16 @@ bool QReactor::DelEvent(const QChannel &Event)
 bool QReactor::ModEvent(const QChannel &Event)
 {
     return m_Backend->ModEvent(Event);
+}
+
+bool QReactor::AddSignal(int Signal, SignalCallback Callback)
+{
+    return m_Backend->GetSignal().AddSignal(Signal, Callback);
+}
+
+bool QReactor::DelSignal(int Signal)
+{
+    return m_Backend->GetSignal().DelSignal(Signal);
 }
 
 bool QReactor::Dispatch()

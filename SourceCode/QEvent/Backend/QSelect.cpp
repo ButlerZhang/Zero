@@ -1,5 +1,6 @@
 #include "QSelect.h"
 #include "../QTime.h"
+#include "../QSignal.h"
 #include "../../QLog/QSimpleLog.h"
 #include <string.h>                     //strerror
 
@@ -28,11 +29,6 @@ bool QSelect::AddEvent(const QChannel &Channel)
     if (Channel.GetEvents() & QET_TIMEOUT)
     {
         return AddEventToChannelMap(Channel, QEO_ADD);
-    }
-
-    if (Channel.GetEvents() & QET_SIGNAL)
-    {
-        return m_Signal.Register(Channel) && AddEventToChannelMap(Channel, QEO_ADD);
     }
 
     if (Channel.GetEvents() & QET_READ)
@@ -69,11 +65,6 @@ bool QSelect::DelEvent(const QChannel &Channel)
     if (Channel.GetEvents() & QET_TIMEOUT)
     {
         return DelEventFromChannelMap(Channel, QEO_DEL);
-    }
-
-    if (Channel.GetEvents() & QET_SIGNAL)
-    {
-        return m_Signal.CancelRegister(Channel) && DelEventFromChannelMap(Channel, QEO_DEL);
     }
 
     FD_CLR(Channel.GetFD(), &m_ReadSetIn);

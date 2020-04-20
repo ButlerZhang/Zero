@@ -359,26 +359,22 @@ void UnitTest::AddAndDeleteTimer()
 void UnitTest::AddAndDeleteSignal()
 {
     QLog::g_Log.WriteDebug("Test add signal");
-    QChannel Signal_SIGINT(SIGINT);
-    Signal_SIGINT.SetReadCallback(std::bind(&UnitTest::CallBack_Signal1, this, std::placeholders::_1));
-    assert(m_Reactor.AddEvent(Signal_SIGINT) == true);
+    assert(m_Reactor.AddSignal(SIGINT, std::bind(&UnitTest::CallBack_Signal1, this)) == true);
 
     QLog::g_Log.WriteDebug("Test add signal copy");
-    assert(m_Reactor.AddEvent(Signal_SIGINT) == false);
+    assert(m_Reactor.AddSignal(SIGINT, std::bind(&UnitTest::CallBack_Signal1, this)) == false);
 
     QLog::g_Log.WriteDebug("Test add signal which use for socket");
-    QChannel Signal_SIGILL(SIGILL);
-    Signal_SIGILL.SetReadCallback(std::bind(&UnitTest::CallBack_Signal1, this, std::placeholders::_1));
-    assert(m_Reactor.AddEvent(Signal_SIGILL) == true);
+    assert(m_Reactor.AddSignal(SIGILL, std::bind(&UnitTest::CallBack_Signal1, this)) == true);
 
     QLog::g_Log.WriteDebug("Test delete not existed signal");
-    assert(m_Reactor.DelEvent(QChannel(SIGTERM)) == false);
+    assert(m_Reactor.DelSignal(SIGTERM) == false);
 
     QLog::g_Log.WriteDebug("Test delete existed signal");
-    assert(m_Reactor.DelEvent(Signal_SIGILL) == true);
+    assert(m_Reactor.DelSignal(SIGILL) == true);
 
     //QLog::g_Log.WriteDebug("Test delete existed signal");
-    //assert(m_Reactor.DelEvent(Signal_SIGINT) == true);
+    //assert(m_Reactor.DelSignal(SIGINT) == true);
 }
 
 void UnitTest::CallBack_AddIOEvent1(const QChannel &Event)
@@ -411,7 +407,7 @@ void UnitTest::CallBack_TimeOut4(const QChannel &Event)
     QLog::g_Log.WriteInfo("CallBack_TimeOut4: 60 seconds");
 }
 
-void UnitTest::CallBack_Signal1(const QChannel &Event)
+void UnitTest::CallBack_Signal1()
 {
-    QLog::g_Log.WriteInfo("CallBack_Signal1: %d", Event.GetFD());
+    QLog::g_Log.WriteInfo("CallBack_Signal1: %d");
 }

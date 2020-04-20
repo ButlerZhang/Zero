@@ -22,6 +22,7 @@ QSignal::QSignal()
 
 QSignal::~QSignal()
 {
+    m_SignalMap.clear();
     QNetwork::CloseSocket(m_ReadFD);
     QNetwork::CloseSocket(m_WriteFD);
 }
@@ -39,7 +40,7 @@ bool QSignal::Init(QBackend &Backend)
         return false;
     }
 
-    QLog::g_Log.WriteDebug("Create socket pair, fd0 = %d, fd1 = %d",
+    QLog::g_Log.WriteDebug("Create socket pair, FD0 = %d, FD1 = %d",
         FD[0], FD[1]);
 
     QNetwork::SetSocketNonblocking(FD[0]);
@@ -48,25 +49,41 @@ bool QSignal::Init(QBackend &Backend)
     m_ReadFD = FD[0];
     m_WriteFD = FD[1];
 
-    QChannel SignalEvent(m_ReadFD);
-    SignalEvent.SetReadCallback(std::bind(&QSignal::CallBack_Process, this, std::placeholders::_1));
+    m_Channel = std::move(QChannel(m_ReadFD));
+    m_Channel.SetReadCallback(std::bind(&QSignal::Callback_Process, this, std::placeholders::_1));
 
-    return Backend.AddEvent(SignalEvent);
+    return Backend.AddEvent(m_Channel);
 }
 
-bool QSignal::Register(const QChannel &Event)
+bool QSignal::AddSignal(int Signal, SignalCallback Callback)
 {
-    signal(Event.GetFD(), &QSignal::CallBack_Catch);
+    std::map<int, SignalCallback>::const_iterator it = m_SignalMap.find(Signal);
+    if (it != m_SignalMap.end())
+    {
+        QLog::g_Log.WriteDebug("Add signal failed, signal = %d is existed", Signal);
+        return false;
+    }
+
+    m_SignalMap[Signal] = std::move(Callback);
+    signal(Signal, &QSignal::Callback_Catch);
     return true;
 }
 
-bool QSignal::CancelRegister(const QChannel &Event)
+bool QSignal::DelSignal(int Signal)
 {
-    signal(Event.GetFD(), NULL);
+    std::map<int, SignalCallback>::const_iterator it = m_SignalMap.find(Signal);
+    if (it == m_SignalMap.end())
+    {
+        QLog::g_Log.WriteDebug("Delete signal failed, can not find signal = %d", Signal);
+        return false;
+    }
+
+    m_SignalMap.erase(it);
+    signal(Signal, NULL);
     return true;
 }
 
-void QSignal::CallBack_Process(const QChannel &Event)
+void QSignal::Callback_Process(const QChannel &Channel)
 {
     int Signal = -1;
 
@@ -79,26 +96,22 @@ void QSignal::CallBack_Process(const QChannel &Event)
 #else
     if (read(m_ReadFD, &Signal, sizeof(QEventFD)) != sizeof(QEventFD))
     {
-        QLog::g_Log.WriteDebug("Can not read signal = %d", Event.GetFD());
+        QLog::g_Log.WriteDebug("Can not read signal = %d", Channel.GetFD());
     }
 #endif // _WIN32
 
     if (Signal >= 0)
     {
-        //QLog::g_Log.WriteDebug("Read signal = %d", Signal);
-        //std::map<QEventFD, std::vector<QChannel>> &EventMap = *(std::map<QEventFD, std::vector<QChannel>>*)Event.GetExtendArg();
-        //for (std::vector<QChannel>::size_type Index = 1; Index < EventMap[m_ReadFD].size(); Index++)
-        //{
-        //    if (EventMap[m_ReadFD][Index].GetFD() == Signal)
-        //    {
-        //        EventMap[m_ReadFD][Index].HandlerEvent();
-        //        break;
-        //    }
-        //}
+        QLog::g_Log.WriteDebug("Read signal = %d", Signal);
+        std::map<int, SignalCallback>::const_iterator it = m_SignalMap.find(Signal);
+        if (it != m_SignalMap.end())
+        {
+            it->second();
+        }
     }
 }
 
-void QSignal::CallBack_Catch(int Signal)
+void QSignal::Callback_Catch(int Signal)
 {
     QLog::g_Log.WriteDebug("Catch signal = %d", Signal);
 

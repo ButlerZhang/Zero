@@ -35,11 +35,6 @@ bool QPoll::AddEvent(const QChannel &Channel)
         return AddEventToChannelMap(Channel, QEO_ADD);
     }
 
-    if (Channel.GetEvents() & QET_SIGNAL)
-    {
-        return m_Signal.Register(Channel) && AddEventToChannelMap(Channel, QEO_ADD);
-    }
-
     for (int Index = 0; Index < FD_SETSIZE; Index++)
     {
         if (m_FDArray[Index].fd < 0 || m_FDArray[Index].fd == Channel.GetFD())
@@ -88,11 +83,6 @@ bool QPoll::DelEvent(const QChannel &Channel)
     if (Channel.GetEvents() & QET_TIMEOUT)
     {
         return DelEventFromChannelMap(Channel, QEO_DEL);
-    }
-
-    if (Channel.GetEvents() & QET_SIGNAL)
-    {
-        return m_Signal.CancelRegister(Channel) && DelEventFromChannelMap(Channel, QEO_DEL);
     }
 
     int DeleteIndex = -1;

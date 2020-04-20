@@ -1,8 +1,10 @@
 #pragma once
 #include "QLibBase.h"
+#include "QChannel.h"
+#include <map>
+#include <functional>
 
-class QChannel;
-class QBackend;
+typedef std::function<void()> SignalCallback;
 
 
 
@@ -14,17 +16,18 @@ public:
     ~QSignal();
 
     bool Init(QBackend &Backend);
-    bool Register(const QChannel &Event);
-    bool CancelRegister(const QChannel &Event);
-
-    QEventFD GetFD() const { return m_ReadFD; }
+    bool AddSignal(int Signal, SignalCallback Callback);
+    bool DelSignal(int Signal);
 
 private:
 
-    void CallBack_Process(const QChannel &Event);
-    static void CallBack_Catch(int Signal);
+    void Callback_Process(const QChannel &Channel);
+    static void Callback_Catch(int Signal);
 
 private:
+
+    QChannel                            m_Channel;
+    std::map<int, SignalCallback>       m_SignalMap;
 
     static QEventFD                     m_ReadFD;
     static QEventFD                     m_WriteFD;

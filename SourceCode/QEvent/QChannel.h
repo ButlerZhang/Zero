@@ -20,7 +20,7 @@ public:
     QChannel(QEventFD EventFD);
     ~QChannel();
 
-    void HandlerEvent();
+    void HandlerEvent() const;
 
     void SetResultEvents(int ResultEvents);
     void SetReadCallback(EventCallback ReadCallback);

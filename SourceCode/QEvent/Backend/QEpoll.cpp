@@ -31,11 +31,6 @@ bool QEpoll::AddEvent(const QChannel &Channel)
         return AddEventToChannelMap(Channel, QEO_ADD);
     }
 
-    if (Channel.GetEvents() & QET_SIGNAL)
-    {
-        return m_Signal.Register(Channel) && AddEventToChannelMap(Channel, QEO_ADD);
-    }
-
     if (Channel.GetFD() == m_EpollFD)
     {
         return false;
@@ -81,11 +76,6 @@ bool QEpoll::DelEvent(const QChannel &Channel)
     if (Channel.GetEvents() & QET_TIMEOUT)
     {
         return DelEventFromChannelMap(Channel, QEO_DEL);
-    }
-
-    if (Channel.GetEvents() & QET_SIGNAL)
-    {
-        return m_Signal.CancelRegister(Channel) && DelEventFromChannelMap(Channel, QEO_DEL);
     }
 
     if (Channel.GetFD() == m_EpollFD)
