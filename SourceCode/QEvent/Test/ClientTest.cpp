@@ -1,7 +1,7 @@
 #include "ClientTest.h"
 #include "../QChannel.h"
 #include "../QNetwork.h"
-#include "../Backend/QReactor.h"
+#include "../Backend/QEventLoop.h"
 
 #ifdef _WIN32
 #include <io.h>
@@ -58,7 +58,7 @@ bool ClientTest::MultiThread(int ClientCount)
 
 bool ClientTest::SingleThread(int ClientCount)
 {
-    QReactor Reactor;
+    QEventLoop EventLoop;
     std::vector<QNetwork> NetworkVector(ClientCount, QNetwork());
     for (int Index = 0; Index < ClientCount; Index++)
     {
@@ -69,7 +69,7 @@ bool ClientTest::SingleThread(int ClientCount)
 
             QChannel ReceiveEvent(Network.GetSocket());
             ReceiveEvent.SetReadCallback(std::bind(&ClientTest::Recevie, this, std::placeholders::_1));
-            Reactor.AddEvent(ReceiveEvent);
+            EventLoop.AddEvent(ReceiveEvent);
         }
     }
 
@@ -79,11 +79,11 @@ bool ClientTest::SingleThread(int ClientCount)
 
     QChannel CMDEvent(STDIN_FILENO, QET_READ);
     CMDEvent.SetCallBack(std::bind(&ClientTest::CMDInput, this, std::placeholders::_1), (void*)&TargetFD);
-    Reactor.AddEvent(CMDEvent);
+    EventLoop.AddEvent(CMDEvent);
 
 #endif // ENABLE_CMD_INPUT
 
-    return Reactor.Dispatch();
+    return EventLoop.Dispatch();
 }
 
 bool ClientTest::SendMsg(int ClientID, QLog::QSimpleLog &Log)

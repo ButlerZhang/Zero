@@ -68,7 +68,7 @@
     <ClInclude Include="Backend\QBackend.h" />
     <ClInclude Include="Backend\QEpoll.h" />
     <ClInclude Include="Backend\QPoll.h" />
-    <ClInclude Include="Backend\QReactor.h" />
+    <ClInclude Include="Backend\QEventLoop.h" />
     <ClInclude Include="Backend\QSelect.h" />
     <ClInclude Include="QChannel.h" />
     <ClInclude Include="QEventEnum.h" />
@@ -86,7 +86,7 @@
     <ClCompile Include="Backend\QBackend.cpp" />
     <ClCompile Include="Backend\QEpoll.cpp" />
     <ClCompile Include="Backend\QPoll.cpp" />
-    <ClCompile Include="Backend\QReactor.cpp" />
+    <ClCompile Include="Backend\QEventLoop.cpp" />
     <ClCompile Include="Backend\QSelect.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="QChannel.cpp" />

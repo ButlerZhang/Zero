@@ -1,10 +1,12 @@
 #include "QSelect.h"
+#include "QEventLoop.h"
+#include "../QTimer.h"
 #include "../../QLog/QSimpleLog.h"
 #include <string.h>                     //strerror
 
 
 
-QSelect::QSelect()
+QSelect::QSelect(QEventLoop &EventLoop) : QBackend(EventLoop)
 {
     m_HighestEventFD = 0;
     m_BackendName = "select";
@@ -89,14 +91,14 @@ bool QSelect::Dispatch(timeval &tv)
         if (errno != EINTR)
         {
             QLog::g_Log.WriteError("select error : %s", strerror(errno));
-            m_IsStop = true;
+            m_EventLoop.StopLoop();
             return false;
         }
     }
 
     if (Result == 0)
     {
-        ActiveEvent(m_Timer.GetFD(), 0);
+        ActiveEvent(m_EventLoop.GetTimer()->GetFD(), 0);
     }
     else
     {

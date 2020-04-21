@@ -7,7 +7,7 @@ class QWin32Select : public QBackend
 {
 public:
 
-    QWin32Select();
+    QWin32Select(QEventLoop &EventLoop);
     virtual ~QWin32Select();
 
     virtual bool AddEvent(const QChannel &Channel);

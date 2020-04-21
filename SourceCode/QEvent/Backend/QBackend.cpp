@@ -4,9 +4,8 @@
 
 
 
-QBackend::QBackend()
+QBackend::QBackend(QEventLoop &EventLoop) : m_EventLoop(EventLoop)
 {
-    m_IsStop = false;
 }
 
 QBackend::~QBackend()

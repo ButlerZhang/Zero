@@ -117,7 +117,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\QEvent\Backend\QBackend.h" />
-    <ClInclude Include="..\QEvent\Backend\QReactor.h" />
+    <ClInclude Include="..\QEvent\Backend\QEventLoop.h" />
     <ClInclude Include="..\QEvent\Backend\QWin32Select.h" />
     <ClInclude Include="..\QEvent\QChannel.h" />
     <ClInclude Include="..\QEvent\QEventEnum.h" />
@@ -134,7 +134,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\QEvent\Backend\QBackend.cpp" />
-    <ClCompile Include="..\QEvent\Backend\QReactor.cpp" />
+    <ClCompile Include="..\QEvent\Backend\QEventLoop.cpp" />
     <ClCompile Include="..\QEvent\Backend\QWin32Select.cpp" />
     <ClCompile Include="..\QEvent\main.cpp" />
     <ClCompile Include="..\QEvent\QChannel.cpp" />

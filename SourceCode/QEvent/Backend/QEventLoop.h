@@ -1,21 +1,23 @@
 #pragma once
 #include "../QLibBase.h"
-#include "../QSignal.h"
 #include <memory>
 
+class QTimer;
+class QSignal;
 class QChannel;
 class QBackend;
 
 
 
-class QReactor
+class QEventLoop
 {
 public:
 
-    QReactor();
-    ~QReactor();
+    QEventLoop();
+    ~QEventLoop();
 
     bool Init();
+    bool StopLoop();
     bool Dispatch();
 
     bool AddEvent(const QChannel &Event);
@@ -28,10 +30,14 @@ public:
     int64_t AddTimer(int Interval, TimerCallback Callback);
     bool DelTimer(int64_t TimerID);
 
+    const std::shared_ptr<QTimer>& GetTimer() const { return m_Timer; }
+    const std::shared_ptr<QSignal>& GetSignal() const { return m_Signal; }
     const std::shared_ptr<QBackend>& GetBackend() const { return m_Backend; }
 
 private:
 
+    bool                                            m_IsStop;
+    std::shared_ptr<QTimer>                         m_Timer;
+    std::shared_ptr<QSignal>                        m_Signal;
     std::shared_ptr<QBackend>                       m_Backend;
-    QSignal                                         m_Signal;
 };

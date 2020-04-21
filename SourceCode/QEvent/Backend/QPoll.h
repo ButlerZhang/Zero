@@ -8,7 +8,7 @@ class QPoll : public QBackend
 {
 public:
 
-    QPoll();
+    QPoll(QEventLoop &EventLoop);
     virtual ~QPoll();
 
     virtual bool AddEvent(const QChannel &Channel);

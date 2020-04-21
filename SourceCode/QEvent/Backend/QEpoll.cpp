@@ -1,4 +1,6 @@
 #include "QEpoll.h"
+#include "QEventLoop.h"
+#include "../QTimer.h"
 #include "../../QLog/QSimpleLog.h"
 
 #include <unistd.h>                 //close
@@ -6,7 +8,7 @@
 
 
 
-QEpoll::QEpoll()
+QEpoll::QEpoll(QEventLoop &EventLoop) : QBackend(EventLoop)
 {
     m_BackendName = "epoll";
     m_EpollFD = epoll_create(FD_SETSIZE);
@@ -98,14 +100,14 @@ bool QEpoll::Dispatch(timeval &tv)
         if (errno != EINTR)
         {
             QLog::g_Log.WriteError("epoll error : %s", strerror(errno));
-            m_IsStop = true;
+            m_EventLoop.StopLoop();
             return false;
         }
     }
 
     if (ActiveEventCount == 0)
     {
-        ActiveEvent(m_Timer.GetFD(), 0);
+        ActiveEvent(m_EventLoop.GetTimer()->GetFD(), 0);
     }
     else
     {

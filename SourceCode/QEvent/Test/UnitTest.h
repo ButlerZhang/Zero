@@ -1,6 +1,6 @@
 #pragma once
 #include "../QChannel.h"
-#include "../Backend/QReactor.h"
+#include "../Backend/QEventLoop.h"
 
 
 
@@ -41,5 +41,5 @@ private:
 
 private:
 
-    QReactor                m_Reactor;
+    QEventLoop                m_EventLoop;
 };

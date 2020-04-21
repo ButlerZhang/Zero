@@ -1,6 +1,10 @@
 #pragma once
 #include "../QLibBase.h"
-#include "../QTimer.h"
+#include "../QChannel.h"
+
+#include <map>
+
+class QEventLoop;
 
 
 
@@ -8,7 +12,7 @@ class QBackend
 {
 public:
 
-    QBackend();
+    QBackend(QEventLoop &EventLoop);
     virtual ~QBackend();
 
     virtual bool AddEvent(const QChannel &Channel);
@@ -16,8 +20,6 @@ public:
     virtual bool ModEvent(const QChannel &Channel);
     virtual bool Dispatch(timeval &tv)  = 0;
 
-    inline bool IsStop() const { return m_IsStop; }
-    inline QTimer& GetTimer() { return m_Timer; }
     inline const std::string& GetBackendName() const { return m_BackendName; }
     inline const std::map<QEventFD, QChannel>& GetEventMap() const { return m_ChannelMap; }
 
@@ -31,8 +33,7 @@ protected:
 
 protected:
 
-    bool                                            m_IsStop;
+    QEventLoop                                      &m_EventLoop;
     std::string                                     m_BackendName;
-    QTimer                                          m_Timer;
     std::map<QEventFD, QChannel>                    m_ChannelMap;
 };

@@ -17,9 +17,6 @@
     <ClCompile Include="Backend\QSelect.cpp">
       <Filter>Backend</Filter>
     </ClCompile>
-    <ClCompile Include="Backend\QReactor.cpp">
-      <Filter>Backend</Filter>
-    </ClCompile>
     <ClCompile Include="Test\ClientTest.cpp">
       <Filter>Test</Filter>
     </ClCompile>
@@ -35,6 +32,9 @@
     <ClCompile Include="QSignal.cpp" />
     <ClCompile Include="QChannel.cpp" />
     <ClCompile Include="QTimer.cpp" />
+    <ClCompile Include="Backend\QEventLoop.cpp">
+      <Filter>Backend</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\QLog\QSimpleLog.h">
@@ -56,9 +56,6 @@
       <Filter>Backend</Filter>
     </ClInclude>
     <ClInclude Include="QLibBase.h" />
-    <ClInclude Include="Backend\QReactor.h">
-      <Filter>Backend</Filter>
-    </ClInclude>
     <ClInclude Include="Test\ClientTest.h">
       <Filter>Test</Filter>
     </ClInclude>
@@ -74,6 +71,9 @@
     <ClInclude Include="QSignal.h" />
     <ClInclude Include="QChannel.h" />
     <ClInclude Include="QTimer.h" />
+    <ClInclude Include="Backend\QEventLoop.h">
+      <Filter>Backend</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Reference">

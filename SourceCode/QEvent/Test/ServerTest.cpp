@@ -21,8 +21,8 @@ ServerTest::~ServerTest()
 
 bool ServerTest::Start(const std::string &BindIP, int Port)
 {
-    m_Reactor.Init();
-    QLog::g_Log.SetLogFile(m_Reactor.GetBackend()->GetBackendName() + ".txt");
+    m_EventLoop.Init();
+    QLog::g_Log.SetLogFile(m_EventLoop.GetBackend()->GetBackendName() + ".txt");
 
     if (!m_Network.Listen(BindIP, Port))
     {
@@ -34,9 +34,9 @@ bool ServerTest::Start(const std::string &BindIP, int Port)
 
     QChannel ListenEvent(m_Network.GetSocket());
     ListenEvent.SetReadCallback(std::bind(&ServerTest::Accept, this, ListenEvent));
-    m_Reactor.AddEvent(ListenEvent);
+    m_EventLoop.AddEvent(ListenEvent);
 
-    return m_Reactor.Dispatch();
+    return m_EventLoop.Dispatch();
 }
 
 void ServerTest::Accept(const QChannel &Event)
@@ -49,7 +49,7 @@ void ServerTest::Accept(const QChannel &Event)
     QNetwork::SetSocketNonblocking(ClientFD);
     QChannel ClientEvent(ClientFD);
     ClientEvent.SetReadCallback(std::bind(&ServerTest::Recevie, this, ClientEvent));
-    m_Reactor.AddEvent(ClientEvent);
+    m_EventLoop.AddEvent(ClientEvent);
 }
 
 void ServerTest::Recevie(const QChannel &Event)
@@ -69,7 +69,7 @@ void ServerTest::Recevie(const QChannel &Event)
     }
     else if (RecvSize == 0)
     {
-        m_Reactor.DelEvent(Event);
+        m_EventLoop.DelEvent(Event);
         m_Network.CloseSocket(ClientFD);
         QLog::g_Log.WriteInfo("Client = %d disconnected", ClientFD);
     }
@@ -80,7 +80,7 @@ void ServerTest::Recevie(const QChannel &Event)
         QLog::g_Log.WriteError("Recv errno = %d", WSAErrno);
         if (WSAErrno != WSAEWOULDBLOCK)
         {
-            m_Reactor.DelEvent(Event);
+            m_EventLoop.DelEvent(Event);
             m_Network.CloseSocket(ClientFD);
             QLog::g_Log.WriteInfo("Client = %d disconnected", ClientFD);
         }

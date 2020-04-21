@@ -1,5 +1,5 @@
 #pragma once
-#include "../Backend/QReactor.h"
+#include "../Backend/QEventLoop.h"
 #include "../QNetwork.h"
 
 class QChannel;
@@ -22,6 +22,6 @@ private:
 
 private:
 
-    QNetwork                        m_Network;
-    QReactor                        m_Reactor;
+    QNetwork                          m_Network;
+    QEventLoop                        m_EventLoop;
 };

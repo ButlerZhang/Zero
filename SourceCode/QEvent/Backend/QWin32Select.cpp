@@ -1,10 +1,12 @@
 #include "QWin32Select.h"
-#include "../../QLog/QSimpleLog.h"
+#include "QEventLoop.h"
+#include "../QTimer.h"
 #include "../QNetwork.h"
+#include "../../QLog/QSimpleLog.h"
 
 
 
-QWin32Select::QWin32Select()
+QWin32Select::QWin32Select(QEventLoop &EventLoop) : QBackend(EventLoop)
 {
     m_BackendName = "win32select";
     memset(&m_ReadSetIn, 0, sizeof(m_ReadSetIn));
@@ -75,7 +77,7 @@ bool QWin32Select::Dispatch(timeval &tv)
     if (Result < 0)
     {
         QLog::g_Log.WriteError("win32select error : %d", WSAGetLastError());
-        m_IsStop = true;
+        m_EventLoop.StopLoop();
         return false;
     }
 
@@ -112,6 +114,6 @@ bool QWin32Select::UseSleepSimulateSelect(timeval &tv)
     }
 
     Sleep(SleepTime);
-    ActiveEvent(m_Timer.GetFD(), 0);
+    ActiveEvent(m_EventLoop.GetTimer()->GetFD(), 0);
     return true;
 }

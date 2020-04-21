@@ -8,7 +8,7 @@ class QSelect : public QBackend
 {
 public:
 
-    QSelect();
+    QSelect(QEventLoop &EventLoop);
     virtual ~QSelect();
 
     virtual bool AddEvent(const QChannel &Channel);

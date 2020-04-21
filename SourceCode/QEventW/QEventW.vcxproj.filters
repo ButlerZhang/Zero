@@ -39,9 +39,6 @@
     <ClInclude Include="..\QEvent\Backend\QWin32Select.h">
       <Filter>Backend</Filter>
     </ClInclude>
-    <ClInclude Include="..\QEvent\Backend\QReactor.h">
-      <Filter>Backend</Filter>
-    </ClInclude>
     <ClInclude Include="..\QEvent\QEventEnum.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -72,6 +69,9 @@
     <ClInclude Include="..\QEvent\QTimer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\QEvent\Backend\QEventLoop.h">
+      <Filter>Backend</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\QEvent\main.cpp">
@@ -84,9 +84,6 @@
       <Filter>Backend</Filter>
     </ClCompile>
     <ClCompile Include="..\QEvent\Backend\QWin32Select.cpp">
-      <Filter>Backend</Filter>
-    </ClCompile>
-    <ClCompile Include="..\QEvent\Backend\QReactor.cpp">
       <Filter>Backend</Filter>
     </ClCompile>
     <ClCompile Include="..\QEvent\QEventEnum.cpp">
@@ -115,6 +112,9 @@
     </ClCompile>
     <ClCompile Include="..\QEvent\QTimer.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\QEvent\Backend\QEventLoop.cpp">
+      <Filter>Backend</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
