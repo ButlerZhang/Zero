@@ -6,11 +6,10 @@
 
 
 
-QMinHeap::HeapNode::HeapNode()
+TimerNode::TimerNode()
 {
-    m_MapKey = -1;
+    m_TimerID = 0;
     m_Timeout = -1;
-    m_MapVectorIndex = -1;
 }
 
 QMinHeap::QMinHeap()
@@ -23,22 +22,17 @@ QMinHeap::~QMinHeap()
     m_HeapArray.clear();
 }
 
-bool QMinHeap::AddTimeout(const QChannel &Event, QEventFD MapKey, std::size_t VectorIndex)
+bool QMinHeap::AddTimeout(const TimerNode &NewNode)
 {
-    if (!QTimer::IsValid(Event.GetTimeout()))
-    {
-        return false;
-    }
-
     if (m_NodeCount >= m_HeapArray.size())
     {
-        m_HeapArray.push_back(HeapNode());
+        m_HeapArray.push_back(TimerNode());
     }
 
-    HeapNode &LastNode = m_HeapArray[m_NodeCount];
-    LastNode.m_MapKey = MapKey;
-    LastNode.m_MapVectorIndex = VectorIndex;
-    LastNode.m_Timeout = QTimer::ConvertToMillisecond(Event.GetTimeout());
+    TimerNode &LastNode = m_HeapArray[m_NodeCount];
+    LastNode.m_TimerID = NewNode.m_TimerID;
+    LastNode.m_Timeout = NewNode.m_Timeout;
+    LastNode.m_Callback = NewNode.m_Callback;
 
     ++m_NodeCount;
     ShiftUp(m_NodeCount - 1);
@@ -47,12 +41,12 @@ bool QMinHeap::AddTimeout(const QChannel &Event, QEventFD MapKey, std::size_t Ve
     return true;
 }
 
-bool QMinHeap::DelTimeout(QEventFD MapKey, std::size_t VectorIndex)
+bool QMinHeap::DelTimeout(const TimerNode &DelNode)
 {
-    std::vector<HeapNode>::size_type DeleteIndex = -1;
-    for (std::vector<HeapNode>::size_type Index = 0; Index < m_NodeCount; Index++)
+    std::vector<TimerNode>::size_type DeleteIndex = -1;
+    for (std::vector<TimerNode>::size_type Index = 0; Index < m_NodeCount; Index++)
     {
-        if (m_HeapArray[Index].m_MapKey == MapKey && m_HeapArray[Index].m_MapVectorIndex == VectorIndex)
+        if (m_HeapArray[Index].m_TimerID == DelNode.m_TimerID)
         {
             DeleteIndex = Index;
             break;
@@ -61,26 +55,13 @@ bool QMinHeap::DelTimeout(QEventFD MapKey, std::size_t VectorIndex)
 
     if (DeleteIndex >= m_NodeCount)
     {
-        QLog::g_Log.WriteDebug("Delete timeout failed, can not find mapkey = %d, vecindex = %ld",
-            MapKey, VectorIndex);
+        QLog::g_Log.WriteDebug("Delete timeout failed, can not find timer id = %d",
+            DelNode.m_TimerID);
         return false;
     }
 
-    for (std::vector<HeapNode>::size_type Index = 0; Index < m_NodeCount; Index++)
-    {
-        if (m_HeapArray[Index].m_MapKey != MapKey)
-        {
-            continue;
-        }
-
-        if (m_HeapArray[Index].m_MapVectorIndex != VectorIndex)
-        {
-            m_HeapArray[Index].m_MapVectorIndex -= m_HeapArray[Index].m_MapVectorIndex > VectorIndex;
-        }
-    }
-
     std::swap(m_HeapArray[DeleteIndex], m_HeapArray[--m_NodeCount]);
-    std::vector<HeapNode>::size_type Parent = (DeleteIndex - 1) / 2;
+    std::vector<TimerNode>::size_type Parent = (DeleteIndex - 1) / 2;
 
     if (Parent < m_NodeCount && m_HeapArray[Parent].m_Timeout < m_HeapArray[DeleteIndex].m_Timeout)
     {
@@ -111,7 +92,7 @@ void QMinHeap::MinusElapsedTime(long ElapsedTime)
 
     if (ElapsedTime > 0 && m_NodeCount > 0)
     {
-        for (std::vector<HeapNode>::size_type Index = 0; Index < m_NodeCount; Index++)
+        for (std::vector<TimerNode>::size_type Index = 0; Index < m_NodeCount; Index++)
         {
             m_HeapArray[Index].m_Timeout -= ElapsedTime;
         }
@@ -120,28 +101,28 @@ void QMinHeap::MinusElapsedTime(long ElapsedTime)
     WriteMinHeapSnapshot();
 }
 
-QMinHeap::HeapNode QMinHeap::Pop()
+TimerNode QMinHeap::Pop()
 {
     if (!HasNode())
     {
-        return HeapNode();
+        return TimerNode();
     }
 
-    HeapNode Node = m_HeapArray[0];
+    TimerNode Node = m_HeapArray[0];
 
     std::swap(m_HeapArray[0], m_HeapArray[--m_NodeCount]);
     ShiftDown(0);
 
-    QLog::g_Log.WriteDebug("MinHeap: Pop heap node, map_key = %d\tvec_index=%d\ttimeout = %ld",
-        Node.m_MapKey, Node.m_MapVectorIndex, Node.m_Timeout);
+    QLog::g_Log.WriteDebug("MinHeap: Pop heap node, timer id = %I64d\ttimeout = %ld",
+        Node.m_TimerID, Node.m_Timeout);
 
     WriteMinHeapSnapshot();
     return Node;
 }
 
-void QMinHeap::ShiftUp(std::vector<HeapNode>::size_type Pos)
+void QMinHeap::ShiftUp(std::vector<TimerNode>::size_type Pos)
 {
-    std::vector<HeapNode>::size_type Parent = (Pos - 1) / 2;
+    std::vector<TimerNode>::size_type Parent = (Pos - 1) / 2;
     while (Parent < m_NodeCount && m_HeapArray[Parent].m_Timeout > m_HeapArray[Pos].m_Timeout)
     {
         std::swap(m_HeapArray[Parent], m_HeapArray[Pos]);
@@ -151,9 +132,9 @@ void QMinHeap::ShiftUp(std::vector<HeapNode>::size_type Pos)
     }
 }
 
-void QMinHeap::ShiftDown(std::vector<HeapNode>::size_type Pos)
+void QMinHeap::ShiftDown(std::vector<TimerNode>::size_type Pos)
 {
-    std::vector<HeapNode>::size_type MinChild = 2 * (Pos + 1);
+    std::vector<TimerNode>::size_type MinChild = 2 * (Pos + 1);
     while (Pos < m_NodeCount && MinChild <= m_NodeCount)
     {
         if (MinChild == m_NodeCount || m_HeapArray[MinChild].m_Timeout > m_HeapArray[MinChild - 1].m_Timeout)
@@ -178,11 +159,11 @@ void QMinHeap::WriteMinHeapSnapshot() const
     QLog::g_Log.WriteDebug("=============min heap snapshot=============");
 
     QLog::g_Log.WriteDebug("MinHeap: node count = %d", static_cast<int>(m_NodeCount));
-    for (std::vector<HeapNode>::size_type Index = 0; Index < m_NodeCount; Index++)
+    for (std::vector<TimerNode>::size_type Index = 0; Index < m_NodeCount; Index++)
     {
-        const HeapNode &Node = m_HeapArray[Index];
-        QLog::g_Log.WriteDebug("MinHeap: heap_index = %d\tmap_key = %d\tvec_index=%d\ttimeout = %ld",
-            Index, Node.m_MapKey, Node.m_MapVectorIndex, Node.m_Timeout / 1000);
+        const TimerNode &Node = m_HeapArray[Index];
+        QLog::g_Log.WriteDebug("MinHeap: heap_index = %d, timer id = %d, timeout = %ld",
+            Index, Node.m_TimerID, Node.m_Timeout);
     }
 
     QLog::g_Log.WriteDebug("===========================================");

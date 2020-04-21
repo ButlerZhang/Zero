@@ -11,6 +11,7 @@
 #endif // _WIN32
 
 
+
 class QTimer
 {
 public:
@@ -40,5 +41,5 @@ private:
 
     QChannel                                        m_Channel;
     QMinHeap                                        m_MinHeap;
-    std::map<int64_t, TimerCallback>                m_TimerMap;
+    std::map<int64_t, TimerNode>                    m_TimerMap;
 };

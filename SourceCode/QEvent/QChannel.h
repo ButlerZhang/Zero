@@ -20,6 +20,7 @@ public:
     QChannel(QEventFD EventFD);
     ~QChannel();
 
+    bool IsValid() const;
     void HandlerEvent() const;
 
     void SetResultEvents(int ResultEvents);

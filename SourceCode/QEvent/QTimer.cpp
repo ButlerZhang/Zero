@@ -23,18 +23,32 @@ int64_t QTimer::AddTimer(int Interval, TimerCallback Callback)
 {
     if (Interval > 0)
     {
-        int64_t TimerID = 0;
-        m_TimerMap[TimerID] = std::move(Callback);
-        return true;
+        static int64_t TimerID = 0;
+
+        TimerNode NewNode;
+        NewNode.m_TimerID = TimerID;
+        NewNode.m_Callback = Callback;
+        NewNode.m_Timeout = Interval;
+
+        if (m_MinHeap.AddTimeout(NewNode))
+        {
+            m_TimerMap[++TimerID] = std::move(NewNode);
+            return TimerID;
+        }
     }
 
-    return false;
+    return -1;
 }
 
 bool QTimer::DelTimer(int64_t TimerID)
 {
-    std::map<int64_t, TimerCallback>::const_iterator it = m_TimerMap.find(TimerID);
+    std::map<int64_t, TimerNode>::const_iterator it = m_TimerMap.find(TimerID);
     if (it == m_TimerMap.end())
+    {
+        return false;
+    }
+
+    if (!m_MinHeap.DelTimeout(it->second))
     {
         return false;
     }
@@ -51,14 +65,14 @@ void QTimer::Callback_Timeout(const QChannel &Channel)
 
         while (m_MinHeap.HasNode() && m_MinHeap.Top().m_Timeout <= 0)
         {
-            const QMinHeap::HeapNode &PopNode = m_MinHeap.Pop();
-            if (m_TimerMap.find(PopNode.m_MapKey) == m_TimerMap.end())
+            const TimerNode &PopNode = m_MinHeap.Pop();
+            if (m_TimerMap.find(PopNode.m_TimerID) == m_TimerMap.end())
             {
-                QLog::g_Log.WriteDebug("Process timeout: Can not find map key = %d", PopNode.m_MapKey);
+                QLog::g_Log.WriteDebug("Process timeout: Can not find timer id = %d", PopNode.m_TimerID);
                 continue;
             }
 
-            m_TimerMap[PopNode.m_MapKey]();
+            m_TimerMap[PopNode.m_TimerID].m_Callback();
         }
     }
 }

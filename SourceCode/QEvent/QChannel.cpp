@@ -25,21 +25,9 @@ QChannel::~QChannel()
 {
 }
 
-void QChannel::SetResultEvents(int ResultEvents)
+bool QChannel::IsValid() const
 {
-    m_ResultEvents = ResultEvents;
-}
-
-void QChannel::SetReadCallback(IOEventCallback ReadCallback)
-{
-    m_ReadCallback = ReadCallback;
-    m_Events |= QET_READ;
-}
-
-void QChannel::SetWriteCallback(IOEventCallback WriteCallback)
-{
-    m_WriteCallback = WriteCallback;
-    m_Events |= QET_WRITE;
+    return m_EventFD >= 0 && m_Events > 0;
 }
 
 void QChannel::HandlerEvent() const
@@ -69,4 +57,21 @@ void QChannel::HandlerEvent() const
                 m_EventFD);
         }
     }
+}
+
+void QChannel::SetResultEvents(int ResultEvents)
+{
+    m_ResultEvents = ResultEvents;
+}
+
+void QChannel::SetReadCallback(IOEventCallback ReadCallback)
+{
+    m_ReadCallback = ReadCallback;
+    m_Events |= QET_READ;
+}
+
+void QChannel::SetWriteCallback(IOEventCallback WriteCallback)
+{
+    m_WriteCallback = WriteCallback;
+    m_Events |= QET_WRITE;
 }
