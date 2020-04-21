@@ -1,6 +1,6 @@
 #pragma once
-#include "../QTime.h"
 #include "../QLibBase.h"
+#include "../QSignal.h"
 #include <memory>
 
 class QChannel;
@@ -32,5 +32,6 @@ public:
 
 private:
 
-    std::shared_ptr<QBackend>           m_Backend;
+    std::shared_ptr<QBackend>                       m_Backend;
+    QSignal                                         m_Signal;
 };

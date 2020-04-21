@@ -1,7 +1,6 @@
 #include "QWin32Select.h"
 #include "../../QLog/QSimpleLog.h"
 #include "../QNetwork.h"
-#include "../QTime.h"
 
 
 
@@ -69,7 +68,7 @@ bool QWin32Select::Dispatch(timeval &tv)
     memcpy(&m_WriteSetOut, &m_WriteSetIn, sizeof(m_WriteSetIn));
 
     QLog::g_Log.WriteDebug("win32select: start...");
-    timeval *TempTimeout = QTime::IsValid(tv) ? &tv : NULL;
+    timeval *TempTimeout = QTimer::IsValid(tv) ? &tv : NULL;
     int Result = select(-1, &m_ReadSetOut, &m_WriteSetOut, NULL, TempTimeout);
     QLog::g_Log.WriteDebug("win32select: stop, result = %d.", Result);
 
@@ -106,7 +105,7 @@ bool QWin32Select::UseSleepSimulateSelect(timeval &tv)
         return false;
     }
 
-    long SleepTime = QTime::ConvertToMillisecond(tv);
+    long SleepTime = QTimer::ConvertToMillisecond(tv);
     if (SleepTime < 0)
     {
         SleepTime = LONG_MAX;

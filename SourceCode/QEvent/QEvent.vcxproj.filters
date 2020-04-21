@@ -32,7 +32,6 @@
     <ClCompile Include="QEventEnum.cpp" />
     <ClCompile Include="QMinHeap.cpp" />
     <ClCompile Include="QNetwork.cpp" />
-    <ClCompile Include="QTime.cpp" />
     <ClCompile Include="QSignal.cpp" />
     <ClCompile Include="QChannel.cpp" />
     <ClCompile Include="QTimer.cpp" />
@@ -72,7 +71,6 @@
     <ClInclude Include="QEventEnum.h" />
     <ClInclude Include="QMinHeap.h" />
     <ClInclude Include="QNetwork.h" />
-    <ClInclude Include="QTime.h" />
     <ClInclude Include="QSignal.h" />
     <ClInclude Include="QChannel.h" />
     <ClInclude Include="QTimer.h" />

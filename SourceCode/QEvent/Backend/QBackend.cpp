@@ -7,7 +7,6 @@
 QBackend::QBackend()
 {
     m_IsStop = false;
-    m_TimerFD = -1;
 }
 
 QBackend::~QBackend()

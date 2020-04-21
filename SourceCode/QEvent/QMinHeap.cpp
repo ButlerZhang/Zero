@@ -1,5 +1,5 @@
 #include "QMinHeap.h"
-#include "QTime.h"
+#include "QTimer.h"
 #include "../QLog/QSimpleLog.h"
 
 #include <algorithm>
@@ -25,7 +25,7 @@ QMinHeap::~QMinHeap()
 
 bool QMinHeap::AddTimeout(const QChannel &Event, QEventFD MapKey, std::size_t VectorIndex)
 {
-    if (!QTime::IsValid(Event.GetTimeout()))
+    if (!QTimer::IsValid(Event.GetTimeout()))
     {
         return false;
     }
@@ -38,7 +38,7 @@ bool QMinHeap::AddTimeout(const QChannel &Event, QEventFD MapKey, std::size_t Ve
     HeapNode &LastNode = m_HeapArray[m_NodeCount];
     LastNode.m_MapKey = MapKey;
     LastNode.m_MapVectorIndex = VectorIndex;
-    LastNode.m_Timeout = QTime::ConvertToMillisecond(Event.GetTimeout());
+    LastNode.m_Timeout = QTimer::ConvertToMillisecond(Event.GetTimeout());
 
     ++m_NodeCount;
     ShiftUp(m_NodeCount - 1);

@@ -1,6 +1,4 @@
 #include "QSelect.h"
-#include "../QTime.h"
-#include "../QSignal.h"
 #include "../../QLog/QSimpleLog.h"
 #include <string.h>                     //strerror
 
@@ -82,7 +80,7 @@ bool QSelect::Dispatch(timeval &tv)
     memcpy(&m_WriteSetOut, &m_WriteSetIn, sizeof(m_WriteSetIn));
 
     QLog::g_Log.WriteDebug("select: start...");
-    timeval *TempTimeout = QTime::IsValid(tv) ? &tv : NULL;
+    timeval *TempTimeout = QTimer::IsValid(tv) ? &tv : NULL;
     int Result = select(m_HighestEventFD, &m_ReadSetOut, &m_WriteSetOut, NULL, TempTimeout);
     QLog::g_Log.WriteDebug("select: stop, result = %d.", Result);
 

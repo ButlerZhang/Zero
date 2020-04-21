@@ -76,7 +76,6 @@
     <ClInclude Include="QMinHeap.h" />
     <ClInclude Include="QNetwork.h" />
     <ClInclude Include="QSignal.h" />
-    <ClInclude Include="QTime.h" />
     <ClInclude Include="QTimer.h" />
     <ClInclude Include="Test\ClientTest.h" />
     <ClInclude Include="Test\ServerTest.h" />
@@ -95,7 +94,6 @@
     <ClCompile Include="QMinHeap.cpp" />
     <ClCompile Include="QNetwork.cpp" />
     <ClCompile Include="QSignal.cpp" />
-    <ClCompile Include="QTime.cpp" />
     <ClCompile Include="QTimer.cpp" />
     <ClCompile Include="Test\ClientTest.cpp" />
     <ClCompile Include="Test\ServerTest.cpp" />

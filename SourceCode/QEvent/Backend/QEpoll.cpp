@@ -1,5 +1,4 @@
 #include "QEpoll.h"
-#include "../QTime.h"
 #include "../../QLog/QSimpleLog.h"
 
 #include <unistd.h>                 //close
@@ -90,7 +89,7 @@ bool QEpoll::DelEvent(const QChannel &Channel)
 bool QEpoll::Dispatch(timeval &tv)
 {
     QLog::g_Log.WriteDebug("epoll: start...");
-    int timeout = static_cast<int>(QTime::ConvertToMillisecond(tv));
+    int timeout = static_cast<int>(QTimer::ConvertToMillisecond(tv));
     int ActiveEventCount = epoll_wait(m_EpollFD, m_EventArray, FD_SETSIZE, timeout);
     QLog::g_Log.WriteDebug("epoll: stop, active event count = %d.", ActiveEventCount);
 

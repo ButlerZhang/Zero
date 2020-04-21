@@ -4,6 +4,12 @@
 #include "QMinHeap.h"
 #include <map>
 
+#ifdef _WIN32
+#include <WinSock2.h>
+#else
+#include <sys/time.h>
+#endif // _WIN32
+
 
 class QTimer
 {
@@ -19,6 +25,12 @@ public:
 
     int64_t AddTimer(int Interval, TimerCallback Callback);
     bool DelTimer(int64_t TimerID);
+
+    static void ClearTimeval(timeval &tv);
+    static bool IsValid(const timeval &tv);
+
+    static timeval ConvertToTimeval(long Millisecond);
+    static long ConvertToMillisecond(const timeval &tv);
 
 private:
 

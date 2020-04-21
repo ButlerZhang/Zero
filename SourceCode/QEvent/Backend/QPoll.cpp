@@ -1,5 +1,4 @@
 #include "QPoll.h"
-#include "../QTime.h"
 #include "../../QLog/QSimpleLog.h"
 
 #include <string.h>                  //strerror
@@ -112,7 +111,7 @@ bool QPoll::DelEvent(const QChannel &Channel)
 bool QPoll::Dispatch(timeval &tv)
 {
     QLog::g_Log.WriteDebug("poll: start...");
-    int timeout = static_cast<int>(QTime::ConvertToMillisecond(tv));
+    int timeout = static_cast<int>(QTimer::ConvertToMillisecond(tv));
     int Result = poll(m_FDArray, m_FDMaxIndex, timeout);
     QLog::g_Log.WriteDebug("poll: stop, result = %d.", Result);
 
