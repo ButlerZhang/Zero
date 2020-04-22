@@ -32,6 +32,7 @@
     <ClCompile Include="QLog.cpp" />
     <ClCompile Include="QTCPServer.cpp" />
     <ClCompile Include="QTCPClient.cpp" />
+    <ClCompile Include="QTCPConnection.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Backend\QBackend.h">
@@ -68,6 +69,7 @@
     <ClInclude Include="Test\EchoServer.h">
       <Filter>Test</Filter>
     </ClInclude>
+    <ClInclude Include="QTCPConnection.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Backend">

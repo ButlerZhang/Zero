@@ -8,7 +8,7 @@ struct TimerNode
 {
     int64_t             m_TimerID;
     long                m_Timeout;
-    TimerCallback       m_Callback;
+    EventCallback       m_Callback;
 
     TimerNode();
 };

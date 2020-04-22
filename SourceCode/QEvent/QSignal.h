@@ -1,7 +1,10 @@
 #pragma once
 #include "QLibBase.h"
-#include "QChannel.h"
 #include <map>
+#include <memory>
+
+class QBackend;
+class QChannel;
 
 
 
@@ -12,8 +15,8 @@ public:
     QSignal();
     ~QSignal();
 
-    bool Init(QBackend &Backend);
-    bool AddSignal(int Signal, SignalCallback Callback);
+    bool Init(const std::shared_ptr<QBackend> &Backend);
+    bool AddSignal(int Signal, EventCallback Callback);
     bool DelSignal(int Signal);
 
 private:
@@ -24,7 +27,7 @@ private:
 private:
 
     std::shared_ptr<QChannel>           m_Channel;
-    std::map<int, SignalCallback>       m_SignalMap;
+    std::map<int, EventCallback>        m_SignalMap;
 
     static QEventFD                     m_ReadFD;
     static QEventFD                     m_WriteFD;

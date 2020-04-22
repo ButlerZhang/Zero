@@ -20,14 +20,10 @@ public:
     bool StopLoop();
     bool Dispatch();
 
-    bool AddEvent(const std::shared_ptr<QChannel> &Event);
-    bool DelEvent(const std::shared_ptr<QChannel> &Event);
-    bool ModEvent(const std::shared_ptr<QChannel> &Event);
-
-    bool AddSignal(int Signal, SignalCallback Callback);
+    bool AddSignal(int Signal, EventCallback Callback);
     bool DelSignal(int Signal);
 
-    int64_t AddTimer(int Interval, TimerCallback Callback);
+    int64_t AddTimer(int Interval, EventCallback Callback);
     bool DelTimer(int64_t TimerID);
 
     const std::shared_ptr<QTimer>& GetTimer() const { return m_Timer; }

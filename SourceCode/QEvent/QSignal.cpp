@@ -27,7 +27,7 @@ QSignal::~QSignal()
     QNetwork::CloseSocket(m_WriteFD);
 }
 
-bool QSignal::Init(QBackend &Backend)
+bool QSignal::Init(const std::shared_ptr<QBackend> &Backend)
 {
     if (m_ReadFD != -1 && m_WriteFD != -1)
     {
@@ -52,12 +52,12 @@ bool QSignal::Init(QBackend &Backend)
     m_Channel = std::make_shared<QChannel>(m_ReadFD);
     m_Channel->SetReadCallback(std::bind(&QSignal::Callback_Process, this, std::placeholders::_1));
 
-    return Backend.AddEvent(m_Channel);
+    return Backend->AddEvent(m_Channel);
 }
 
-bool QSignal::AddSignal(int Signal, SignalCallback Callback)
+bool QSignal::AddSignal(int Signal, EventCallback Callback)
 {
-    std::map<int, SignalCallback>::const_iterator it = m_SignalMap.find(Signal);
+    std::map<int, EventCallback>::const_iterator it = m_SignalMap.find(Signal);
     if (it != m_SignalMap.end())
     {
         g_Log.WriteDebug("Add signal failed, signal = %d is existed", Signal);
@@ -71,7 +71,7 @@ bool QSignal::AddSignal(int Signal, SignalCallback Callback)
 
 bool QSignal::DelSignal(int Signal)
 {
-    std::map<int, SignalCallback>::const_iterator it = m_SignalMap.find(Signal);
+    std::map<int, EventCallback>::const_iterator it = m_SignalMap.find(Signal);
     if (it == m_SignalMap.end())
     {
         g_Log.WriteDebug("Delete signal failed, can not find signal = %d", Signal);
@@ -103,7 +103,7 @@ void QSignal::Callback_Process(const QChannel &Channel)
     if (Signal >= 0)
     {
         g_Log.WriteDebug("Read signal = %d", Signal);
-        std::map<int, SignalCallback>::const_iterator it = m_SignalMap.find(Signal);
+        std::map<int, EventCallback>::const_iterator it = m_SignalMap.find(Signal);
         if (it != m_SignalMap.end())
         {
             it->second();

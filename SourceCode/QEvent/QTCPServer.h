@@ -1,5 +1,7 @@
 #pragma once
 #include "QChannel.h"
+#include "QTCPConnection.h"
+#include <map>
 
 class QEventLoop;
 
@@ -19,13 +21,13 @@ public:
 
 private:
 
-    QEventLoop                  &m_EventLoop;
+    QEventLoop                              &m_EventLoop;
 
-    int                         m_Port;
-    std::string                 m_Name;
-    std::string                 m_BindIP;
+    int                                     m_Port;
+    std::string                             m_Name;
+    std::string                             m_BindIP;
 
-    std::shared_ptr<QChannel>   m_ListenChannel;
-    IOEventCallback             m_ConnectCallback;
+    std::shared_ptr<QChannel>               m_ListenChannel;
+    std::map<QEventFD, QTCPConnection>      m_ConnectionMap;
+    IOEventCallback                         m_ConnectCallback;
 };
-

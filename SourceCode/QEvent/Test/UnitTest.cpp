@@ -44,51 +44,51 @@ void UnitTest::AddAndDeleteIOEvents()
 #ifndef _WIN32
     g_Log.WriteInfo("ADD Test wrong FD:");
     std::shared_ptr<QChannel> WrongReadFD = std::make_shared<QChannel>(-1);
-    assert(m_EventLoop.AddEvent(WrongReadFD) == false);
+    assert(m_EventLoop.GetBackend()->AddEvent(WrongReadFD) == false);
 
     std::shared_ptr<QChannel> WrongWriteFD = std::make_shared<QChannel>(-2);
-    assert(m_EventLoop.AddEvent(WrongWriteFD) == false);
+    assert(m_EventLoop.GetBackend()->AddEvent(WrongWriteFD) == false);
 #endif // !_WIN32
 
     //////////////////////////////////////////////////////////////////////
     g_Log.WriteDebug("ADD Test normal IO events:");
     std::shared_ptr<QChannel> ReadEvent = std::make_shared<QChannel>(BaseFD);
     ReadEvent->SetReadCallback(std::bind(&UnitTest::CallBack_Read, this, std::placeholders::_1));
-    assert(m_EventLoop.AddEvent(ReadEvent) == true);
+    assert(m_EventLoop.GetBackend()->AddEvent(ReadEvent) == true);
 
     std::shared_ptr<QChannel> WriteEvent = std::make_shared<QChannel>(BaseFD + 1);
     WriteEvent->SetWriteCallback(std::bind(&UnitTest::CallBack_Write, this, std::placeholders::_1));
-    assert(m_EventLoop.AddEvent(WriteEvent) == true);
+    assert(m_EventLoop.GetBackend()->AddEvent(WriteEvent) == true);
 
     std::shared_ptr<QChannel> ReadWriteEvent = std::make_shared<QChannel>(BaseFD + 2);
     ReadWriteEvent->SetReadCallback(std::bind(&UnitTest::CallBack_Read, this, std::placeholders::_1));
     ReadWriteEvent->SetWriteCallback(std::bind(&UnitTest::CallBack_Write, this, std::placeholders::_1));
-    assert(m_EventLoop.AddEvent(ReadWriteEvent) == true);
+    assert(m_EventLoop.GetBackend()->AddEvent(ReadWriteEvent) == true);
 
     //////////////////////////////////////////////////////////////////////
     g_Log.WriteDebug("ADD Test add repeatedly:");
-    assert(m_EventLoop.AddEvent(ReadEvent) == false);
-    assert(m_EventLoop.AddEvent(WriteEvent) == false);
-    assert(m_EventLoop.AddEvent(ReadWriteEvent) == false);
+    assert(m_EventLoop.GetBackend()->AddEvent(ReadEvent) == false);
+    assert(m_EventLoop.GetBackend()->AddEvent(WriteEvent) == false);
+    assert(m_EventLoop.GetBackend()->AddEvent(ReadWriteEvent) == false);
 
     //////////////////////////////////////////////////////////////////////
     g_Log.WriteDebug("DEL Test, existed events");
-    assert(m_EventLoop.DelEvent(ReadEvent) == true);
-    assert(m_EventLoop.DelEvent(WriteEvent) == true);
-    assert(m_EventLoop.DelEvent(ReadWriteEvent) == true);
+    assert(m_EventLoop.GetBackend()->DelEvent(ReadEvent) == true);
+    assert(m_EventLoop.GetBackend()->DelEvent(WriteEvent) == true);
+    assert(m_EventLoop.GetBackend()->DelEvent(ReadWriteEvent) == true);
 
     g_Log.WriteDebug("DEL Test, not existed events");
-    assert(m_EventLoop.DelEvent(ReadEvent) == false);
-    assert(m_EventLoop.DelEvent(WriteEvent) == false);
-    assert(m_EventLoop.DelEvent(ReadWriteEvent) == false);
+    assert(m_EventLoop.GetBackend()->DelEvent(ReadEvent) == false);
+    assert(m_EventLoop.GetBackend()->DelEvent(WriteEvent) == false);
+    assert(m_EventLoop.GetBackend()->DelEvent(ReadWriteEvent) == false);
 
     if (m_EventLoop.GetBackend()->GetBackendName() != "epoll")
     {
         g_Log.WriteDebug("DEL Test, max FD index");
         std::shared_ptr<QChannel> MaxFDEvent = std::make_shared<QChannel>(1000);
         MaxFDEvent->SetReadCallback(std::bind(&UnitTest::CallBack_Read, this, std::placeholders::_1));
-        assert(m_EventLoop.AddEvent(MaxFDEvent) == true);
-        assert(m_EventLoop.DelEvent(MaxFDEvent) == true);
+        assert(m_EventLoop.GetBackend()->AddEvent(MaxFDEvent) == true);
+        assert(m_EventLoop.GetBackend()->DelEvent(MaxFDEvent) == true);
     }
 }
 
@@ -98,13 +98,13 @@ void UnitTest::AddAndDelIOEventsByFor()
     {
         std::shared_ptr<QChannel> TempEvent = std::make_shared<QChannel>(FD);
         TempEvent->SetReadCallback(std::bind(&UnitTest::CallBack_Read, this, std::placeholders::_1));
-        assert(m_EventLoop.AddEvent(TempEvent) == true);
+        assert(m_EventLoop.GetBackend()->AddEvent(TempEvent) == true);
     }
 
     for (int FD = FD_SETSIZE - 1; FD >= 0; FD--)
     {
         std::shared_ptr<QChannel> TempEvent = std::make_shared<QChannel>(FD);
-        assert(m_EventLoop.DelEvent(TempEvent) == true);
+        assert(m_EventLoop.GetBackend()->DelEvent(TempEvent) == true);
     }
 }
 

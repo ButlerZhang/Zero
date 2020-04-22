@@ -1,5 +1,6 @@
 #include "QTimer.h"
 #include "QLog.h"
+#include "QChannel.h"
 #include "Backend/QBackend.h"
 
 
@@ -12,14 +13,14 @@ QTimer::~QTimer()
 {
 }
 
-bool QTimer::Init(QBackend &Backend)
+bool QTimer::Init(const std::shared_ptr<QBackend> &Backend)
 {
     m_Channel = std::make_shared<QChannel>(-1);
     m_Channel->SetReadCallback(std::bind(&QTimer::Callback_Timeout, this, std::placeholders::_1));
-    return Backend.AddEventToChannelMap(m_Channel, QEO_ADD);
+    return Backend->AddEventToChannelMap(m_Channel, QEO_ADD);
 }
 
-int64_t QTimer::AddTimer(int Interval, TimerCallback Callback)
+int64_t QTimer::AddTimer(int Interval, EventCallback Callback)
 {
     if (Interval > 0)
     {

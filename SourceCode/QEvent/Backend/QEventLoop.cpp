@@ -59,22 +59,7 @@ bool QEventLoop::StopLoop()
     return true;
 }
 
-bool QEventLoop::AddEvent(const std::shared_ptr<QChannel> &Event)
-{
-    return m_Backend->AddEvent(Event);
-}
-
-bool QEventLoop::DelEvent(const std::shared_ptr<QChannel> &Event)
-{
-    return m_Backend->DelEvent(Event);
-}
-
-bool QEventLoop::ModEvent(const std::shared_ptr<QChannel> &Event)
-{
-    return m_Backend->ModEvent(Event);
-}
-
-bool QEventLoop::AddSignal(int Signal, SignalCallback Callback)
+bool QEventLoop::AddSignal(int Signal, EventCallback Callback)
 {
     return m_Signal->AddSignal(Signal, Callback);
 }
@@ -84,7 +69,7 @@ bool QEventLoop::DelSignal(int Signal)
     return m_Signal->DelSignal(Signal);
 }
 
-int64_t QEventLoop::AddTimer(int Interval, TimerCallback Callback)
+int64_t QEventLoop::AddTimer(int Interval, EventCallback Callback)
 {
     return m_Timer->AddTimer(Interval, Callback);
 }

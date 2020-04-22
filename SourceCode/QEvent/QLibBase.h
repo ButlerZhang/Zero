@@ -21,5 +21,4 @@ typedef int QEventFD;
 
 const int BUFFER_SIZE = 2048;
 
-typedef std::function<void()> TimerCallback;
-typedef std::function<void()> SignalCallback;
+typedef std::function<void()> EventCallback;

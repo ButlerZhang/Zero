@@ -1,6 +1,5 @@
 #pragma once
 #include "QLibBase.h"
-#include "QChannel.h"
 #include "QMinHeap.h"
 #include <map>
 
@@ -10,6 +9,8 @@
 #include <sys/time.h>
 #endif // _WIN32
 
+class QBackend;
+class QChannel;
 
 
 class QTimer
@@ -19,12 +20,12 @@ public:
     QTimer();
     ~QTimer();
 
-    bool Init(QBackend &Backend);
+    bool Init(const std::shared_ptr<QBackend> &Backend);
 
     QEventFD GetFD() const { return m_Channel->GetFD(); }
     long GetMinTimeout() const { return m_MinHeap.GetMinTimeout(); }
 
-    int64_t AddTimer(int Interval, TimerCallback Callback);
+    int64_t AddTimer(int Interval, EventCallback Callback);
     bool DelTimer(int64_t TimerID);
 
     static void ClearTimeval(timeval &tv);

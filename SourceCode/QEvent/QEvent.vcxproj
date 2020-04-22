@@ -76,6 +76,7 @@
     <ClInclude Include="QNetwork.h" />
     <ClInclude Include="QSignal.h" />
     <ClInclude Include="QTCPClient.h" />
+    <ClInclude Include="QTCPConnection.h" />
     <ClInclude Include="QTCPServer.h" />
     <ClInclude Include="QTimer.h" />
     <ClInclude Include="Test\ClientTest.h" />
@@ -96,6 +97,7 @@
     <ClCompile Include="QNetwork.cpp" />
     <ClCompile Include="QSignal.cpp" />
     <ClCompile Include="QTCPClient.cpp" />
+    <ClCompile Include="QTCPConnection.cpp" />
     <ClCompile Include="QTCPServer.cpp" />
     <ClCompile Include="QTimer.cpp" />
     <ClCompile Include="Test\ClientTest.cpp" />

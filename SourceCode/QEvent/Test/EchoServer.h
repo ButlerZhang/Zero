@@ -1,4 +1,5 @@
 #pragma once
+#include "../Backend/QBackend.h"
 #include "../Backend/QEventLoop.h"
 #include "../QTCPServer.h"
 #include "../QNetwork.h"
@@ -42,7 +43,7 @@ private:
         QNetwork::SetSocketNonblocking(ClientFD);
         std::shared_ptr<QChannel> ClientEvent = std::make_shared<QChannel>(ClientFD);
         ClientEvent->SetReadCallback(std::bind(&EchoServer::Callback_Recevie, this, *ClientEvent));
-        m_EventLoop.AddEvent(ClientEvent);
+        m_EventLoop.GetBackend()->AddEvent(ClientEvent);
     }
 
     void Callback_Recevie(const QChannel &Event)

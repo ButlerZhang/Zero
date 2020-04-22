@@ -3,15 +3,6 @@
 
 
 
-QChannel::QChannel()
-{
-    m_Events = 0;
-    m_ResultEvents = 0;
-    m_EventFD = 0;
-    m_ReadCallback = nullptr;
-    m_WriteCallback = nullptr;
-}
-
 QChannel::QChannel(QEventFD EventFD)
 {
     m_Events = 0;

@@ -16,7 +16,6 @@ class QChannel
 {
 public:
 
-    QChannel();
     QChannel(QEventFD EventFD);
     ~QChannel();
 

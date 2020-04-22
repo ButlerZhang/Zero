@@ -1,6 +1,7 @@
 #include "ClientTest.h"
 #include "../QChannel.h"
 #include "../QNetwork.h"
+#include "../Backend/QBackend.h"
 #include "../Backend/QEventLoop.h"
 
 #ifdef _WIN32
@@ -69,7 +70,7 @@ bool ClientTest::SingleThread(int ClientCount)
 
             std::shared_ptr<QChannel> ReceiveEvent = std::make_shared<QChannel>(Network.GetSocket());
             ReceiveEvent->SetReadCallback(std::bind(&ClientTest::Recevie, this, std::placeholders::_1));
-            EventLoop.AddEvent(ReceiveEvent);
+            EventLoop.GetBackend()->AddEvent(ReceiveEvent);
         }
     }
 
