@@ -23,7 +23,7 @@ private:
 
 private:
 
-    QChannel                            m_Channel;
+    std::shared_ptr<QChannel>           m_Channel;
     std::map<int, SignalCallback>       m_SignalMap;
 
     static QEventFD                     m_ReadFD;

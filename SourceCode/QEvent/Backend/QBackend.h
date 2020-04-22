@@ -15,16 +15,16 @@ public:
     QBackend(QEventLoop &EventLoop);
     virtual ~QBackend();
 
-    virtual bool AddEvent(const QChannel &Channel);
-    virtual bool DelEvent(const QChannel &Channel);
-    virtual bool ModEvent(const QChannel &Channel);
+    virtual bool AddEvent(const std::shared_ptr<QChannel> &Channel);
+    virtual bool DelEvent(const std::shared_ptr<QChannel> &Channel);
+    virtual bool ModEvent(const std::shared_ptr<QChannel> &Channel);
     virtual bool Dispatch(timeval &tv)  = 0;
 
     inline const std::string& GetBackendName() const { return m_BackendName; }
-    inline const std::map<QEventFD, QChannel>& GetEventMap() const { return m_ChannelMap; }
+    inline const std::map<QEventFD, std::shared_ptr<QChannel>>& GetEventMap() const { return m_ChannelMap; }
 
-    bool AddEventToChannelMap(const QChannel &Event, QEventOption OP);
-    bool DelEventFromChannelMap(const QChannel &Event, QEventOption OP);
+    bool AddEventToChannelMap(const std::shared_ptr<QChannel> &Event, QEventOption OP);
+    bool DelEventFromChannelMap(const std::shared_ptr<QChannel> &Event, QEventOption OP);
 
 protected:
 
@@ -35,5 +35,5 @@ protected:
 
     QEventLoop                                      &m_EventLoop;
     std::string                                     m_BackendName;
-    std::map<QEventFD, QChannel>                    m_ChannelMap;
+    std::map<QEventFD, std::shared_ptr<QChannel>>   m_ChannelMap;
 };

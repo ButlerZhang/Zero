@@ -24,7 +24,7 @@ QPoll::~QPoll()
 {
 }
 
-bool QPoll::AddEvent(const QChannel &Channel)
+bool QPoll::AddEvent(const std::shared_ptr<QChannel> &Channel)
 {
     if (!QBackend::AddEvent(Channel))
     {
@@ -33,24 +33,24 @@ bool QPoll::AddEvent(const QChannel &Channel)
 
     for (int Index = 0; Index < FD_SETSIZE; Index++)
     {
-        if (m_FDArray[Index].fd < 0 || m_FDArray[Index].fd == Channel.GetFD())
+        if (m_FDArray[Index].fd < 0 || m_FDArray[Index].fd == Channel->GetFD())
         {
             QEventOption OP = (m_FDArray[Index].fd < 0) ? QEO_ADD : QEO_MOD;
-            m_FDArray[Index].fd = Channel.GetFD();
+            m_FDArray[Index].fd = Channel->GetFD();
             m_FDArray[Index].revents = 0;
 
-            if (Channel.GetEvents() & QET_READ)
+            if (Channel->GetEvents() & QET_READ)
             {
                 m_FDArray[Index].events |= POLLIN;
                 g_Log.WriteDebug("poll: FD = %d add read event.",
-                    Channel.GetFD());
+                    Channel->GetFD());
             }
 
-            if (Channel.GetEvents() & QET_WRITE)
+            if (Channel->GetEvents() & QET_WRITE)
             {
                 m_FDArray[Index].events |= POLLOUT;
                 g_Log.WriteDebug("poll: FD = %d add write event.",
-                    Channel.GetFD());
+                    Channel->GetFD());
             }
 
             if (m_FDMaxIndex <= Index)
@@ -65,11 +65,11 @@ bool QPoll::AddEvent(const QChannel &Channel)
     }
 
     g_Log.WriteError("poll: FD = %d, events = %d add failed, no location.",
-        Channel.GetFD(), Channel.GetEvents());
+        Channel->GetFD(), Channel->GetEvents());
     return false;
 }
 
-bool QPoll::DelEvent(const QChannel &Channel)
+bool QPoll::DelEvent(const std::shared_ptr<QChannel> &Channel)
 {
     if (!QBackend::DelEvent(Channel))
     {
@@ -79,7 +79,7 @@ bool QPoll::DelEvent(const QChannel &Channel)
     int DeleteIndex = -1;
     for (int Index = 0; Index < FD_SETSIZE; Index++)
     {
-        if (m_FDArray[Index].fd == Channel.GetFD())
+        if (m_FDArray[Index].fd == Channel->GetFD())
         {
             DeleteIndex = Index;
             m_FDArray[Index].fd = -1;

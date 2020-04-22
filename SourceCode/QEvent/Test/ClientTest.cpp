@@ -67,8 +67,8 @@ bool ClientTest::SingleThread(int ClientCount)
         {
             QNetwork::SetSocketNonblocking(Network.GetSocket());
 
-            QChannel ReceiveEvent(Network.GetSocket());
-            ReceiveEvent.SetReadCallback(std::bind(&ClientTest::Recevie, this, std::placeholders::_1));
+            std::shared_ptr<QChannel> ReceiveEvent = std::make_shared<QChannel>(Network.GetSocket());
+            ReceiveEvent->SetReadCallback(std::bind(&ClientTest::Recevie, this, std::placeholders::_1));
             EventLoop.AddEvent(ReceiveEvent);
         }
     }

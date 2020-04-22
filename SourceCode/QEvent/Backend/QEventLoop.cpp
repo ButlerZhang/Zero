@@ -59,17 +59,17 @@ bool QEventLoop::StopLoop()
     return true;
 }
 
-bool QEventLoop::AddEvent(const QChannel &Event)
+bool QEventLoop::AddEvent(const std::shared_ptr<QChannel> &Event)
 {
     return m_Backend->AddEvent(Event);
 }
 
-bool QEventLoop::DelEvent(const QChannel &Event)
+bool QEventLoop::DelEvent(const std::shared_ptr<QChannel> &Event)
 {
     return m_Backend->DelEvent(Event);
 }
 
-bool QEventLoop::ModEvent(const QChannel &Event)
+bool QEventLoop::ModEvent(const std::shared_ptr<QChannel> &Event)
 {
     return m_Backend->ModEvent(Event);
 }

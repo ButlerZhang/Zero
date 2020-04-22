@@ -10,8 +10,8 @@ public:
     QWin32Select(QEventLoop &EventLoop);
     virtual ~QWin32Select();
 
-    virtual bool AddEvent(const QChannel &Channel);
-    virtual bool DelEvent(const QChannel &Channel);
+    virtual bool AddEvent(const std::shared_ptr<QChannel> &Channel);
+    virtual bool DelEvent(const std::shared_ptr<QChannel> &Channel);
     virtual bool Dispatch(timeval &tv);
 
 private:

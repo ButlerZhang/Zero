@@ -40,8 +40,8 @@ private:
         g_Log.WriteInfo("Client = %d connected.", ClientFD);
 
         QNetwork::SetSocketNonblocking(ClientFD);
-        QChannel ClientEvent(ClientFD);
-        ClientEvent.SetReadCallback(std::bind(&EchoServer::Callback_Recevie, this, ClientEvent));
+        std::shared_ptr<QChannel> ClientEvent = std::make_shared<QChannel>(ClientFD);
+        ClientEvent->SetReadCallback(std::bind(&EchoServer::Callback_Recevie, this, *ClientEvent));
         m_EventLoop.AddEvent(ClientEvent);
     }
 
@@ -64,7 +64,7 @@ private:
         }
         else if (RecvSize == 0)
         {
-            m_EventLoop.DelEvent(Event);
+            //m_EventLoop.DelEvent(Event);
             QNetwork::CloseSocket(ClientFD);
             g_Log.WriteInfo("Client = %d disconnected", ClientFD);
         }
@@ -75,7 +75,7 @@ private:
             g_Log.WriteError("Recv errno = %d", WSAErrno);
             if (WSAErrno != WSAEWOULDBLOCK)
             {
-                m_EventLoop.DelEvent(Event);
+                //m_EventLoop.DelEvent(Event);
                 QNetwork::CloseSocket(ClientFD);
                 g_Log.WriteInfo("Client = %d disconnected", ClientFD);
             }

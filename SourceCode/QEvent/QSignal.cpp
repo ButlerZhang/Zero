@@ -49,8 +49,8 @@ bool QSignal::Init(QBackend &Backend)
     m_ReadFD = FD[0];
     m_WriteFD = FD[1];
 
-    m_Channel = std::move(QChannel(m_ReadFD));
-    m_Channel.SetReadCallback(std::bind(&QSignal::Callback_Process, this, std::placeholders::_1));
+    m_Channel = std::make_shared<QChannel>(m_ReadFD);
+    m_Channel->SetReadCallback(std::bind(&QSignal::Callback_Process, this, std::placeholders::_1));
 
     return Backend.AddEvent(m_Channel);
 }

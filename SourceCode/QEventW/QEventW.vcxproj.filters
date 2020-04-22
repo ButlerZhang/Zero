@@ -42,9 +42,6 @@
     <ClInclude Include="..\QEvent\Test\ClientTest.h">
       <Filter>Test</Filter>
     </ClInclude>
-    <ClInclude Include="..\QEvent\Test\ServerTest.h">
-      <Filter>Test</Filter>
-    </ClInclude>
     <ClInclude Include="..\QEvent\Test\UnitTest.h">
       <Filter>Test</Filter>
     </ClInclude>
@@ -69,6 +66,9 @@
     <ClInclude Include="..\QEvent\QTCPServer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\QEvent\Test\EchoServer.h">
+      <Filter>Test</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\QEvent\main.cpp">
@@ -90,9 +90,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\QEvent\Test\ClientTest.cpp">
-      <Filter>Test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\QEvent\Test\ServerTest.cpp">
       <Filter>Test</Filter>
     </ClCompile>
     <ClCompile Include="..\QEvent\Test\UnitTest.cpp">

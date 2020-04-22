@@ -13,43 +13,43 @@ QBackend::~QBackend()
     m_ChannelMap.clear();
 }
 
-bool QBackend::AddEvent(const QChannel &Channel)
+bool QBackend::AddEvent(const std::shared_ptr<QChannel> &Channel)
 {
-    if (!Channel.IsValid())
+    if (!Channel->IsValid())
     {
         g_Log.WriteError("Add channel failed, FD = %d, events = %d is not valid.",
-            Channel.GetFD(), Channel.GetEvents());
+            Channel->GetFD(), Channel->GetEvents());
         return false;
     }
 
-    if (m_ChannelMap.find(Channel.GetFD()) != m_ChannelMap.end())
+    if (m_ChannelMap.find(Channel->GetFD()) != m_ChannelMap.end())
     {
         g_Log.WriteError("Add channel failed, FD = %d, events = %d, it is existed.",
-            Channel.GetFD(), Channel.GetEvents());
+            Channel->GetFD(), Channel->GetEvents());
         return false;
     }
 
     return true;
 }
 
-bool QBackend::DelEvent(const QChannel &Channel)
+bool QBackend::DelEvent(const std::shared_ptr<QChannel> &Channel)
 {
-    if (m_ChannelMap.find(Channel.GetFD()) == m_ChannelMap.end())
+    if (m_ChannelMap.find(Channel->GetFD()) == m_ChannelMap.end())
     {
         g_Log.WriteError("Del channel failed, FD = %d, events = %d, it is not existed.",
-            Channel.GetFD(), Channel.GetEvents());
+            Channel->GetFD(), Channel->GetEvents());
         return false;
     }
 
     return true;
 }
 
-bool QBackend::ModEvent(const QChannel &Channel)
+bool QBackend::ModEvent(const std::shared_ptr<QChannel> &Channel)
 {
-    if (m_ChannelMap.find(Channel.GetFD()) == m_ChannelMap.end())
+    if (m_ChannelMap.find(Channel->GetFD()) == m_ChannelMap.end())
     {
         g_Log.WriteError("Mod channel failed, FD = %d, events = %d, it is not existed.",
-            Channel.GetFD(), Channel.GetEvents());
+            Channel->GetFD(), Channel->GetEvents());
         return false;
     }
 
@@ -57,20 +57,20 @@ bool QBackend::ModEvent(const QChannel &Channel)
     return true;
 }
 
-bool QBackend::AddEventToChannelMap(const QChannel &Channel, QEventOption OP)
+bool QBackend::AddEventToChannelMap(const std::shared_ptr<QChannel> &Channel, QEventOption OP)
 {
-    m_ChannelMap[Channel.GetFD()] = std::move(Channel);
+    m_ChannelMap[Channel->GetFD()] = Channel;
     WriteMapVectorSnapshot();
     return true;
 }
 
-bool QBackend::DelEventFromChannelMap(const QChannel &Channel, QEventOption OP)
+bool QBackend::DelEventFromChannelMap(const std::shared_ptr<QChannel> &Channel, QEventOption OP)
 {
-    std::map<QEventFD, QChannel>::iterator it = m_ChannelMap.find(Channel.GetFD());
+    std::map<QEventFD, std::shared_ptr<QChannel>>::iterator it = m_ChannelMap.find(Channel->GetFD());
     if (it == m_ChannelMap.end())
     {
         g_Log.WriteError("Delete channel failed, can not find FD = %d.",
-            Channel.GetFD());
+            Channel->GetFD());
         return false;
     }
 
@@ -82,8 +82,8 @@ bool QBackend::DelEventFromChannelMap(const QChannel &Channel, QEventOption OP)
 void QBackend::ActiveEvent(QEventFD FD, int ResultEvents)
 {
     g_Log.WriteDebug("Active event: FD = %d, events = %d", FD, ResultEvents);
-    m_ChannelMap[FD].SetResultEvents(ResultEvents);
-    m_ChannelMap[FD].HandlerEvent();
+    m_ChannelMap[FD]->SetResultEvents(ResultEvents);
+    m_ChannelMap[FD]->HandlerEvent();
 }
 
 void QBackend::WriteMapVectorSnapshot()
@@ -91,11 +91,11 @@ void QBackend::WriteMapVectorSnapshot()
     g_Log.WriteDebug("==========channel map snapshot==========");
 
     int MapCount = 0;
-    std::map<QEventFD, QChannel>::const_iterator it = m_ChannelMap.begin();
+    std::map<QEventFD, std::shared_ptr<QChannel>>::const_iterator it = m_ChannelMap.begin();
     while (it != m_ChannelMap.end())
     {
         g_Log.WriteDebug("map index = %d, FD = %d, events = %d",
-            MapCount++, it->second.GetFD(), it->second.GetEvents());
+            MapCount++, it->second->GetFD(), it->second->GetEvents());
 
         it++;
     }

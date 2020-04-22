@@ -20,9 +20,9 @@ public:
     bool StopLoop();
     bool Dispatch();
 
-    bool AddEvent(const QChannel &Event);
-    bool DelEvent(const QChannel &Event);
-    bool ModEvent(const QChannel &Event);
+    bool AddEvent(const std::shared_ptr<QChannel> &Event);
+    bool DelEvent(const std::shared_ptr<QChannel> &Event);
+    bool ModEvent(const std::shared_ptr<QChannel> &Event);
 
     bool AddSignal(int Signal, SignalCallback Callback);
     bool DelSignal(int Signal);

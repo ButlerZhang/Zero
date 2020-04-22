@@ -20,14 +20,14 @@ QEpoll::~QEpoll()
     close(m_EpollFD);
 }
 
-bool QEpoll::AddEvent(const QChannel &Channel)
+bool QEpoll::AddEvent(const std::shared_ptr<QChannel> &Channel)
 {
     if (!QBackend::AddEvent(Channel))
     {
         return false;
     }
 
-    if (Channel.GetFD() == m_EpollFD)
+    if (Channel->GetFD() == m_EpollFD)
     {
         return false;
     }
@@ -36,52 +36,51 @@ bool QEpoll::AddEvent(const QChannel &Channel)
     memset(&NewEpollEvent, 0, sizeof(epoll_event));
 
     NewEpollEvent.events |= EPOLLET;
-    NewEpollEvent.data.fd = Channel.GetFD();
+    NewEpollEvent.data.fd = Channel->GetFD();
 
-    if (Channel.GetEvents() & QET_READ)
+    if (Channel->GetEvents() & QET_READ)
     {
         NewEpollEvent.events |= EPOLLIN;
         g_Log.WriteDebug("epoll: FD = %d add read event.",
-            Channel.GetFD());
+            Channel->GetFD());
     }
 
-    if (Channel.GetEvents() & QET_WRITE)
+    if (Channel->GetEvents() & QET_WRITE)
     {
         NewEpollEvent.events |= EPOLLOUT;
         g_Log.WriteDebug("epoll: FD = %d add write event.",
-            Channel.GetFD());
+            Channel->GetFD());
     }
 
-    if (epoll_ctl(m_EpollFD, EPOLL_CTL_ADD, Channel.GetFD(), &NewEpollEvent) != 0)
+    if (epoll_ctl(m_EpollFD, EPOLL_CTL_ADD, Channel->GetFD(), &NewEpollEvent) != 0)
     {
         g_Log.WriteError("epoll: FD = %d op = %d failed, errno = %d, errstr = %s.",
-            Channel.GetFD(), EPOLL_CTL_ADD, errno, strerror(errno));
+            Channel->GetFD(), EPOLL_CTL_ADD, errno, strerror(errno));
         return false;
     }
 
     return AddEventToChannelMap(Channel, static_cast<QEventOption>(EPOLL_CTL_ADD));
 }
 
-bool QEpoll::DelEvent(const QChannel &Channel)
+bool QEpoll::DelEvent(const std::shared_ptr<QChannel> &Channel)
 {
     if (!QBackend::DelEvent(Channel))
     {
         return false;
     }
 
-    if (Channel.GetFD() == m_EpollFD)
+    if (Channel->GetFD() == m_EpollFD)
     {
         return false;
     }
 
     epoll_event DelEpollEvent;
-    DelEpollEvent.events |= EPOLLET;
-    DelEpollEvent.data.fd = Channel.GetFD();
+    DelEpollEvent.data.fd = Channel->GetFD();
 
-    if (epoll_ctl(m_EpollFD, EPOLL_CTL_DEL, Channel.GetFD(), &DelEpollEvent) != 0)
+    if (epoll_ctl(m_EpollFD, EPOLL_CTL_DEL, Channel->GetFD(), &DelEpollEvent) != 0)
     {
         g_Log.WriteInfo("epoll : FD = %d delete failed, errno = %d, errstr = %s.",
-            Channel.GetFD(), errno, strerror(errno));
+            Channel->GetFD(), errno, strerror(errno));
         return false;
     }
 

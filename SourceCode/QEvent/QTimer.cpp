@@ -14,8 +14,8 @@ QTimer::~QTimer()
 
 bool QTimer::Init(QBackend &Backend)
 {
-    m_Channel = std::move(QChannel(-1));
-    m_Channel.SetReadCallback(std::bind(&QTimer::Callback_Timeout, this, std::placeholders::_1));
+    m_Channel = std::make_shared<QChannel>(-1);
+    m_Channel->SetReadCallback(std::bind(&QTimer::Callback_Timeout, this, std::placeholders::_1));
     return Backend.AddEventToChannelMap(m_Channel, QEO_ADD);
 }
 

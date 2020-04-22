@@ -21,7 +21,7 @@ public:
 
     bool Init(QBackend &Backend);
 
-    QEventFD GetFD() const { return m_Channel.GetFD(); }
+    QEventFD GetFD() const { return m_Channel->GetFD(); }
     long GetMinTimeout() const { return m_MinHeap.GetMinTimeout(); }
 
     int64_t AddTimer(int Interval, TimerCallback Callback);
@@ -39,7 +39,7 @@ private:
 
 private:
 
-    QChannel                                        m_Channel;
     QMinHeap                                        m_MinHeap;
+    std::shared_ptr<QChannel>                       m_Channel;
     std::map<int64_t, TimerNode>                    m_TimerMap;
 };

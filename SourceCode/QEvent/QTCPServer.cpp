@@ -36,9 +36,8 @@ bool QTCPServer::Start()
     QNetwork::SetSocketNonblocking(ListenSocket);
     QNetwork::SetListenSocketReuseable(ListenSocket);
 
-    QChannel ListenEvent(ListenSocket);
-    ListenEvent.SetReadCallback(m_ConnectCallback);
-    m_ListenChannel = std::move(ListenEvent);
+    m_ListenChannel = std::make_shared<QChannel>(ListenSocket);
+    m_ListenChannel->SetReadCallback(m_ConnectCallback);
 
     m_EventLoop.AddEvent(m_ListenChannel);
     return true;

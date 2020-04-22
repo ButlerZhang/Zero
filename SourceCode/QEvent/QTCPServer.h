@@ -19,13 +19,13 @@ public:
 
 private:
 
-    QEventLoop              &m_EventLoop;
+    QEventLoop                  &m_EventLoop;
 
-    int                      m_Port;
-    std::string              m_Name;
-    std::string              m_BindIP;
+    int                         m_Port;
+    std::string                 m_Name;
+    std::string                 m_BindIP;
 
-    QChannel                 m_ListenChannel;
-    IOEventCallback          m_ConnectCallback;
+    std::shared_ptr<QChannel>   m_ListenChannel;
+    IOEventCallback             m_ConnectCallback;
 };
 

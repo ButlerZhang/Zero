@@ -43,26 +43,26 @@ void UnitTest::AddAndDeleteIOEvents()
     //////////////////////////////////////////////////////////////////////
 #ifndef _WIN32
     g_Log.WriteInfo("ADD Test wrong FD:");
-    QChannel WrongReadFD(-1);
+    std::shared_ptr<QChannel> WrongReadFD = std::make_shared<QChannel>(-1);
     assert(m_EventLoop.AddEvent(WrongReadFD) == false);
 
-    QChannel WrongWriteFD(-2);
+    std::shared_ptr<QChannel> WrongWriteFD = std::make_shared<QChannel>(-2);
     assert(m_EventLoop.AddEvent(WrongWriteFD) == false);
 #endif // !_WIN32
 
     //////////////////////////////////////////////////////////////////////
     g_Log.WriteDebug("ADD Test normal IO events:");
-    QChannel ReadEvent(BaseFD);
-    ReadEvent.SetReadCallback(std::bind(&UnitTest::CallBack_Read, this, std::placeholders::_1));
+    std::shared_ptr<QChannel> ReadEvent = std::make_shared<QChannel>(BaseFD);
+    ReadEvent->SetReadCallback(std::bind(&UnitTest::CallBack_Read, this, std::placeholders::_1));
     assert(m_EventLoop.AddEvent(ReadEvent) == true);
 
-    QChannel WriteEvent(BaseFD + 1);
-    WriteEvent.SetWriteCallback(std::bind(&UnitTest::CallBack_Write, this, std::placeholders::_1));
+    std::shared_ptr<QChannel> WriteEvent = std::make_shared<QChannel>(BaseFD + 1);
+    WriteEvent->SetWriteCallback(std::bind(&UnitTest::CallBack_Write, this, std::placeholders::_1));
     assert(m_EventLoop.AddEvent(WriteEvent) == true);
 
-    QChannel ReadWriteEvent(BaseFD + 2);
-    ReadWriteEvent.SetReadCallback(std::bind(&UnitTest::CallBack_Read, this, std::placeholders::_1));
-    ReadWriteEvent.SetWriteCallback(std::bind(&UnitTest::CallBack_Write, this, std::placeholders::_1));
+    std::shared_ptr<QChannel> ReadWriteEvent = std::make_shared<QChannel>(BaseFD + 2);
+    ReadWriteEvent->SetReadCallback(std::bind(&UnitTest::CallBack_Read, this, std::placeholders::_1));
+    ReadWriteEvent->SetWriteCallback(std::bind(&UnitTest::CallBack_Write, this, std::placeholders::_1));
     assert(m_EventLoop.AddEvent(ReadWriteEvent) == true);
 
     //////////////////////////////////////////////////////////////////////
@@ -85,8 +85,8 @@ void UnitTest::AddAndDeleteIOEvents()
     if (m_EventLoop.GetBackend()->GetBackendName() != "epoll")
     {
         g_Log.WriteDebug("DEL Test, max FD index");
-        QChannel MaxFDEvent(1000);
-        MaxFDEvent.SetReadCallback(std::bind(&UnitTest::CallBack_Read, this, std::placeholders::_1));
+        std::shared_ptr<QChannel> MaxFDEvent = std::make_shared<QChannel>(1000);
+        MaxFDEvent->SetReadCallback(std::bind(&UnitTest::CallBack_Read, this, std::placeholders::_1));
         assert(m_EventLoop.AddEvent(MaxFDEvent) == true);
         assert(m_EventLoop.DelEvent(MaxFDEvent) == true);
     }
@@ -96,14 +96,14 @@ void UnitTest::AddAndDelIOEventsByFor()
 {
     for (int FD = 0; FD < FD_SETSIZE; FD++)
     {
-        QChannel TempEvent(FD);
-        TempEvent.SetReadCallback(std::bind(&UnitTest::CallBack_Read, this, std::placeholders::_1));
+        std::shared_ptr<QChannel> TempEvent = std::make_shared<QChannel>(FD);
+        TempEvent->SetReadCallback(std::bind(&UnitTest::CallBack_Read, this, std::placeholders::_1));
         assert(m_EventLoop.AddEvent(TempEvent) == true);
     }
 
     for (int FD = FD_SETSIZE - 1; FD >= 0; FD--)
     {
-        QChannel TempEvent(FD);
+        std::shared_ptr<QChannel> TempEvent = std::make_shared<QChannel>(FD);
         assert(m_EventLoop.DelEvent(TempEvent) == true);
     }
 }
