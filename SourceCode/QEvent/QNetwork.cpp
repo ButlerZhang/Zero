@@ -43,7 +43,7 @@ bool QNetwork::Listen(const std::string &IP, int Port)
         return false;
     }
 
-    if (listen(m_Socket, 5) < 0)
+    if (listen(m_Socket, SOMAXCONN) < 0)
     {
         WriteSocketErrorLog("Listen");
         return false;

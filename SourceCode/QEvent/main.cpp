@@ -1,7 +1,6 @@
 #include <cstdio>
 #include "Test/ClientTest.h"
-#include "Test/ServerTest.h"
-#include "Test/UnitTest.h"
+#include "Test/EchoServer.h"
 #include <iostream>
 
 
@@ -33,16 +32,20 @@ int main(int argc, char *argv[])
 
 #endif
 
-    UnitTest Test;
-    return Test.StartTest();
-
     const int ServerPort = 9000;
     const std::string ServerIP("127.0.0.1");
 
     if (Choose == 1)
     {
-        ServerTest MyServer;
-        MyServer.Start(ServerIP, ServerPort);
+        g_Log.SetLogFile("server.txt");
+
+        QEventLoop EventLoop;
+        EventLoop.Init();
+
+        EchoServer Echo(EventLoop, ServerIP, ServerPort);
+        Echo.Start();
+
+        EventLoop.Dispatch();
     }
     else
     {

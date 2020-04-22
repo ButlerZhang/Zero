@@ -63,6 +63,12 @@
     <ClInclude Include="..\QEvent\QLog.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\QEvent\QTCPClient.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\QEvent\QTCPServer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\QEvent\main.cpp">
@@ -105,6 +111,12 @@
       <Filter>Backend</Filter>
     </ClCompile>
     <ClCompile Include="..\QEvent\QLog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\QEvent\QTCPClient.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\QEvent\QTCPServer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

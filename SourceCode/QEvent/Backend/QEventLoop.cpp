@@ -37,18 +37,18 @@ bool QEventLoop::Init()
         m_Backend->GetBackendName().c_str());
 
     m_Timer = std::make_shared<QTimer>();
-    if (m_Timer == nullptr || !m_Timer->Init(*m_Backend))
-    {
-        g_Log.WriteError("Timer init failed.");
-        return false;
-    }
+    //if (m_Timer == nullptr || !m_Timer->Init(*m_Backend))
+    //{
+    //    g_Log.WriteError("Timer init failed.");
+    //    return false;
+    //}
 
-    m_Signal = std::make_shared<QSignal>();
-    if (m_Signal == nullptr || !m_Signal->Init(*m_Backend))
-    {
-        g_Log.WriteError("Signal init failed.");
-        return false;
-    }
+    //m_Signal = std::make_shared<QSignal>();
+    //if (m_Signal == nullptr || !m_Signal->Init(*m_Backend))
+    //{
+    //    g_Log.WriteError("Signal init failed.");
+    //    return false;
+    //}
 
     return true;
 }

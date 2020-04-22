@@ -17,9 +17,6 @@
     <ClCompile Include="Test\ClientTest.cpp">
       <Filter>Test</Filter>
     </ClCompile>
-    <ClCompile Include="Test\ServerTest.cpp">
-      <Filter>Test</Filter>
-    </ClCompile>
     <ClCompile Include="Test\UnitTest.cpp">
       <Filter>Test</Filter>
     </ClCompile>
@@ -33,6 +30,8 @@
       <Filter>Backend</Filter>
     </ClCompile>
     <ClCompile Include="QLog.cpp" />
+    <ClCompile Include="QTCPServer.cpp" />
+    <ClCompile Include="QTCPClient.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Backend\QBackend.h">
@@ -51,9 +50,6 @@
     <ClInclude Include="Test\ClientTest.h">
       <Filter>Test</Filter>
     </ClInclude>
-    <ClInclude Include="Test\ServerTest.h">
-      <Filter>Test</Filter>
-    </ClInclude>
     <ClInclude Include="Test\UnitTest.h">
       <Filter>Test</Filter>
     </ClInclude>
@@ -67,6 +63,11 @@
       <Filter>Backend</Filter>
     </ClInclude>
     <ClInclude Include="QLog.h" />
+    <ClInclude Include="QTCPServer.h" />
+    <ClInclude Include="QTCPClient.h" />
+    <ClInclude Include="Test\EchoServer.h">
+      <Filter>Test</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Backend">

@@ -126,6 +126,8 @@
     <ClInclude Include="..\QEvent\QMinHeap.h" />
     <ClInclude Include="..\QEvent\QNetwork.h" />
     <ClInclude Include="..\QEvent\QSignal.h" />
+    <ClInclude Include="..\QEvent\QTCPClient.h" />
+    <ClInclude Include="..\QEvent\QTCPServer.h" />
     <ClInclude Include="..\QEvent\QTimer.h" />
     <ClInclude Include="..\QEvent\Test\ClientTest.h" />
     <ClInclude Include="..\QEvent\Test\ServerTest.h" />
@@ -142,6 +144,8 @@
     <ClCompile Include="..\QEvent\QMinHeap.cpp" />
     <ClCompile Include="..\QEvent\QNetwork.cpp" />
     <ClCompile Include="..\QEvent\QSignal.cpp" />
+    <ClCompile Include="..\QEvent\QTCPClient.cpp" />
+    <ClCompile Include="..\QEvent\QTCPServer.cpp" />
     <ClCompile Include="..\QEvent\QTimer.cpp" />
     <ClCompile Include="..\QEvent\Test\ClientTest.cpp" />
     <ClCompile Include="..\QEvent\Test\ServerTest.cpp" />

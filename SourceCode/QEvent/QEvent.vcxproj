@@ -75,9 +75,11 @@
     <ClInclude Include="QMinHeap.h" />
     <ClInclude Include="QNetwork.h" />
     <ClInclude Include="QSignal.h" />
+    <ClInclude Include="QTCPClient.h" />
+    <ClInclude Include="QTCPServer.h" />
     <ClInclude Include="QTimer.h" />
     <ClInclude Include="Test\ClientTest.h" />
-    <ClInclude Include="Test\ServerTest.h" />
+    <ClInclude Include="Test\EchoServer.h" />
     <ClInclude Include="Test\UnitTest.h" />
   </ItemGroup>
   <ItemGroup>
@@ -93,9 +95,10 @@
     <ClCompile Include="QMinHeap.cpp" />
     <ClCompile Include="QNetwork.cpp" />
     <ClCompile Include="QSignal.cpp" />
+    <ClCompile Include="QTCPClient.cpp" />
+    <ClCompile Include="QTCPServer.cpp" />
     <ClCompile Include="QTimer.cpp" />
     <ClCompile Include="Test\ClientTest.cpp" />
-    <ClCompile Include="Test\ServerTest.cpp" />
     <ClCompile Include="Test\UnitTest.cpp" />
   </ItemGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
