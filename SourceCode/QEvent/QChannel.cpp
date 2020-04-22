@@ -1,5 +1,5 @@
 #include "QChannel.h"
-#include "../QLog/QSimpleLog.h"
+#include "QLog.h"
 
 
 
@@ -40,7 +40,7 @@ void QChannel::HandlerEvent() const
         }
         else
         {
-            QLog::g_Log.WriteDebug("QChannel: FD = %d read callback is nullptr.",
+            g_Log.WriteDebug("QChannel: FD = %d read callback is nullptr.",
                 m_EventFD);
         }
     }
@@ -53,7 +53,7 @@ void QChannel::HandlerEvent() const
         }
         else
         {
-            QLog::g_Log.WriteDebug("QChannel: FD = %d write callback is nullptr.",
+            g_Log.WriteDebug("QChannel: FD = %d write callback is nullptr.",
                 m_EventFD);
         }
     }

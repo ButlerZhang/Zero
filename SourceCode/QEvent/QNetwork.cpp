@@ -1,5 +1,5 @@
 #include "QNetwork.h"
-#include "../QLog/QSimpleLog.h"
+#include "QLog.h"
 
 #ifdef _WIN32
 #include <io.h>
@@ -49,7 +49,7 @@ bool QNetwork::Listen(const std::string &IP, int Port)
         return false;
     }
 
-    QLog::g_Log.WriteInfo("Network: Start listen, bind IP = %s, port = %d.", IP.c_str(), Port);
+    g_Log.WriteInfo("Network: Start listen, bind IP = %s, port = %d.", IP.c_str(), Port);
     return true;
 }
 
@@ -70,18 +70,18 @@ bool QNetwork::Connect(const std::string &IP, int Port)
         return false;
     }
 
-    QLog::g_Log.WriteInfo("Network: Start connect, server IP = %s, port = %d.", IP.c_str(), Port);
+    g_Log.WriteInfo("Network: Start connect, server IP = %s, port = %d.", IP.c_str(), Port);
     return true;
 }
 
 void QNetwork::WriteSocketErrorLog(const std::string &Operation)
 {
 #ifdef _WIN32
-    QLog::g_Log.WriteError("Network: %s failed, errno = %d.",
+    g_Log.WriteError("Network: %s failed, errno = %d.",
         Operation.c_str(),
         WSAGetLastError());
 #else
-    QLog::g_Log.WriteError("Network: %s failed, errno = %d, msg = %s.",
+    g_Log.WriteError("Network: %s failed, errno = %d, msg = %s.",
         Operation.c_str(),
         errno,
         strerror(errno));
@@ -106,7 +106,7 @@ bool QNetwork::CloseSocket(QEventFD Socket)
     close(Socket);
 #endif // _WIN32
 
-    QLog::g_Log.WriteDebug("Network: Close socket = %d.", Socket);
+    g_Log.WriteDebug("Network: Close socket = %d.", Socket);
     return true;
 }
 
@@ -116,7 +116,7 @@ bool QNetwork::SetSocketNonblocking(QEventFD Socket)
     unsigned long nonblocking = 1;
     if (ioctlsocket(Socket, FIONBIO, &nonblocking) == SOCKET_ERROR)
     {
-        QLog::g_Log.WriteDebug("Network: Can not set socket = %d nonblocking.", Socket);
+        g_Log.WriteDebug("Network: Can not set socket = %d nonblocking.", Socket);
         return false;
     }
 #else
@@ -124,7 +124,7 @@ bool QNetwork::SetSocketNonblocking(QEventFD Socket)
     int OldFlags;
     if ((OldFlags = fcntl(Socket, F_GETFL, NULL)) < 0)
     {
-        QLog::g_Log.WriteDebug("Network: Can not get socket = %d old flags.", Socket);
+        g_Log.WriteDebug("Network: Can not get socket = %d old flags.", Socket);
         return false;
     }
 
@@ -132,14 +132,14 @@ bool QNetwork::SetSocketNonblocking(QEventFD Socket)
     {
         if (fcntl(Socket, F_SETFL, OldFlags | O_NONBLOCK) == -1)
         {
-            QLog::g_Log.WriteDebug("Network: Can not set socket = %d nonblocking.", Socket);
+            g_Log.WriteDebug("Network: Can not set socket = %d nonblocking.", Socket);
             return false;
         }
     }
 
 #endif
 
-    QLog::g_Log.WriteDebug("Network: Set socket = %d nonblocking.", Socket);
+    g_Log.WriteDebug("Network: Set socket = %d nonblocking.", Socket);
     return true;
 }
 
@@ -151,12 +151,12 @@ bool QNetwork::SetListenSocketReuseable(QEventFD Socket)
     int one = 1;
     if (setsockopt(Socket, SOL_SOCKET, SO_REUSEADDR, (void*)&one, (socklen_t)sizeof(one)) != 0)
     {
-        QLog::g_Log.WriteDebug("Network: Can not set listen socket = %d reuseable.", Socket);
+        g_Log.WriteDebug("Network: Can not set listen socket = %d reuseable.", Socket);
         return false;
     }
 #endif // _WIN32
 
-    QLog::g_Log.WriteDebug("Network: Set listen socket = %d reuseable.", Socket);
+    g_Log.WriteDebug("Network: Set listen socket = %d reuseable.", Socket);
     return true;
 }
 
@@ -167,7 +167,7 @@ bool QNetwork::SocketPair(int Family, int Type, int Protocol, QEventFD FD[2])
     QEventFD ListenFD = socket(AF_INET, Type, 0);
     if (ListenFD == SOCKET_ERROR)
     {
-        QLog::g_Log.WriteError("Can not create listen socket, error = %d", WSAGetLastError());
+        g_Log.WriteError("Can not create listen socket, error = %d", WSAGetLastError());
         return false;
     }
 
@@ -179,14 +179,14 @@ bool QNetwork::SocketPair(int Family, int Type, int Protocol, QEventFD FD[2])
 
     if (bind(ListenFD, (struct sockaddr*)&ListenAddress, sizeof(ListenAddress)) == -1)
     {
-        QLog::g_Log.WriteError("Can not bind listen socket, error = %d", WSAGetLastError());
+        g_Log.WriteError("Can not bind listen socket, error = %d", WSAGetLastError());
         ::closesocket(ListenFD);
         return false;
     }
 
     if (listen(ListenFD, 1) == -1)
     {
-        QLog::g_Log.WriteError("Can not start listen, error = %d", WSAGetLastError());
+        g_Log.WriteError("Can not start listen, error = %d", WSAGetLastError());
         ::closesocket(ListenFD);
         return false;
     }
@@ -194,7 +194,7 @@ bool QNetwork::SocketPair(int Family, int Type, int Protocol, QEventFD FD[2])
     QEventFD ConnectFD = socket(AF_INET, Type, 0);
     if (ConnectFD == SOCKET_ERROR)
     {
-        QLog::g_Log.WriteError("Can not create connect socket, error = %d", WSAGetLastError());
+        g_Log.WriteError("Can not create connect socket, error = %d", WSAGetLastError());
         ::closesocket(ListenFD);
         return false;
     }
@@ -205,7 +205,7 @@ bool QNetwork::SocketPair(int Family, int Type, int Protocol, QEventFD FD[2])
     int AddressSize = sizeof(ConnectAddress);
     if (getsockname(ListenFD, (struct sockaddr*)&ConnectAddress, &AddressSize) == -1)
     {
-        QLog::g_Log.WriteError("Can not get sock name, error = %d", WSAGetLastError());
+        g_Log.WriteError("Can not get sock name, error = %d", WSAGetLastError());
         ::closesocket(ConnectFD);
         ::closesocket(ListenFD);
         return false;
@@ -213,7 +213,7 @@ bool QNetwork::SocketPair(int Family, int Type, int Protocol, QEventFD FD[2])
 
     if (connect(ConnectFD, (struct sockaddr*)&ConnectAddress, sizeof(ConnectAddress)) == -1)
     {
-        QLog::g_Log.WriteError("Can not connect, error = %d", WSAGetLastError());
+        g_Log.WriteError("Can not connect, error = %d", WSAGetLastError());
         ::closesocket(ConnectFD);
         ::closesocket(ListenFD);
         return false;
@@ -223,7 +223,7 @@ bool QNetwork::SocketPair(int Family, int Type, int Protocol, QEventFD FD[2])
     QEventFD AcceptFD = accept(ListenFD, (struct sockaddr*)&ListenAddress, &AddressSize);
     if (AcceptFD == SOCKET_ERROR)
     {
-        QLog::g_Log.WriteError("Can not accept, error = %d", WSAGetLastError());
+        g_Log.WriteError("Can not accept, error = %d", WSAGetLastError());
         ::closesocket(ConnectFD);
         ::closesocket(ListenFD);
         return false;
@@ -231,7 +231,7 @@ bool QNetwork::SocketPair(int Family, int Type, int Protocol, QEventFD FD[2])
 
     if (getsockname(ConnectFD, (struct sockaddr*)&ConnectAddress, &AddressSize) == -1)
     {
-        QLog::g_Log.WriteError("Can not get sock name, error = %d", WSAGetLastError());
+        g_Log.WriteError("Can not get sock name, error = %d", WSAGetLastError());
         ::closesocket(ConnectFD);
         ::closesocket(ListenFD);
         ::closesocket(AcceptFD);
@@ -243,7 +243,7 @@ bool QNetwork::SocketPair(int Family, int Type, int Protocol, QEventFD FD[2])
         || ListenAddress.sin_addr.s_addr != ConnectAddress.sin_addr.s_addr
         || ListenAddress.sin_port != ConnectAddress.sin_port)
     {
-        QLog::g_Log.WriteError("Listen and connect address are not match");
+        g_Log.WriteError("Listen and connect address are not match");
         ::closesocket(ConnectFD);
         ::closesocket(ListenFD);
         ::closesocket(AcceptFD);
@@ -258,7 +258,7 @@ bool QNetwork::SocketPair(int Family, int Type, int Protocol, QEventFD FD[2])
 #else
     if (socketpair(Family, Type, Protocol, FD) != 0)
     {
-        QLog::g_Log.WriteError("Network: Create socket pair failed, errnostr = %s.",
+        g_Log.WriteError("Network: Create socket pair failed, errnostr = %s.",
             strerror(errno));
         return false;
     }

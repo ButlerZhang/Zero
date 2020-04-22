@@ -1,9 +1,8 @@
 #pragma once
-#include "QLogBase.h"
 #include <stdarg.h>
 #include <string>
 
-QLOG_NS_BEGIN
+
 
 enum LogLevel
 {
@@ -13,12 +12,12 @@ enum LogLevel
     LL_ERROR
 };
 
-class QSimpleLog
+class QLog
 {
 public:
 
-    QSimpleLog();
-    ~QSimpleLog();
+    QLog();
+    ~QLog();
 
     void SetEnableLogLevel(LogLevel Level);
     bool SetLogFile(const std::string &FileName);
@@ -40,6 +39,4 @@ private:
     FILE            *m_LogFile;
 };
 
-extern QSimpleLog g_Log;
-
-QLOG_NS_END
+extern QLog g_Log;

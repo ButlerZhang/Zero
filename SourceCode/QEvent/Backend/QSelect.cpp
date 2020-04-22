@@ -1,7 +1,7 @@
 #include "QSelect.h"
 #include "QEventLoop.h"
 #include "../QTimer.h"
-#include "../../QLog/QSimpleLog.h"
+#include "../QLog.h"
 #include <string.h>                     //strerror
 
 
@@ -29,21 +29,21 @@ bool QSelect::AddEvent(const QChannel &Channel)
     if (Channel.GetEvents() & QET_READ)
     {
         FD_SET(Channel.GetFD(), &m_ReadSetIn);
-        QLog::g_Log.WriteDebug("select: FD = %d add read event.",
+        g_Log.WriteDebug("select: FD = %d add read event.",
             Channel.GetFD());
     }
 
     if (Channel.GetEvents() & QET_WRITE)
     {
         FD_SET(Channel.GetFD(), &m_WriteSetIn);
-        QLog::g_Log.WriteDebug("select: FD = %d add write event.",
+        g_Log.WriteDebug("select: FD = %d add write event.",
             Channel.GetFD());
     }
 
     if (m_HighestEventFD <= Channel.GetFD())
     {
         m_HighestEventFD = Channel.GetFD() + 1;
-        QLog::g_Log.WriteDebug("select: Highest event FD = %d after added.",
+        g_Log.WriteDebug("select: Highest event FD = %d after added.",
             m_HighestEventFD);
     }
 
@@ -70,7 +70,7 @@ bool QSelect::DelEvent(const QChannel &Channel)
         --m_HighestEventFD;
     }
 
-    QLog::g_Log.WriteDebug("select: Highest event FD = %d after deleted.",
+    g_Log.WriteDebug("select: Highest event FD = %d after deleted.",
         m_HighestEventFD);
 
     return DelEventFromChannelMap(Channel, QEO_DEL);
@@ -81,16 +81,16 @@ bool QSelect::Dispatch(timeval &tv)
     memcpy(&m_ReadSetOut, &m_ReadSetIn, sizeof(m_ReadSetIn));
     memcpy(&m_WriteSetOut, &m_WriteSetIn, sizeof(m_WriteSetIn));
 
-    QLog::g_Log.WriteDebug("select: start...");
+    g_Log.WriteDebug("select: start...");
     timeval *TempTimeout = QTimer::IsValid(tv) ? &tv : NULL;
     int Result = select(m_HighestEventFD, &m_ReadSetOut, &m_WriteSetOut, NULL, TempTimeout);
-    QLog::g_Log.WriteDebug("select: stop, result = %d.", Result);
+    g_Log.WriteDebug("select: stop, result = %d.", Result);
 
     if (Result < 0)
     {
         if (errno != EINTR)
         {
-            QLog::g_Log.WriteError("select error : %s", strerror(errno));
+            g_Log.WriteError("select error : %s", strerror(errno));
             m_EventLoop.StopLoop();
             return false;
         }

@@ -1,11 +1,10 @@
-#include "QSimpleLog.h"
+#include "QLog.h"
 #include <stdio.h>
 #include <chrono>
 #include <string.h>
 
-QLOG_NS_BEGIN
 
-QSimpleLog g_Log;
+QLog g_Log;
 
 std::string getCurrentSystemTime()
 {
@@ -31,14 +30,14 @@ std::string getCurrentSystemTime()
     return std::string(DateTime);
 }
 
-QSimpleLog::QSimpleLog()
+QLog::QLog()
 {
     m_LogFile = NULL;
     m_IsOutputConsole = true;
     m_EnableLogLevel = LL_DEBUG;
 }
 
-QSimpleLog::~QSimpleLog()
+QLog::~QLog()
 {
     if (m_LogFile != NULL)
     {
@@ -47,12 +46,12 @@ QSimpleLog::~QSimpleLog()
     }
 }
 
-void QSimpleLog::SetEnableLogLevel(LogLevel Level)
+void QLog::SetEnableLogLevel(LogLevel Level)
 {
     m_EnableLogLevel = Level;
 }
 
-bool QSimpleLog::SetLogFile(const std::string &FileName)
+bool QLog::SetLogFile(const std::string &FileName)
 {
     m_LogFile = fopen(FileName.c_str(), "w");
     if (m_LogFile != NULL)
@@ -66,12 +65,12 @@ bool QSimpleLog::SetLogFile(const std::string &FileName)
     return false;
 }
 
-void QSimpleLog::SetIsOutputConsole(bool IsOutputConsole)
+void QLog::SetIsOutputConsole(bool IsOutputConsole)
 {
     m_IsOutputConsole = IsOutputConsole;
 }
 
-void QSimpleLog::WriteDebug(const char *fmt, ...)
+void QLog::WriteDebug(const char *fmt, ...)
 {
     va_list ArgList;
 
@@ -80,7 +79,7 @@ void QSimpleLog::WriteDebug(const char *fmt, ...)
     va_end(ArgList);
 }
 
-void QSimpleLog::WriteInfo(const char *fmt, ...)
+void QLog::WriteInfo(const char *fmt, ...)
 {
     va_list ArgList;
 
@@ -89,7 +88,7 @@ void QSimpleLog::WriteInfo(const char *fmt, ...)
     va_end(ArgList);
 }
 
-void QSimpleLog::WriteWarn(const char *fmt, ...)
+void QLog::WriteWarn(const char *fmt, ...)
 {
     va_list ArgList;
 
@@ -98,7 +97,7 @@ void QSimpleLog::WriteWarn(const char *fmt, ...)
     va_end(ArgList);
 }
 
-void QSimpleLog::WriteError(const char *fmt, ...)
+void QLog::WriteError(const char *fmt, ...)
 {
     va_list ArgList;
 
@@ -107,7 +106,7 @@ void QSimpleLog::WriteError(const char *fmt, ...)
     va_end(ArgList);
 }
 
-void QSimpleLog::WriteLog(LogLevel Level, const char *fmt, va_list ArgList)
+void QLog::WriteLog(LogLevel Level, const char *fmt, va_list ArgList)
 {
     if (Level < m_EnableLogLevel || fmt == NULL)
     {
@@ -140,5 +139,3 @@ void QSimpleLog::WriteLog(LogLevel Level, const char *fmt, va_list ArgList)
         fprintf(m_LogFile, LogFmt, DateTime.c_str(), LevelString, LogBuffer);
     }
 }
-
-QLOG_NS_END

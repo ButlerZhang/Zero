@@ -33,8 +33,8 @@ bool ClientTest::Start(const std::string &ServerIP, int Port, int ClientCount)
 
     m_Port = Port;
     m_ServerIP = ServerIP;
-    QLog::g_Log.SetLogFile("Client.txt");
-    QLog::g_Log.WriteInfo("Client start....");
+    g_Log.SetLogFile("Client.txt");
+    g_Log.WriteInfo("Client start....");
 
     //return SingleThread(ClientCount);
     return MultiThread(ClientCount);
@@ -44,7 +44,7 @@ bool ClientTest::MultiThread(int ClientCount)
 {
     for (int Count = 0; Count < ClientCount; Count++)
     {
-        QLog::g_Log.WriteInfo("Client = %d start...", Count);
+        g_Log.WriteInfo("Client = %d start...", Count);
 
         std::thread SmallClient(ClientTest::CallBack_Thread, this, Count);
         SmallClient.detach();
@@ -52,7 +52,7 @@ bool ClientTest::MultiThread(int ClientCount)
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 
-    QLog::g_Log.WriteInfo("Total Client count = %d started", ClientCount);
+    g_Log.WriteInfo("Total Client count = %d started", ClientCount);
     return true;
 }
 
@@ -86,7 +86,7 @@ bool ClientTest::SingleThread(int ClientCount)
     return EventLoop.Dispatch();
 }
 
-bool ClientTest::SendMsg(int ClientID, QLog::QSimpleLog &Log)
+bool ClientTest::SendMsg(int ClientID, QLog &Log)
 {
     QNetwork MyNetwork;
     if (!MyNetwork.Connect(m_ServerIP, m_Port))
@@ -118,7 +118,7 @@ void ClientTest::CallBack_Thread(void *ClientObject, int ClientID)
 
     if (IsOpenMultiLogFile)
     {
-        QLog::QSimpleLog SmallLog;
+        QLog SmallLog;
         if (SmallLog.SetLogFile("Client" + std::to_string(ClientID) + ".txt"))
         {
             MyClient->SendMsg(ClientID, SmallLog);
@@ -126,7 +126,7 @@ void ClientTest::CallBack_Thread(void *ClientObject, int ClientID)
     }
     else
     {
-        MyClient->SendMsg(ClientID, QLog::g_Log);
+        MyClient->SendMsg(ClientID, g_Log);
     }
 }
 
@@ -139,7 +139,7 @@ void ClientTest::CMDInput(const QChannel &Event)
     int ReadSize = static_cast<int>(read(SourceFD, InputMsg, BUFFER_SIZE));
     if (ReadSize <= 0)
     {
-        QLog::g_Log.WriteError("ERROR: Can not read from cmd.");
+        g_Log.WriteError("ERROR: Can not read from cmd.");
         return;
     }
 
@@ -151,7 +151,7 @@ void ClientTest::CMDInput(const QChannel &Event)
 
     //int TargetFD = *((int*)Event.GetExtendArg());
     //int WriteSize = static_cast<int>(write(TargetFD, InputMsg, ReadSize));
-    //QLog::g_Log.WriteInfo("Send input msg = %s, size = %d.", InputMsg, WriteSize);
+    //g_Log.WriteInfo("Send input msg = %s, size = %d.", InputMsg, WriteSize);
 }
 
 void ClientTest::Recevie(const QChannel &Event)
@@ -162,10 +162,10 @@ void ClientTest::Recevie(const QChannel &Event)
     int ReadSize = static_cast<int>(read(static_cast<int>(Event.GetFD()), Message, BUFFER_SIZE));
     if (ReadSize <= 0)
     {
-        QLog::g_Log.WriteError("Client: Can not read from server.");
+        g_Log.WriteError("Client: Can not read from server.");
     }
     else
     {
-        QLog::g_Log.WriteInfo("Client recv msg = %s, size = %d", Message, ReadSize);
+        g_Log.WriteInfo("Client recv msg = %s, size = %d", Message, ReadSize);
     }
 }

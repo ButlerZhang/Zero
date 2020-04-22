@@ -1,7 +1,7 @@
 #include "QEpoll.h"
 #include "QEventLoop.h"
+#include "../QLog.h"
 #include "../QTimer.h"
-#include "../../QLog/QSimpleLog.h"
 
 #include <unistd.h>                 //close
 #include <string.h>                 //strerror
@@ -41,20 +41,20 @@ bool QEpoll::AddEvent(const QChannel &Channel)
     if (Channel.GetEvents() & QET_READ)
     {
         NewEpollEvent.events |= EPOLLIN;
-        QLog::g_Log.WriteDebug("epoll: FD = %d add read event.",
+        g_Log.WriteDebug("epoll: FD = %d add read event.",
             Channel.GetFD());
     }
 
     if (Channel.GetEvents() & QET_WRITE)
     {
         NewEpollEvent.events |= EPOLLOUT;
-        QLog::g_Log.WriteDebug("epoll: FD = %d add write event.",
+        g_Log.WriteDebug("epoll: FD = %d add write event.",
             Channel.GetFD());
     }
 
     if (epoll_ctl(m_EpollFD, EPOLL_CTL_ADD, Channel.GetFD(), &NewEpollEvent) != 0)
     {
-        QLog::g_Log.WriteError("epoll: FD = %d op = %d failed, errno = %d, errstr = %s.",
+        g_Log.WriteError("epoll: FD = %d op = %d failed, errno = %d, errstr = %s.",
             Channel.GetFD(), EPOLL_CTL_ADD, errno, strerror(errno));
         return false;
     }
@@ -80,7 +80,7 @@ bool QEpoll::DelEvent(const QChannel &Channel)
 
     if (epoll_ctl(m_EpollFD, EPOLL_CTL_DEL, Channel.GetFD(), &DelEpollEvent) != 0)
     {
-        QLog::g_Log.WriteInfo("epoll : FD = %d delete failed, errno = %d, errstr = %s.",
+        g_Log.WriteInfo("epoll : FD = %d delete failed, errno = %d, errstr = %s.",
             Channel.GetFD(), errno, strerror(errno));
         return false;
     }
@@ -90,16 +90,16 @@ bool QEpoll::DelEvent(const QChannel &Channel)
 
 bool QEpoll::Dispatch(timeval &tv)
 {
-    QLog::g_Log.WriteDebug("epoll: start...");
+    g_Log.WriteDebug("epoll: start...");
     int timeout = static_cast<int>(QTimer::ConvertToMillisecond(tv));
     int ActiveEventCount = epoll_wait(m_EpollFD, m_EventArray, FD_SETSIZE, timeout);
-    QLog::g_Log.WriteDebug("epoll: stop, active event count = %d.", ActiveEventCount);
+    g_Log.WriteDebug("epoll: stop, active event count = %d.", ActiveEventCount);
 
     if (ActiveEventCount < 0)
     {
         if (errno != EINTR)
         {
-            QLog::g_Log.WriteError("epoll error : %s", strerror(errno));
+            g_Log.WriteError("epoll error : %s", strerror(errno));
             m_EventLoop.StopLoop();
             return false;
         }

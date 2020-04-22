@@ -1,6 +1,6 @@
 #include "QTimer.h"
+#include "QLog.h"
 #include "Backend/QBackend.h"
-#include "../QLog/QSimpleLog.h"
 
 
 
@@ -68,7 +68,7 @@ void QTimer::Callback_Timeout(const QChannel &Channel)
             const TimerNode &PopNode = m_MinHeap.Pop();
             if (m_TimerMap.find(PopNode.m_TimerID) == m_TimerMap.end())
             {
-                QLog::g_Log.WriteDebug("Process timeout: Can not find timer id = %d", PopNode.m_TimerID);
+                g_Log.WriteDebug("Process timeout: Can not find timer id = %d", PopNode.m_TimerID);
                 continue;
             }
 

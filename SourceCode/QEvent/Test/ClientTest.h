@@ -1,5 +1,5 @@
 #pragma once
-#include "../../QLog/QSimpleLog.h"
+#include "../QLog.h"
 #include <string>
 
 class QChannel;
@@ -20,7 +20,7 @@ private:
     bool MultiThread(int ClientCount);
     bool SingleThread(int ClientCount);
 
-    bool SendMsg(int ClientID, QLog::QSimpleLog &Log);
+    bool SendMsg(int ClientID, QLog &Log);
     static void CallBack_Thread(void *ClientObject, int ClientID);
 
 private:

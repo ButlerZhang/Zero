@@ -1,6 +1,6 @@
 #include "QBackend.h"
+#include "../QLog.h"
 #include "../QNetwork.h"
-#include "../../QLog/QSimpleLog.h"
 
 
 
@@ -17,14 +17,14 @@ bool QBackend::AddEvent(const QChannel &Channel)
 {
     if (!Channel.IsValid())
     {
-        QLog::g_Log.WriteError("Add channel failed, FD = %d, events = %d is not valid.",
+        g_Log.WriteError("Add channel failed, FD = %d, events = %d is not valid.",
             Channel.GetFD(), Channel.GetEvents());
         return false;
     }
 
     if (m_ChannelMap.find(Channel.GetFD()) != m_ChannelMap.end())
     {
-        QLog::g_Log.WriteError("Add channel failed, FD = %d, events = %d, it is existed.",
+        g_Log.WriteError("Add channel failed, FD = %d, events = %d, it is existed.",
             Channel.GetFD(), Channel.GetEvents());
         return false;
     }
@@ -36,7 +36,7 @@ bool QBackend::DelEvent(const QChannel &Channel)
 {
     if (m_ChannelMap.find(Channel.GetFD()) == m_ChannelMap.end())
     {
-        QLog::g_Log.WriteError("Del channel failed, FD = %d, events = %d, it is not existed.",
+        g_Log.WriteError("Del channel failed, FD = %d, events = %d, it is not existed.",
             Channel.GetFD(), Channel.GetEvents());
         return false;
     }
@@ -48,7 +48,7 @@ bool QBackend::ModEvent(const QChannel &Channel)
 {
     if (m_ChannelMap.find(Channel.GetFD()) == m_ChannelMap.end())
     {
-        QLog::g_Log.WriteError("Mod channel failed, FD = %d, events = %d, it is not existed.",
+        g_Log.WriteError("Mod channel failed, FD = %d, events = %d, it is not existed.",
             Channel.GetFD(), Channel.GetEvents());
         return false;
     }
@@ -69,7 +69,7 @@ bool QBackend::DelEventFromChannelMap(const QChannel &Channel, QEventOption OP)
     std::map<QEventFD, QChannel>::iterator it = m_ChannelMap.find(Channel.GetFD());
     if (it == m_ChannelMap.end())
     {
-        QLog::g_Log.WriteError("Delete channel failed, can not find FD = %d.",
+        g_Log.WriteError("Delete channel failed, can not find FD = %d.",
             Channel.GetFD());
         return false;
     }
@@ -81,24 +81,24 @@ bool QBackend::DelEventFromChannelMap(const QChannel &Channel, QEventOption OP)
 
 void QBackend::ActiveEvent(QEventFD FD, int ResultEvents)
 {
-    QLog::g_Log.WriteDebug("Active event: FD = %d, events = %d", FD, ResultEvents);
+    g_Log.WriteDebug("Active event: FD = %d, events = %d", FD, ResultEvents);
     m_ChannelMap[FD].SetResultEvents(ResultEvents);
     m_ChannelMap[FD].HandlerEvent();
 }
 
 void QBackend::WriteMapVectorSnapshot()
 {
-    QLog::g_Log.WriteDebug("==========channel map snapshot==========");
+    g_Log.WriteDebug("==========channel map snapshot==========");
 
     int MapCount = 0;
     std::map<QEventFD, QChannel>::const_iterator it = m_ChannelMap.begin();
     while (it != m_ChannelMap.end())
     {
-        QLog::g_Log.WriteDebug("map index = %d, FD = %d, events = %d",
+        g_Log.WriteDebug("map index = %d, FD = %d, events = %d",
             MapCount++, it->second.GetFD(), it->second.GetEvents());
 
         it++;
     }
 
-    QLog::g_Log.WriteDebug("========================================");
+    g_Log.WriteDebug("========================================");
 }

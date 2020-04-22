@@ -2,9 +2,6 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="..\QLog\QSimpleLog.cpp">
-      <Filter>Reference\QLog</Filter>
-    </ClCompile>
     <ClCompile Include="Backend\QBackend.cpp">
       <Filter>Backend</Filter>
     </ClCompile>
@@ -35,14 +32,9 @@
     <ClCompile Include="Backend\QEventLoop.cpp">
       <Filter>Backend</Filter>
     </ClCompile>
+    <ClCompile Include="QLog.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\QLog\QSimpleLog.h">
-      <Filter>Reference\QLog</Filter>
-    </ClInclude>
-    <ClInclude Include="..\QLog\QLogBase.h">
-      <Filter>Reference\QLog</Filter>
-    </ClInclude>
     <ClInclude Include="Backend\QBackend.h">
       <Filter>Backend</Filter>
     </ClInclude>
@@ -74,14 +66,9 @@
     <ClInclude Include="Backend\QEventLoop.h">
       <Filter>Backend</Filter>
     </ClInclude>
+    <ClInclude Include="QLog.h" />
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="Reference">
-      <UniqueIdentifier>{dc25f45c-7394-441c-b5c0-4520cd82849a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Reference\QLog">
-      <UniqueIdentifier>{ce13c666-5b1f-40d0-b565-2dc7167f71f4}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Backend">
       <UniqueIdentifier>{d079858f-1adb-49d9-93e2-d3a3703b7c6e}</UniqueIdentifier>
     </Filter>

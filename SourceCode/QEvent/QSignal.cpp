@@ -1,8 +1,8 @@
 #include "QSignal.h"
+#include "QLog.h"
 #include "QChannel.h"
 #include "QNetwork.h"
 #include "Backend/QBackend.h"
-#include "../QLog/QSimpleLog.h"
 
 #include <signal.h>
 
@@ -40,7 +40,7 @@ bool QSignal::Init(QBackend &Backend)
         return false;
     }
 
-    QLog::g_Log.WriteDebug("Create socket pair, FD0 = %d, FD1 = %d",
+    g_Log.WriteDebug("Create socket pair, FD0 = %d, FD1 = %d",
         FD[0], FD[1]);
 
     QNetwork::SetSocketNonblocking(FD[0]);
@@ -60,7 +60,7 @@ bool QSignal::AddSignal(int Signal, SignalCallback Callback)
     std::map<int, SignalCallback>::const_iterator it = m_SignalMap.find(Signal);
     if (it != m_SignalMap.end())
     {
-        QLog::g_Log.WriteDebug("Add signal failed, signal = %d is existed", Signal);
+        g_Log.WriteDebug("Add signal failed, signal = %d is existed", Signal);
         return false;
     }
 
@@ -74,7 +74,7 @@ bool QSignal::DelSignal(int Signal)
     std::map<int, SignalCallback>::const_iterator it = m_SignalMap.find(Signal);
     if (it == m_SignalMap.end())
     {
-        QLog::g_Log.WriteDebug("Delete signal failed, can not find signal = %d", Signal);
+        g_Log.WriteDebug("Delete signal failed, can not find signal = %d", Signal);
         return false;
     }
 
@@ -96,13 +96,13 @@ void QSignal::Callback_Process(const QChannel &Channel)
 #else
     if (read(m_ReadFD, &Signal, sizeof(QEventFD)) != sizeof(QEventFD))
     {
-        QLog::g_Log.WriteDebug("Can not read signal = %d", Channel.GetFD());
+        g_Log.WriteDebug("Can not read signal = %d", Channel.GetFD());
     }
 #endif // _WIN32
 
     if (Signal >= 0)
     {
-        QLog::g_Log.WriteDebug("Read signal = %d", Signal);
+        g_Log.WriteDebug("Read signal = %d", Signal);
         std::map<int, SignalCallback>::const_iterator it = m_SignalMap.find(Signal);
         if (it != m_SignalMap.end())
         {
@@ -113,7 +113,7 @@ void QSignal::Callback_Process(const QChannel &Channel)
 
 void QSignal::Callback_Catch(int Signal)
 {
-    QLog::g_Log.WriteDebug("Catch signal = %d", Signal);
+    g_Log.WriteDebug("Catch signal = %d", Signal);
 
 #ifdef _WIN32
     if(send(m_WriteFD, (char*)&Signal, 1, 0) != 1)
@@ -121,6 +121,6 @@ void QSignal::Callback_Catch(int Signal)
     if (write(m_WriteFD, &Signal, sizeof(Signal)) != sizeof(QEventFD))
 #endif // _WIN32
     {
-        QLog::g_Log.WriteDebug("Can not write signal = %d to read socket.", Signal);
+        g_Log.WriteDebug("Can not write signal = %d to read socket.", Signal);
     }
 }

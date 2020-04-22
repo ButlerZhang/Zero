@@ -1,8 +1,8 @@
 #include "QWin32Select.h"
 #include "QEventLoop.h"
+#include "../QLog.h"
 #include "../QTimer.h"
 #include "../QNetwork.h"
-#include "../../QLog/QSimpleLog.h"
 
 
 
@@ -27,14 +27,14 @@ bool QWin32Select::AddEvent(const QChannel &Channel)
     if (Channel.GetEvents() & QET_READ)
     {
         FD_SET(Channel.GetFD(), &m_ReadSetIn);
-        QLog::g_Log.WriteDebug("win32select: FD = %d add read event, FD count = %d after added.",
+        g_Log.WriteDebug("win32select: FD = %d add read event, FD count = %d after added.",
             Channel.GetFD(), m_ReadSetIn.fd_count);
     }
 
     if (Channel.GetEvents() & QET_WRITE)
     {
         FD_SET(Channel.GetFD(), &m_WriteSetIn);
-        QLog::g_Log.WriteDebug("win32select: FD = %d add write event, FD count = %d after added.",
+        g_Log.WriteDebug("win32select: FD = %d add write event, FD count = %d after added.",
             Channel.GetFD(), m_WriteSetIn.fd_count);
     }
 
@@ -51,9 +51,9 @@ bool QWin32Select::DelEvent(const QChannel &Channel)
     FD_CLR(Channel.GetFD(), &m_ReadSetIn);
     FD_CLR(Channel.GetFD(), &m_WriteSetIn);
 
-    QLog::g_Log.WriteDebug("win32select: FD = %d add read event, FD count = %d after deleted.",
+    g_Log.WriteDebug("win32select: FD = %d add read event, FD count = %d after deleted.",
         Channel.GetFD(), m_ReadSetIn.fd_count);
-    QLog::g_Log.WriteDebug("win32select: FD = %d add write event, FD count = %d after deleted.",
+    g_Log.WriteDebug("win32select: FD = %d add write event, FD count = %d after deleted.",
         Channel.GetFD(), m_WriteSetIn.fd_count);
 
     return DelEventFromChannelMap(Channel, QEO_DEL);
@@ -69,14 +69,14 @@ bool QWin32Select::Dispatch(timeval &tv)
     memcpy(&m_ReadSetOut, &m_ReadSetIn, sizeof(m_ReadSetIn));
     memcpy(&m_WriteSetOut, &m_WriteSetIn, sizeof(m_WriteSetIn));
 
-    QLog::g_Log.WriteDebug("win32select: start...");
+    g_Log.WriteDebug("win32select: start...");
     timeval *TempTimeout = QTimer::IsValid(tv) ? &tv : NULL;
     int Result = select(-1, &m_ReadSetOut, &m_WriteSetOut, NULL, TempTimeout);
-    QLog::g_Log.WriteDebug("win32select: stop, result = %d.", Result);
+    g_Log.WriteDebug("win32select: stop, result = %d.", Result);
 
     if (Result < 0)
     {
-        QLog::g_Log.WriteError("win32select error : %d", WSAGetLastError());
+        g_Log.WriteError("win32select error : %d", WSAGetLastError());
         m_EventLoop.StopLoop();
         return false;
     }

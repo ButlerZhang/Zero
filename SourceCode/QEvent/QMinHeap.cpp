@@ -1,6 +1,6 @@
 #include "QMinHeap.h"
 #include "QTimer.h"
-#include "../QLog/QSimpleLog.h"
+#include "QLog.h"
 
 #include <algorithm>
 
@@ -55,7 +55,7 @@ bool QMinHeap::DelTimeout(const TimerNode &DelNode)
 
     if (DeleteIndex >= m_NodeCount)
     {
-        QLog::g_Log.WriteDebug("Delete timeout failed, can not find timer id = %d",
+        g_Log.WriteDebug("Delete timeout failed, can not find timer id = %d",
             DelNode.m_TimerID);
         return false;
     }
@@ -88,7 +88,7 @@ long QMinHeap::GetMinTimeout() const
 
 void QMinHeap::MinusElapsedTime(long ElapsedTime)
 {
-    QLog::g_Log.WriteDebug("MinHeap: Minus elapsed time = %ld.", ElapsedTime);
+    g_Log.WriteDebug("MinHeap: Minus elapsed time = %ld.", ElapsedTime);
 
     if (ElapsedTime > 0 && m_NodeCount > 0)
     {
@@ -113,7 +113,7 @@ TimerNode QMinHeap::Pop()
     std::swap(m_HeapArray[0], m_HeapArray[--m_NodeCount]);
     ShiftDown(0);
 
-    QLog::g_Log.WriteDebug("MinHeap: Pop heap node, timer id = %I64d\ttimeout = %ld",
+    g_Log.WriteDebug("MinHeap: Pop heap node, timer id = %I64d\ttimeout = %ld",
         Node.m_TimerID, Node.m_Timeout);
 
     WriteMinHeapSnapshot();
@@ -156,15 +156,15 @@ void QMinHeap::ShiftDown(std::vector<TimerNode>::size_type Pos)
 
 void QMinHeap::WriteMinHeapSnapshot() const
 {
-    QLog::g_Log.WriteDebug("=============min heap snapshot=============");
+    g_Log.WriteDebug("=============min heap snapshot=============");
 
-    QLog::g_Log.WriteDebug("MinHeap: node count = %d", static_cast<int>(m_NodeCount));
+    g_Log.WriteDebug("MinHeap: node count = %d", static_cast<int>(m_NodeCount));
     for (std::vector<TimerNode>::size_type Index = 0; Index < m_NodeCount; Index++)
     {
         const TimerNode &Node = m_HeapArray[Index];
-        QLog::g_Log.WriteDebug("MinHeap: heap_index = %d, timer id = %d, timeout = %ld",
+        g_Log.WriteDebug("MinHeap: heap_index = %d, timer id = %d, timeout = %ld",
             Index, Node.m_TimerID, Node.m_Timeout);
     }
 
-    QLog::g_Log.WriteDebug("===========================================");
+    g_Log.WriteDebug("===========================================");
 }

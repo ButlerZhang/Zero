@@ -1,8 +1,8 @@
 #include "QEventLoop.h"
 #include "QBackend.h"
+#include "../QLog.h"
 #include "../QTimer.h"
 #include "../QSignal.h"
-#include "../../QLog/QSimpleLog.h"
 
 #ifdef _WIN32
 #include "QWin32Select.h"
@@ -33,20 +33,20 @@ bool QEventLoop::Init()
     //m_Backend = std::make_shared<QEpoll>(*this);
 #endif
 
-    QLog::g_Log.WriteInfo("Enable backend : %s",
+    g_Log.WriteInfo("Enable backend : %s",
         m_Backend->GetBackendName().c_str());
 
     m_Timer = std::make_shared<QTimer>();
     if (m_Timer == nullptr || !m_Timer->Init(*m_Backend))
     {
-        QLog::g_Log.WriteError("Timer init failed.");
+        g_Log.WriteError("Timer init failed.");
         return false;
     }
 
     m_Signal = std::make_shared<QSignal>();
     if (m_Signal == nullptr || !m_Signal->Init(*m_Backend))
     {
-        QLog::g_Log.WriteError("Signal init failed.");
+        g_Log.WriteError("Signal init failed.");
         return false;
     }
 
@@ -101,7 +101,7 @@ bool QEventLoop::Dispatch()
         long MinTimeOut = m_Timer->GetMinTimeout();
         timeval tv = QTimer::ConvertToTimeval(MinTimeOut);
 
-        QLog::g_Log.WriteDebug("Dispatch: min timeout = %ld, tv.sec = %d, tv.usec = %d",
+        g_Log.WriteDebug("Dispatch: min timeout = %ld, tv.sec = %d, tv.usec = %d",
             MinTimeOut, tv.tv_sec, tv.tv_usec);
 
         m_Backend->Dispatch(tv);

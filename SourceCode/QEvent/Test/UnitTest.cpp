@@ -1,7 +1,6 @@
 #include "UnitTest.h"
-#include "../QMinHeap.h"
+#include "../QLog.h"
 #include "../Backend/QBackend.h"
-#include "../../QLog/QSimpleLog.h"
 
 #include <signal.h>
 #include <assert.h>
@@ -18,7 +17,7 @@ UnitTest::~UnitTest()
 
 int UnitTest::StartTest()
 {
-    QLog::g_Log.SetLogFile("UnitTest.txt");
+    g_Log.SetLogFile("UnitTest.txt");
     m_EventLoop.Init();
 
     //test 1
@@ -43,7 +42,7 @@ void UnitTest::AddAndDeleteIOEvents()
 
     //////////////////////////////////////////////////////////////////////
 #ifndef _WIN32
-    QLog::g_Log.WriteInfo("ADD Test wrong FD:");
+    g_Log.WriteInfo("ADD Test wrong FD:");
     QChannel WrongReadFD(-1);
     assert(m_EventLoop.AddEvent(WrongReadFD) == false);
 
@@ -52,7 +51,7 @@ void UnitTest::AddAndDeleteIOEvents()
 #endif // !_WIN32
 
     //////////////////////////////////////////////////////////////////////
-    QLog::g_Log.WriteDebug("ADD Test normal IO events:");
+    g_Log.WriteDebug("ADD Test normal IO events:");
     QChannel ReadEvent(BaseFD);
     ReadEvent.SetReadCallback(std::bind(&UnitTest::CallBack_Read, this, std::placeholders::_1));
     assert(m_EventLoop.AddEvent(ReadEvent) == true);
@@ -67,25 +66,25 @@ void UnitTest::AddAndDeleteIOEvents()
     assert(m_EventLoop.AddEvent(ReadWriteEvent) == true);
 
     //////////////////////////////////////////////////////////////////////
-    QLog::g_Log.WriteDebug("ADD Test add repeatedly:");
+    g_Log.WriteDebug("ADD Test add repeatedly:");
     assert(m_EventLoop.AddEvent(ReadEvent) == false);
     assert(m_EventLoop.AddEvent(WriteEvent) == false);
     assert(m_EventLoop.AddEvent(ReadWriteEvent) == false);
 
     //////////////////////////////////////////////////////////////////////
-    QLog::g_Log.WriteDebug("DEL Test, existed events");
+    g_Log.WriteDebug("DEL Test, existed events");
     assert(m_EventLoop.DelEvent(ReadEvent) == true);
     assert(m_EventLoop.DelEvent(WriteEvent) == true);
     assert(m_EventLoop.DelEvent(ReadWriteEvent) == true);
 
-    QLog::g_Log.WriteDebug("DEL Test, not existed events");
+    g_Log.WriteDebug("DEL Test, not existed events");
     assert(m_EventLoop.DelEvent(ReadEvent) == false);
     assert(m_EventLoop.DelEvent(WriteEvent) == false);
     assert(m_EventLoop.DelEvent(ReadWriteEvent) == false);
 
     if (m_EventLoop.GetBackend()->GetBackendName() != "epoll")
     {
-        QLog::g_Log.WriteDebug("DEL Test, max FD index");
+        g_Log.WriteDebug("DEL Test, max FD index");
         QChannel MaxFDEvent(1000);
         MaxFDEvent.SetReadCallback(std::bind(&UnitTest::CallBack_Read, this, std::placeholders::_1));
         assert(m_EventLoop.AddEvent(MaxFDEvent) == true);
@@ -144,71 +143,71 @@ void UnitTest::AddAndDeleteTimer()
 
 void UnitTest::AddAndDeleteSignal()
 {
-    QLog::g_Log.WriteDebug("Test add signal");
+    g_Log.WriteDebug("Test add signal");
     assert(m_EventLoop.AddSignal(SIGINT, std::bind(&UnitTest::CallBack_Signal1, this)) == true);
 
-    QLog::g_Log.WriteDebug("Test add signal copy");
+    g_Log.WriteDebug("Test add signal copy");
     assert(m_EventLoop.AddSignal(SIGINT, std::bind(&UnitTest::CallBack_Signal1, this)) == false);
 
-    QLog::g_Log.WriteDebug("Test add signal which use for socket");
+    g_Log.WriteDebug("Test add signal which use for socket");
     assert(m_EventLoop.AddSignal(SIGILL, std::bind(&UnitTest::CallBack_Signal1, this)) == true);
 
-    QLog::g_Log.WriteDebug("Test delete not existed signal");
+    g_Log.WriteDebug("Test delete not existed signal");
     assert(m_EventLoop.DelSignal(SIGTERM) == false);
 
-    QLog::g_Log.WriteDebug("Test delete existed signal");
+    g_Log.WriteDebug("Test delete existed signal");
     assert(m_EventLoop.DelSignal(SIGILL) == true);
 
-    //QLog::g_Log.WriteDebug("Test delete existed signal");
+    //g_Log.WriteDebug("Test delete existed signal");
     //assert(m_Reactor.DelSignal(SIGINT) == true);
 }
 
 void UnitTest::CallBack_Read(const QChannel &Event)
 {
-    QLog::g_Log.WriteInfo("CallBack_Read");
+    g_Log.WriteInfo("CallBack_Read");
 }
 
 void UnitTest::CallBack_Write(const QChannel &Event)
 {
-    QLog::g_Log.WriteInfo("CallBack_Write");
+    g_Log.WriteInfo("CallBack_Write");
 }
 
 void UnitTest::CallBack_TimeOut1()
 {
-    QLog::g_Log.WriteInfo("CallBack_TimeOut1");
+    g_Log.WriteInfo("CallBack_TimeOut1");
 }
 
 void UnitTest::CallBack_TimeOut2()
 {
-    QLog::g_Log.WriteInfo("CallBack_TimeOut2");
+    g_Log.WriteInfo("CallBack_TimeOut2");
 }
 
 void UnitTest::CallBack_TimeOut3()
 {
-    QLog::g_Log.WriteInfo("CallBack_TimeOut3");
+    g_Log.WriteInfo("CallBack_TimeOut3");
 }
 
 void UnitTest::CallBack_TimeOut4()
 {
-    QLog::g_Log.WriteInfo("CallBack_TimeOut4");
+    g_Log.WriteInfo("CallBack_TimeOut4");
 }
 
 void UnitTest::CallBack_TimeOut5()
 {
-    QLog::g_Log.WriteInfo("CallBack_TimeOut5");
+    g_Log.WriteInfo("CallBack_TimeOut5");
 }
 
 void UnitTest::CallBack_TimeOut6()
 {
-    QLog::g_Log.WriteInfo("CallBack_TimeOut6");
+    g_Log.WriteInfo("CallBack_TimeOut6");
 }
 
 void UnitTest::CallBack_TimeOut7()
 {
-    QLog::g_Log.WriteInfo("CallBack_TimeOut7");
+    g_Log.WriteInfo("CallBack_TimeOut7");
 }
 
 void UnitTest::CallBack_Signal1()
 {
-    QLog::g_Log.WriteInfo("CallBack_Signal1: %d");
+    g_Log.WriteInfo("CallBack_Signal1: %d");
 }

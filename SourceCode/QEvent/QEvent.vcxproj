@@ -63,8 +63,6 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <ItemGroup>
-    <ClInclude Include="..\QLog\QLogBase.h" />
-    <ClInclude Include="..\QLog\QSimpleLog.h" />
     <ClInclude Include="Backend\QBackend.h" />
     <ClInclude Include="Backend\QEpoll.h" />
     <ClInclude Include="Backend\QPoll.h" />
@@ -73,6 +71,7 @@
     <ClInclude Include="QChannel.h" />
     <ClInclude Include="QEventEnum.h" />
     <ClInclude Include="QLibBase.h" />
+    <ClInclude Include="QLog.h" />
     <ClInclude Include="QMinHeap.h" />
     <ClInclude Include="QNetwork.h" />
     <ClInclude Include="QSignal.h" />
@@ -82,7 +81,6 @@
     <ClInclude Include="Test\UnitTest.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\QLog\QSimpleLog.cpp" />
     <ClCompile Include="Backend\QBackend.cpp" />
     <ClCompile Include="Backend\QEpoll.cpp" />
     <ClCompile Include="Backend\QPoll.cpp" />
@@ -91,6 +89,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="QChannel.cpp" />
     <ClCompile Include="QEventEnum.cpp" />
+    <ClCompile Include="QLog.cpp" />
     <ClCompile Include="QMinHeap.cpp" />
     <ClCompile Include="QNetwork.cpp" />
     <ClCompile Include="QSignal.cpp" />

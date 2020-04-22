@@ -1,7 +1,7 @@
 #include "QPoll.h"
 #include "QEventLoop.h"
+#include "../QLog.h"
 #include "../QTimer.h"
-#include "../../QLog/QSimpleLog.h"
 
 #include <string.h>                  //strerror
 
@@ -42,21 +42,21 @@ bool QPoll::AddEvent(const QChannel &Channel)
             if (Channel.GetEvents() & QET_READ)
             {
                 m_FDArray[Index].events |= POLLIN;
-                QLog::g_Log.WriteDebug("poll: FD = %d add read event.",
+                g_Log.WriteDebug("poll: FD = %d add read event.",
                     Channel.GetFD());
             }
 
             if (Channel.GetEvents() & QET_WRITE)
             {
                 m_FDArray[Index].events |= POLLOUT;
-                QLog::g_Log.WriteDebug("poll: FD = %d add write event.",
+                g_Log.WriteDebug("poll: FD = %d add write event.",
                     Channel.GetFD());
             }
 
             if (m_FDMaxIndex <= Index)
             {
                 m_FDMaxIndex = Index + 1;
-                QLog::g_Log.WriteDebug("poll: FD max index = %d after added.",
+                g_Log.WriteDebug("poll: FD max index = %d after added.",
                     m_FDMaxIndex);
             }
 
@@ -64,7 +64,7 @@ bool QPoll::AddEvent(const QChannel &Channel)
         }
     }
 
-    QLog::g_Log.WriteError("poll: FD = %d, events = %d add failed, no location.",
+    g_Log.WriteError("poll: FD = %d, events = %d add failed, no location.",
         Channel.GetFD(), Channel.GetEvents());
     return false;
 }
@@ -104,7 +104,7 @@ bool QPoll::DelEvent(const QChannel &Channel)
         }
     }
 
-    QLog::g_Log.WriteDebug("poll: FD max index = %d after deleted.",
+    g_Log.WriteDebug("poll: FD max index = %d after deleted.",
         m_FDMaxIndex);
 
     return DelEventFromChannelMap(Channel, QEO_DEL);
@@ -112,16 +112,16 @@ bool QPoll::DelEvent(const QChannel &Channel)
 
 bool QPoll::Dispatch(timeval &tv)
 {
-    QLog::g_Log.WriteDebug("poll: start...");
+    g_Log.WriteDebug("poll: start...");
     int timeout = static_cast<int>(QTimer::ConvertToMillisecond(tv));
     int Result = poll(m_FDArray, m_FDMaxIndex, timeout);
-    QLog::g_Log.WriteDebug("poll: stop, result = %d.", Result);
+    g_Log.WriteDebug("poll: stop, result = %d.", Result);
 
     if (Result < 0)
     {
         if (errno != EINTR)
         {
-            QLog::g_Log.WriteError("poll error : %s", strerror(errno));
+            g_Log.WriteError("poll error : %s", strerror(errno));
             m_EventLoop.StopLoop();
             return false;
         }
