@@ -42,8 +42,8 @@ int main(int argc, char *argv[])
         QEventLoop EventLoop;
         EventLoop.Init();
 
-        EchoServer Echo(EventLoop, ServerIP, ServerPort);
-        Echo.Start();
+        EchoServer Echo(EventLoop);
+        Echo.Start(ServerIP, ServerPort);
 
         EventLoop.Dispatch();
     }

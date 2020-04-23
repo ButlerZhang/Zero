@@ -28,9 +28,25 @@ QTCPConnection::~QTCPConnection()
 {
 }
 
-void QTCPConnection::SetMessageCallback(MessageCallback Callback)
+int QTCPConnection::GetPeerPort() const
 {
-    m_MessageCallback = Callback;
+    return m_PeerPort;
+}
+
+const std::string & QTCPConnection::GetPeerIP() const
+{
+    return m_PeerIP;
+}
+
+void QTCPConnection::SetReadCallback(MessageCallback Callback)
+{
+    m_ReadCallback = Callback;
+}
+
+void QTCPConnection::SetPeerIPandPort(const std::string &IP, int Port)
+{
+    m_PeerIP = IP;
+    m_PeerPort = Port;
 }
 
 void QTCPConnection::Callback_ChannelRead()
@@ -49,7 +65,7 @@ void QTCPConnection::Callback_ChannelRead()
         int WriteSize = (int)send(m_Channel->GetFD(), DataBuffer, RecvSize, 0);
         g_Log.WriteInfo("Server ack, size = %d", WriteSize);
 
-        m_MessageCallback(*this);
+        m_ReadCallback(*this);
     }
     else if (RecvSize == 0)
     {

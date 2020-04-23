@@ -42,9 +42,6 @@
     <ClInclude Include="..\QEvent\Test\ClientTest.h">
       <Filter>Test</Filter>
     </ClInclude>
-    <ClInclude Include="..\QEvent\Test\UnitTest.h">
-      <Filter>Test</Filter>
-    </ClInclude>
     <ClInclude Include="..\QEvent\QSignal.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -93,9 +90,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\QEvent\Test\ClientTest.cpp">
-      <Filter>Test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\QEvent\Test\UnitTest.cpp">
       <Filter>Test</Filter>
     </ClCompile>
     <ClCompile Include="..\QEvent\QSignal.cpp">

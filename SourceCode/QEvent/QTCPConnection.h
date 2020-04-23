@@ -1,6 +1,7 @@
 #pragma once
 #include "QLibBase.h"
 #include <memory>
+#include <string>
 
 class QChannel;
 class QEventLoop;
@@ -18,7 +19,11 @@ public:
     QTCPConnection(QEventLoop &Loop, QEventFD FD);
     ~QTCPConnection();
 
-    void SetMessageCallback(MessageCallback Callback);
+    int GetPeerPort() const;
+    const std::string& GetPeerIP() const;
+
+    void SetReadCallback(MessageCallback Callback);
+    void SetPeerIPandPort(const std::string &IP, int Port);
 
 private:
 
@@ -28,7 +33,10 @@ private:
 private:
 
     QEventLoop                          &m_EventLoop;
-    MessageCallback                     m_MessageCallback;
+
+    int                                 m_PeerPort;
+    std::string                         m_PeerIP;
+    MessageCallback                     m_ReadCallback;
     std::shared_ptr<QChannel>           m_Channel;
 };
 

@@ -272,6 +272,14 @@ void QNetwork::InitSockAddress(sockaddr_in &ServerAddress, const std::string &IP
     memset(&ServerAddress, 0, sizeof(ServerAddress));
 
     ServerAddress.sin_family = AF_INET;
-    inet_pton(AF_INET, IP.c_str(), &ServerAddress.sin_addr);
     ServerAddress.sin_port = htons(static_cast<uint16_t>(Port));
+
+    if (IP.empty())
+    {
+        inet_pton(AF_INET, IP.c_str(), &ServerAddress.sin_addr);
+    }
+    else
+    {
+        ServerAddress.sin_addr.s_addr = htonl(INADDR_ANY);
+    }
 }
