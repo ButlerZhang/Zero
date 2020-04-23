@@ -1,5 +1,4 @@
 #pragma once
-#include "../Backend/QBackend.h"
 #include "../Backend/QEventLoop.h"
 #include "../QTCPServer.h"
 
@@ -31,6 +30,8 @@ private:
         g_Log.WriteInfo("EchoServer: %s:%d connected.",
             Connected.GetPeerIP().c_str(),
             Connected.GetPeerPort());
+
+        Connected.Send("Hello");
     }
 
     void Callback_Recevie(const QTCPConnection &Connected)

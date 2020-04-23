@@ -80,6 +80,7 @@
     <ClInclude Include="QTCPServer.h" />
     <ClInclude Include="QTimer.h" />
     <ClInclude Include="Test\ClientTest.h" />
+    <ClInclude Include="Test\EchoClient.h" />
     <ClInclude Include="Test\EchoServer.h" />
   </ItemGroup>
   <ItemGroup>

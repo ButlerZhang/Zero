@@ -64,6 +64,9 @@
       <Filter>Test</Filter>
     </ClInclude>
     <ClInclude Include="QTCPConnection.h" />
+    <ClInclude Include="Test\EchoClient.h">
+      <Filter>Test</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Backend">

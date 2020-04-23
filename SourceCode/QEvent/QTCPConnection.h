@@ -25,6 +25,8 @@ public:
     void SetReadCallback(MessageCallback Callback);
     void SetPeerIPandPort(const std::string &IP, int Port);
 
+    bool Send(const std::string &Message) const;
+
 private:
 
     void Callback_ChannelRead();

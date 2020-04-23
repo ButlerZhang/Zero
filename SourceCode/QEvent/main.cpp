@@ -1,5 +1,5 @@
 #include <cstdio>
-#include "Test/ClientTest.h"
+#include "Test/EchoClient.h"
 #include "Test/EchoServer.h"
 #include <iostream>
 
@@ -49,11 +49,15 @@ int main(int argc, char *argv[])
     }
     else
     {
-        ClientTest MyClient;
-        const int ClientCount = 1;// FD_SETSIZE;
-        MyClient.Start(ServerIP, ServerPort, ClientCount);
+        g_Log.SetLogFile("client.txt");
 
-        std::cin >> Choose;
+        QEventLoop EventLoop;
+        EventLoop.Init();
+
+        EchoClient Echo(EventLoop);
+        Echo.Connect(ServerIP, ServerPort);
+
+        EventLoop.Dispatch();
     }
 
 #ifdef _WIN32

@@ -69,6 +69,9 @@
     <ClInclude Include="..\QEvent\QTCPConnection.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\QEvent\Test\EchoClient.h">
+      <Filter>Test</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\QEvent\main.cpp">

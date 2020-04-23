@@ -1,9 +1,6 @@
 #pragma once
-#include "QChannel.h"
 #include "QTCPConnection.h"
 #include <map>
-
-class QEventLoop;
 
 
 
@@ -12,7 +9,7 @@ class QTCPServer
 public:
 
     QTCPServer(QEventLoop &Loop);
-    ~QTCPServer();
+    virtual ~QTCPServer();
 
     bool Start(int Port);
     bool Start(const std::string &BindIP, int Port);

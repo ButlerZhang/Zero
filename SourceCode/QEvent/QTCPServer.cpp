@@ -28,20 +28,8 @@ bool QTCPServer::Start(int Port)
 
 bool QTCPServer::Start(const std::string &BindIP, int Port)
 {
-    QEventFD ListenSocket = socket(PF_INET, SOCK_STREAM, 0);
-    if (ListenSocket < 0)
-    {
-        return false;
-    }
-
-    struct sockaddr_in BindAddress;
-    QNetwork::InitSockAddress(BindAddress, BindIP, Port);
-    if (bind(ListenSocket, (struct sockaddr*)&BindAddress, sizeof(BindAddress)) < 0)
-    {
-        return false;
-    }
-
-    if (listen(ListenSocket, SOMAXCONN) < 0)
+    static QNetwork Network;
+    if (!Network.Listen(BindIP, Port))
     {
         return false;
     }
@@ -49,10 +37,10 @@ bool QTCPServer::Start(const std::string &BindIP, int Port)
     m_BindIP = BindIP;
     m_Port = Port;
 
-    QNetwork::SetSocketNonblocking(ListenSocket);
-    QNetwork::SetListenSocketReuseable(ListenSocket);
+    QNetwork::SetSocketNonblocking(Network.GetSocket());
+    QNetwork::SetListenSocketReuseable(Network.GetSocket());
 
-    m_ListenChannel = std::make_shared<QChannel>(ListenSocket);
+    m_ListenChannel = std::make_shared<QChannel>(Network.GetSocket());
     m_ListenChannel->SetReadCallback(std::bind(&QTCPServer::Callback_Accept, this));
 
     m_EventLoop.GetBackend()->AddEvent(m_ListenChannel);

@@ -33,7 +33,7 @@ int QTCPConnection::GetPeerPort() const
     return m_PeerPort;
 }
 
-const std::string & QTCPConnection::GetPeerIP() const
+const std::string& QTCPConnection::GetPeerIP() const
 {
     return m_PeerIP;
 }
@@ -47,6 +47,14 @@ void QTCPConnection::SetPeerIPandPort(const std::string &IP, int Port)
 {
     m_PeerIP = IP;
     m_PeerPort = Port;
+}
+
+bool QTCPConnection::Send(const std::string &Message) const
+{
+    int SendSize = (int)send(m_Channel->GetFD(), Message.c_str(), Message.size(), 0);
+
+    g_Log.WriteDebug("Send message size = %d", SendSize);
+    return SendSize == static_cast<int>(Message.size());
 }
 
 void QTCPConnection::Callback_ChannelRead()
