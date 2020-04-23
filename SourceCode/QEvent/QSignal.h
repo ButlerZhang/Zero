@@ -21,7 +21,7 @@ public:
 
 private:
 
-    void Callback_Process(const QChannel &Channel);
+    void Callback_Process();
     static void Callback_Catch(int Signal);
 
 private:

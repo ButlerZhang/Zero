@@ -16,7 +16,7 @@ QTimer::~QTimer()
 bool QTimer::Init(const std::shared_ptr<QBackend> &Backend)
 {
     m_Channel = std::make_shared<QChannel>(-1);
-    m_Channel->SetReadCallback(std::bind(&QTimer::Callback_Timeout, this, std::placeholders::_1));
+    m_Channel->SetReadCallback(std::bind(&QTimer::Callback_Timeout, this));
     return Backend->AddEventToChannelMap(m_Channel, QEO_ADD);
 }
 
@@ -58,7 +58,7 @@ bool QTimer::DelTimer(int64_t TimerID)
     return true;
 }
 
-void QTimer::Callback_Timeout(const QChannel &Channel)
+void QTimer::Callback_Timeout()
 {
     if (m_MinHeap.HasNode())
     {

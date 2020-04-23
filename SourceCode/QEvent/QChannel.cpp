@@ -27,7 +27,7 @@ void QChannel::HandlerEvent() const
     {
         if (m_ReadCallback != nullptr)
         {
-            m_ReadCallback(*this);
+            m_ReadCallback();
         }
         else
         {
@@ -40,7 +40,7 @@ void QChannel::HandlerEvent() const
     {
         if (m_WriteCallback != nullptr)
         {
-            m_WriteCallback(*this);
+            m_WriteCallback();
         }
         else
         {
@@ -55,13 +55,13 @@ void QChannel::SetResultEvents(int ResultEvents)
     m_ResultEvents = ResultEvents;
 }
 
-void QChannel::SetReadCallback(IOEventCallback ReadCallback)
+void QChannel::SetReadCallback(EventCallback ReadCallback)
 {
     m_ReadCallback = ReadCallback;
     m_Events |= QET_READ;
 }
 
-void QChannel::SetWriteCallback(IOEventCallback WriteCallback)
+void QChannel::SetWriteCallback(EventCallback WriteCallback)
 {
     m_WriteCallback = WriteCallback;
     m_Events |= QET_WRITE;

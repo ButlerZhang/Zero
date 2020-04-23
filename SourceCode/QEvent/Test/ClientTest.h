@@ -25,8 +25,8 @@ private:
 
 private:
 
-    void CMDInput(const QChannel &Event);
-    void Recevie(const QChannel &Event);
+    //void CMDInput();
+    void Recevie();
 
 private:
 

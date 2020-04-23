@@ -50,7 +50,7 @@ bool QSignal::Init(const std::shared_ptr<QBackend> &Backend)
     m_WriteFD = FD[1];
 
     m_Channel = std::make_shared<QChannel>(m_ReadFD);
-    m_Channel->SetReadCallback(std::bind(&QSignal::Callback_Process, this, std::placeholders::_1));
+    m_Channel->SetReadCallback(std::bind(&QSignal::Callback_Process, this));
 
     return Backend->AddEvent(m_Channel);
 }
@@ -83,7 +83,7 @@ bool QSignal::DelSignal(int Signal)
     return true;
 }
 
-void QSignal::Callback_Process(const QChannel &Channel)
+void QSignal::Callback_Process()
 {
     int Signal = -1;
 
@@ -96,7 +96,7 @@ void QSignal::Callback_Process(const QChannel &Channel)
 #else
     if (read(m_ReadFD, &Signal, sizeof(QEventFD)) != sizeof(QEventFD))
     {
-        g_Log.WriteDebug("Can not read signal = %d", Channel.GetFD());
+        g_Log.WriteDebug("Can not read signal = %d", m_Channel->GetFD());
     }
 #endif // _WIN32
 

@@ -36,7 +36,7 @@ public:
 
 private:
 
-    void Callback_Timeout(const QChannel &Channel);
+    void Callback_Timeout();
 
 private:
 

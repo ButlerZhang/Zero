@@ -3,12 +3,8 @@
 #include "QEventEnum.h"
 
 #include <memory>
-#include <functional>
 
-class QChannel;
 class QBackend;
-
-typedef std::function<void(const QChannel &Event)> IOEventCallback;
 
 
 
@@ -23,8 +19,8 @@ public:
     void HandlerEvent() const;
 
     void SetResultEvents(int ResultEvents);
-    void SetReadCallback(IOEventCallback ReadCallback);
-    void SetWriteCallback(IOEventCallback WriteCallback);
+    void SetReadCallback(EventCallback ReadCallback);
+    void SetWriteCallback(EventCallback WriteCallback);
 
     inline int GetEvents() const { return m_Events; }
     inline int GetResultEvents() const { return m_ResultEvents; }
@@ -41,11 +37,9 @@ protected:
 
     int                                         m_Events;
     int                                         m_ResultEvents;
-
     QEventFD                                    m_EventFD;
-
-    IOEventCallback                             m_ReadCallback;
-    IOEventCallback                             m_WriteCallback;
+    EventCallback                               m_ReadCallback;
+    EventCallback                               m_WriteCallback;
 
     timeval                                     m_Timeout;
     std::shared_ptr<QBackend>                   m_Backend;

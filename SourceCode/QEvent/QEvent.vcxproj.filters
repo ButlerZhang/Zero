@@ -17,9 +17,6 @@
     <ClCompile Include="Test\ClientTest.cpp">
       <Filter>Test</Filter>
     </ClCompile>
-    <ClCompile Include="Test\UnitTest.cpp">
-      <Filter>Test</Filter>
-    </ClCompile>
     <ClCompile Include="QEventEnum.cpp" />
     <ClCompile Include="QMinHeap.cpp" />
     <ClCompile Include="QNetwork.cpp" />
@@ -49,9 +46,6 @@
     </ClInclude>
     <ClInclude Include="QLibBase.h" />
     <ClInclude Include="Test\ClientTest.h">
-      <Filter>Test</Filter>
-    </ClInclude>
-    <ClInclude Include="Test\UnitTest.h">
       <Filter>Test</Filter>
     </ClInclude>
     <ClInclude Include="QEventEnum.h" />

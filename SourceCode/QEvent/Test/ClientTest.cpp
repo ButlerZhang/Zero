@@ -16,6 +16,7 @@
 #include <vector>
 
 
+QEventFD g_FD = -1;
 
 ClientTest::ClientTest()
 {
@@ -68,8 +69,9 @@ bool ClientTest::SingleThread(int ClientCount)
         {
             QNetwork::SetSocketNonblocking(Network.GetSocket());
 
+            g_FD = Network.GetSocket();
             std::shared_ptr<QChannel> ReceiveEvent = std::make_shared<QChannel>(Network.GetSocket());
-            ReceiveEvent->SetReadCallback(std::bind(&ClientTest::Recevie, this, std::placeholders::_1));
+            ReceiveEvent->SetReadCallback(std::bind(&ClientTest::Recevie, this));
             EventLoop.GetBackend()->AddEvent(ReceiveEvent);
         }
     }
@@ -131,36 +133,37 @@ void ClientTest::CallBack_Thread(void *ClientObject, int ClientID)
     }
 }
 
-void ClientTest::CMDInput(const QChannel &Event)
-{
-    char InputMsg[BUFFER_SIZE];
-    memset(InputMsg, 0, BUFFER_SIZE);
+//void ClientTest::CMDInput()
+//{
+//    char InputMsg[BUFFER_SIZE];
+//    memset(InputMsg, 0, BUFFER_SIZE);
+//
+//    int SourceFD = static_cast<int>((int)Event.GetFD());
+//    int ReadSize = static_cast<int>(read(SourceFD, InputMsg, BUFFER_SIZE));
+//    if (ReadSize <= 0)
+//    {
+//        g_Log.WriteError("ERROR: Can not read from cmd.");
+//        return;
+//    }
+//
+//    InputMsg[ReadSize - 1] = '\0';
+//    if (strlen(InputMsg) <= 0)
+//    {
+//        return;
+//    }
+//
+//    //int TargetFD = *((int*)Event.GetExtendArg());
+//    //int WriteSize = static_cast<int>(write(TargetFD, InputMsg, ReadSize));
+//    //g_Log.WriteInfo("Send input msg = %s, size = %d.", InputMsg, WriteSize);
+//}
 
-    int SourceFD = static_cast<int>((int)Event.GetFD());
-    int ReadSize = static_cast<int>(read(SourceFD, InputMsg, BUFFER_SIZE));
-    if (ReadSize <= 0)
-    {
-        g_Log.WriteError("ERROR: Can not read from cmd.");
-        return;
-    }
-
-    InputMsg[ReadSize - 1] = '\0';
-    if (strlen(InputMsg) <= 0)
-    {
-        return;
-    }
-
-    //int TargetFD = *((int*)Event.GetExtendArg());
-    //int WriteSize = static_cast<int>(write(TargetFD, InputMsg, ReadSize));
-    //g_Log.WriteInfo("Send input msg = %s, size = %d.", InputMsg, WriteSize);
-}
-
-void ClientTest::Recevie(const QChannel &Event)
+void ClientTest::Recevie()
 {
     char Message[BUFFER_SIZE];
     memset(Message, 0, BUFFER_SIZE);
 
-    int ReadSize = static_cast<int>(read(static_cast<int>(Event.GetFD()), Message, BUFFER_SIZE));
+    int FD = g_FD;// static_cast<int>(Event.GetFD());
+    int ReadSize = static_cast<int>(read(FD, Message, BUFFER_SIZE));
     if (ReadSize <= 0)
     {
         g_Log.WriteError("Client: Can not read from server.");
