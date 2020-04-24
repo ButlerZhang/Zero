@@ -1,6 +1,8 @@
 #include "QNetwork.h"
 #include "QLog.h"
 
+#include <cstring>
+
 #ifdef _WIN32
 #include <io.h>
 #include <winsock.h>
@@ -10,8 +12,6 @@
 #include <unistd.h>
 #include <fcntl.h>
 #endif
-
-#include <string.h>     //strerrno
 
 
 
@@ -274,7 +274,7 @@ void QNetwork::InitSockAddress(sockaddr_in &ServerAddress, const std::string &IP
     ServerAddress.sin_family = AF_INET;
     ServerAddress.sin_port = htons(static_cast<uint16_t>(Port));
 
-    if (IP.empty())
+    if (!IP.empty())
     {
         inet_pton(AF_INET, IP.c_str(), &ServerAddress.sin_addr);
     }

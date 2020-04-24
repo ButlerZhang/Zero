@@ -5,11 +5,7 @@
 #include "QChannel.h"
 #include "QLog.h"
 
-#ifdef _WIN32
-#else
-#include <unistd.h>
-#include <string.h>
-#endif
+#include <cstring>
 
 
 
@@ -53,9 +49,11 @@ void QTCPConnection::SetPeerIPandPort(const std::string &IP, int Port)
     m_PeerPort = Port;
 }
 
-ssize_t QTCPConnection::Send(const std::string &Message) const
+int QTCPConnection::Send(const std::string &Message) const
 {
-    return send(m_Channel->GetFD(), Message.c_str(), Message.size(), 0);
+    int SendSize = static_cast<int>(send(m_Channel->GetFD(), Message.c_str(), Message.size(), 0));
+    g_Log.WriteDebug("QTCPConnection::Send, size = %d, msg = %s", SendSize, Message.c_str());
+    return SendSize;
 }
 
 void QTCPConnection::Callback_ChannelRead()
@@ -63,11 +61,11 @@ void QTCPConnection::Callback_ChannelRead()
     g_Log.WriteDebug("QTCPConnection::Callback_ChannelRead");
 
     std::vector<char> Buffer(BUFFER_SIZE, 0);
-    ssize_t RecvSize = recv(m_Channel->GetFD(), &Buffer[0], BUFFER_SIZE - 1, 0);
+    int RecvSize = static_cast<int>(recv(m_Channel->GetFD(), &Buffer[0], BUFFER_SIZE - 1, 0));
 
     if (RecvSize > 0)
     {
-        m_ReadCallback(*this, Buffer);
+        m_ReadCallback(*this, Buffer, RecvSize);
     }
     else if (RecvSize == 0)
     {

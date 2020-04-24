@@ -1,7 +1,7 @@
 #include "QLog.h"
 #include <stdio.h>
 #include <chrono>
-#include <string.h>
+#include <cstring>
 
 
 QLog g_Log;

@@ -4,10 +4,11 @@
 #include "Backend/QBackend.h"
 #include "Backend/QEventLoop.h"
 
+#include <cstring>
+
 #ifdef _WIN32
 #else
 #include <arpa/inet.h>
-#include <string.h>
 #endif
 
 

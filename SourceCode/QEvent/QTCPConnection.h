@@ -9,7 +9,7 @@ class QEventLoop;
 class QTCPConnection;
 
 typedef std::function<void(const QTCPConnection&)> ConnectedCallback;
-typedef std::function<void(const QTCPConnection&, std::vector<char>&)> ReadCallback;
+typedef std::function<void(const QTCPConnection&, std::vector<char>&, int)> ReadCallback;
 
 
 
@@ -27,7 +27,7 @@ public:
     void SetReadCallback(ReadCallback Callback);
     void SetPeerIPandPort(const std::string &IP, int Port);
 
-    ssize_t Send(const std::string &Message) const;
+    int Send(const std::string &Message) const;
 
 private:
 
