@@ -13,8 +13,7 @@
 
 
 
-QTCPConnection::QTCPConnection(QEventLoop &Loop, QEventFD FD) :
-    m_EventLoop(Loop)
+QTCPConnection::QTCPConnection(QEventLoop &Loop, QEventFD FD) : m_EventLoop(Loop)
 {
     m_Channel = std::make_shared<QChannel>(FD);
 
@@ -28,6 +27,11 @@ QTCPConnection::~QTCPConnection()
 {
 }
 
+QEventFD QTCPConnection::GetFD() const
+{
+    return m_Channel->GetFD();
+}
+
 int QTCPConnection::GetPeerPort() const
 {
     return m_PeerPort;
@@ -38,7 +42,7 @@ const std::string& QTCPConnection::GetPeerIP() const
     return m_PeerIP;
 }
 
-void QTCPConnection::SetReadCallback(MessageCallback Callback)
+void QTCPConnection::SetReadCallback(ReadCallback Callback)
 {
     m_ReadCallback = Callback;
 }
@@ -49,61 +53,65 @@ void QTCPConnection::SetPeerIPandPort(const std::string &IP, int Port)
     m_PeerPort = Port;
 }
 
-bool QTCPConnection::Send(const std::string &Message) const
+ssize_t QTCPConnection::Send(const std::string &Message) const
 {
-    int SendSize = (int)send(m_Channel->GetFD(), Message.c_str(), Message.size(), 0);
-
-    g_Log.WriteDebug("Send message size = %d", SendSize);
-    return SendSize == static_cast<int>(Message.size());
+    return send(m_Channel->GetFD(), Message.c_str(), Message.size(), 0);
 }
 
 void QTCPConnection::Callback_ChannelRead()
 {
-    g_Log.WriteDebug("QTCPServer::Callback_Recevie");
+    g_Log.WriteDebug("QTCPConnection::Callback_ChannelRead");
 
-    char DataBuffer[BUFFER_SIZE];
-    memset(DataBuffer, 0, sizeof(DataBuffer));
+    std::vector<char> Buffer(BUFFER_SIZE, 0);
+    ssize_t RecvSize = recv(m_Channel->GetFD(), &Buffer[0], BUFFER_SIZE - 1, 0);
 
-    int RecvSize = (int)recv(m_Channel->GetFD(), DataBuffer, BUFFER_SIZE - 1, 0);
     if (RecvSize > 0)
     {
-        g_Log.WriteInfo("Received %d bytes data from client = %d, msg = %s",
-            RecvSize, m_Channel->GetFD(), DataBuffer);
-
-        int WriteSize = (int)send(m_Channel->GetFD(), DataBuffer, RecvSize, 0);
-        g_Log.WriteInfo("Server ack, size = %d", WriteSize);
-
-        m_ReadCallback(*this);
+        m_ReadCallback(*this, Buffer);
     }
     else if (RecvSize == 0)
     {
-        //m_EventLoop.DelEvent(Event);
-        QNetwork::CloseSocket(m_Channel->GetFD());
-        g_Log.WriteInfo("Client = %d disconnected", m_Channel->GetFD());
+        Callback_ChannelClose();
     }
     else
     {
-#ifdef _WIN32
-        int WSAErrno = WSAGetLastError();
-        g_Log.WriteError("Recv errno = %d", WSAErrno);
-        if (WSAErrno != WSAEWOULDBLOCK)
-        {
-            //m_EventLoop.DelEvent(Event);
-            QNetwork::CloseSocket(m_Channel->GetFD());
-            g_Log.WriteInfo("Client = %d disconnected", m_Channel->GetFD());
-        }
-#else
-        int Errno = errno;
-        g_Log.WriteError("Recv errno = %d", Errno);
-        if (Errno != EAGAIN)
-        {
-            g_Log.WriteInfo("Recv errno: TODO", m_Channel->GetFD());
-        }
-#endif // _WIN32
+        Callback_ChannelException();
     }
 }
 
 void QTCPConnection::Callback_ChannelWrite()
 {
-    g_Log.WriteDebug("QTCPConnection::Callback_Write");
+    g_Log.WriteDebug("QTCPConnection::Callback_ChannelWrite");
+}
+
+void QTCPConnection::Callback_ChannelClose()
+{
+    g_Log.WriteDebug("QTCPConnection::Callback_ChannelClose");
+
+    m_Channel->SetReadCallback(nullptr);
+    m_Channel->SetWriteCallback(nullptr);
+    m_EventLoop.GetBackend()->DelEvent(m_Channel);
+
+    QNetwork::CloseSocket(m_Channel->GetFD());
+}
+
+void QTCPConnection::Callback_ChannelException()
+{
+#ifdef _WIN32
+    int WSAErrno = WSAGetLastError();
+    g_Log.WriteError("Recv errno = %d", WSAErrno);
+    if (WSAErrno != WSAEWOULDBLOCK)
+    {
+        //m_EventLoop.DelEvent(Event);
+        QNetwork::CloseSocket(m_Channel->GetFD());
+        g_Log.WriteInfo("Client = %d disconnected", m_Channel->GetFD());
+    }
+#else
+    int Errno = errno;
+    g_Log.WriteError("Recv errno = %d", Errno);
+    if (Errno != EAGAIN)
+    {
+        g_Log.WriteInfo("Recv errno message: %s", strerror(Errno));
+    }
+#endif // _WIN32
 }

@@ -15,7 +15,7 @@ public:
     bool Start(const std::string &BindIP, int Port);
 
     void SetName(const std::string &Name);
-    void SetReadCallback(MessageCallback Callback);
+    void SetReadCallback(ReadCallback Callback);
     void SetConnectedCallback(ConnectedCallback Callback);
 
 private:
@@ -30,7 +30,7 @@ private:
     std::string                                              m_Name;
     std::string                                              m_BindIP;
 
-    MessageCallback                                          m_ReadCallback;
+    ReadCallback                                          m_ReadCallback;
     ConnectedCallback                                        m_ConnectedCallback;
 
     std::shared_ptr<QChannel>                                m_ListenChannel;

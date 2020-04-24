@@ -14,7 +14,7 @@ public:
             std::bind(&EchoServer::Callback_Accept, this, std::placeholders::_1));
 
         m_Server.SetReadCallback(
-            std::bind(&EchoServer::Callback_Recevie, this, std::placeholders::_1));
+            std::bind(&EchoServer::Callback_Recevie, this, std::placeholders::_1, std::placeholders::_2));
     }
 
     void Start(const std::string &BindIP, int Port)
@@ -30,17 +30,18 @@ private:
         g_Log.WriteInfo("EchoServer: %s:%d connected.",
             Connected.GetPeerIP().c_str(),
             Connected.GetPeerPort());
-
-        Connected.Send("Hello");
     }
 
-    void Callback_Recevie(const QTCPConnection &Connected)
+    void Callback_Recevie(const QTCPConnection &Connected, std::vector<char> &Buffer)
     {
         g_Log.WriteDebug("EchoServer: Callback_Recevie");
+        g_Log.WriteDebug("EchoServer: %s", &Buffer[0]);
+
+        Connected.Send(std::string(Buffer.begin(), Buffer.end()));
     }
 
 private:
 
-    QEventLoop    &m_EventLoop;
-    QTCPServer     m_Server;
+    QEventLoop                          &m_EventLoop;
+    QTCPServer                           m_Server;
 };

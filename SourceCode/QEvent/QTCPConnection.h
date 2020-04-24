@@ -2,13 +2,14 @@
 #include "QLibBase.h"
 #include <memory>
 #include <string>
+#include <vector>
 
 class QChannel;
 class QEventLoop;
 class QTCPConnection;
 
 typedef std::function<void(const QTCPConnection&)> ConnectedCallback;
-typedef std::function<void(const QTCPConnection&)> MessageCallback;
+typedef std::function<void(const QTCPConnection&, std::vector<char>&)> ReadCallback;
 
 
 
@@ -19,18 +20,21 @@ public:
     QTCPConnection(QEventLoop &Loop, QEventFD FD);
     ~QTCPConnection();
 
+    QEventFD GetFD() const;
     int GetPeerPort() const;
     const std::string& GetPeerIP() const;
 
-    void SetReadCallback(MessageCallback Callback);
+    void SetReadCallback(ReadCallback Callback);
     void SetPeerIPandPort(const std::string &IP, int Port);
 
-    bool Send(const std::string &Message) const;
+    ssize_t Send(const std::string &Message) const;
 
 private:
 
     void Callback_ChannelRead();
     void Callback_ChannelWrite();
+    void Callback_ChannelClose();
+    void Callback_ChannelException();
 
 private:
 
@@ -38,7 +42,7 @@ private:
 
     int                                 m_PeerPort;
     std::string                         m_PeerIP;
-    MessageCallback                     m_ReadCallback;
+    ReadCallback                        m_ReadCallback;
     std::shared_ptr<QChannel>           m_Channel;
 };
 

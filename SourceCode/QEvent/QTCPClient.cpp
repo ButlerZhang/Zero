@@ -21,18 +21,17 @@ bool QTCPClient::Connect(const std::string &ServerIP, int Port)
         return false;
     }
 
-    m_ServerIP = ServerIP;
-    m_ServerPort = Port;
-
     QNetwork::SetSocketNonblocking(Network.GetSocket());
 
-    m_Connection = std::make_shared<QChannel>(Network.GetSocket());
-    m_Connection->SetReadCallback(std::bind(&QTCPClient::Callback_Read, this));
+    m_Connection = std::make_shared<QTCPConnection>(m_EventLoop, Network.GetSocket());
+    m_Connection->SetReadCallback(m_ReadCallback);
+    m_Connection->SetPeerIPandPort(ServerIP, Port);
 
+    m_ConnectedCallback(*m_Connection);
     return true;
 }
 
-void QTCPClient::SetReadCallback(MessageCallback Callback)
+void QTCPClient::SetReadCallback(ReadCallback Callback)
 {
     m_ReadCallback = Callback;
 }
@@ -40,14 +39,4 @@ void QTCPClient::SetReadCallback(MessageCallback Callback)
 void QTCPClient::SetConnectedCallback(ConnectedCallback Callback)
 {
     m_ConnectedCallback = Callback;
-}
-
-void QTCPClient::Callback_Read()
-{
-    //m_ConnectedCallback(*this);
-
-    std::string Message("Hello");
-    int SendSize = (int)send(m_Connection->GetFD(), Message.c_str(), Message.size(), 0);
-
-    g_Log.WriteInfo("QTCPClient::Callback_Read send size = %d.", SendSize);
 }

@@ -86,8 +86,8 @@ bool QEventLoop::Dispatch()
         long MinTimeOut = m_Timer->GetMinTimeout();
         timeval tv = QTimer::ConvertToTimeval(MinTimeOut);
 
-        g_Log.WriteDebug("Dispatch: min timeout = %ld, tv.sec = %d, tv.usec = %d",
-            MinTimeOut, tv.tv_sec, tv.tv_usec);
+        //g_Log.WriteDebug("Dispatch: min timeout = %ld, tv.sec = %d, tv.usec = %d",
+        //    MinTimeOut, tv.tv_sec, tv.tv_usec);
 
         m_Backend->Dispatch(tv);
     }

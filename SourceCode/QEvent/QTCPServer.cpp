@@ -52,7 +52,7 @@ void QTCPServer::SetName(const std::string &Name)
     m_Name = Name;
 }
 
-void QTCPServer::SetReadCallback(MessageCallback Callback)
+void QTCPServer::SetReadCallback(ReadCallback Callback)
 {
     m_ReadCallback = Callback;
 }

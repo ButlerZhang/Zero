@@ -2,6 +2,7 @@
 #include "../Backend/QEventLoop.h"
 #include "../QTCPClient.h"
 #include "../QLog.h"
+#include <thread>
 
 
 
@@ -15,7 +16,7 @@ public:
             std::bind(&EchoClient::Callback_Connected, this, std::placeholders::_1));
 
         m_Client.SetReadCallback(
-            std::bind(&EchoClient::Callback_Recevie, this, std::placeholders::_1));
+            std::bind(&EchoClient::Callback_Recevie, this, std::placeholders::_1, std::placeholders::_2));
     }
 
     void Connect(const std::string &ServerIP, int Port)
@@ -34,11 +35,13 @@ private:
         Connected.Send("Hello");
     }
 
-    void Callback_Recevie(const QTCPConnection &Connected)
+    void Callback_Recevie(const QTCPConnection &Connected, std::vector<char> &Buffer)
     {
         g_Log.WriteDebug("EchoClient: Callback_Recevie");
+        g_Log.WriteDebug("EchoClient: %s", &Buffer[0]);
 
-        Connected.Send("World");
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+        Connected.Send("Hello");
     }
 
 private:
