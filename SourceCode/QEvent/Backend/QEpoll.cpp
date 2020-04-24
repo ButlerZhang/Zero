@@ -1,10 +1,10 @@
 #include "QEpoll.h"
-#include "QEventLoop.h"
+#include "../QEventLoop.h"
 #include "../QLog.h"
 #include "../QTimer.h"
 
+#include <cstring>                  //strerror
 #include <unistd.h>                 //close
-#include <string.h>                 //strerror
 
 
 

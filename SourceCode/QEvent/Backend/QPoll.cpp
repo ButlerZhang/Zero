@@ -1,9 +1,9 @@
 #include "QPoll.h"
-#include "QEventLoop.h"
+#include "../QEventLoop.h"
 #include "../QLog.h"
 #include "../QTimer.h"
 
-#include <string.h>                  //strerror
+#include <cstring>                  //strerror
 
 
 

@@ -1,15 +1,15 @@
 #include "QEventLoop.h"
-#include "QBackend.h"
-#include "../QLog.h"
-#include "../QTimer.h"
-#include "../QSignal.h"
+#include "Backend/QBackend.h"
+#include "QLog.h"
+#include "QTimer.h"
+#include "QSignal.h"
 
 #ifdef _WIN32
-#include "QWin32Select.h"
+#include "Backend/QWin32Select.h"
 #else
-#include "QSelect.h"
-#include "QPoll.h"
-#include "QEpoll.h"
+#include "Backend/QSelect.h"
+#include "Backend/QPoll.h"
+#include "Backend/QEpoll.h"
 #endif
 
 

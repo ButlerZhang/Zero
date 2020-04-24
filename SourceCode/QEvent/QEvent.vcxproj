@@ -66,10 +66,10 @@
     <ClInclude Include="Backend\QBackend.h" />
     <ClInclude Include="Backend\QEpoll.h" />
     <ClInclude Include="Backend\QPoll.h" />
-    <ClInclude Include="Backend\QEventLoop.h" />
     <ClInclude Include="Backend\QSelect.h" />
     <ClInclude Include="QChannel.h" />
     <ClInclude Include="QEventEnum.h" />
+    <ClInclude Include="QEventLoop.h" />
     <ClInclude Include="QLibBase.h" />
     <ClInclude Include="QLog.h" />
     <ClInclude Include="QMinHeap.h" />
@@ -80,18 +80,18 @@
     <ClInclude Include="QTCPServer.h" />
     <ClInclude Include="QTimer.h" />
     <ClInclude Include="Test\ClientTest.h" />
-    <ClInclude Include="Test\EchoClient.h" />
-    <ClInclude Include="Test\EchoServer.h" />
+    <ClInclude Include="Test\Echo\EchoClient.h" />
+    <ClInclude Include="Test\Echo\EchoServer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Backend\QBackend.cpp" />
     <ClCompile Include="Backend\QEpoll.cpp" />
     <ClCompile Include="Backend\QPoll.cpp" />
-    <ClCompile Include="Backend\QEventLoop.cpp" />
     <ClCompile Include="Backend\QSelect.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="QChannel.cpp" />
     <ClCompile Include="QEventEnum.cpp" />
+    <ClCompile Include="QEventLoop.cpp" />
     <ClCompile Include="QLog.cpp" />
     <ClCompile Include="QMinHeap.cpp" />
     <ClCompile Include="QNetwork.cpp" />

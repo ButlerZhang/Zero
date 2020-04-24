@@ -1,7 +1,7 @@
 #pragma once
-#include "../Backend/QEventLoop.h"
-#include "../QTCPClient.h"
-#include "../QLog.h"
+#include "../../QEventLoop.h"
+#include "../../QTCPClient.h"
+#include "../../QLog.h"
 #include <thread>
 
 

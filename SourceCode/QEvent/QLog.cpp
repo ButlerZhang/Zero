@@ -1,5 +1,5 @@
 #include "QLog.h"
-#include <stdio.h>
+#include <cstdio>
 #include <chrono>
 #include <cstring>
 

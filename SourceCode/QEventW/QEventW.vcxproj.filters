@@ -19,6 +19,9 @@
     <Filter Include="Test">
       <UniqueIdentifier>{bb13a3c2-d71c-4f1b-bd9a-f876f95b62fe}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Test\Echo">
+      <UniqueIdentifier>{8aa66b57-3ed2-4cd5-8c7f-b9a88bb73cfa}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\QEvent\Backend\QBackend.h">
@@ -51,9 +54,6 @@
     <ClInclude Include="..\QEvent\QTimer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\QEvent\Backend\QEventLoop.h">
-      <Filter>Backend</Filter>
-    </ClInclude>
     <ClInclude Include="..\QEvent\QLog.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -63,14 +63,17 @@
     <ClInclude Include="..\QEvent\QTCPServer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\QEvent\Test\EchoServer.h">
-      <Filter>Test</Filter>
-    </ClInclude>
     <ClInclude Include="..\QEvent\QTCPConnection.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\QEvent\Test\EchoClient.h">
-      <Filter>Test</Filter>
+    <ClInclude Include="..\QEvent\Test\Echo\EchoClient.h">
+      <Filter>Test\Echo</Filter>
+    </ClInclude>
+    <ClInclude Include="..\QEvent\Test\Echo\EchoServer.h">
+      <Filter>Test\Echo</Filter>
+    </ClInclude>
+    <ClInclude Include="..\QEvent\QEventLoop.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -104,9 +107,6 @@
     <ClCompile Include="..\QEvent\QTimer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\QEvent\Backend\QEventLoop.cpp">
-      <Filter>Backend</Filter>
-    </ClCompile>
     <ClCompile Include="..\QEvent\QLog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -117,6 +117,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\QEvent\QTCPConnection.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\QEvent\QEventLoop.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

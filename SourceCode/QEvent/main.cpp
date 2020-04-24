@@ -1,6 +1,6 @@
 #include <cstdio>
-#include "Test/EchoClient.h"
-#include "Test/EchoServer.h"
+#include "Test/Echo/EchoClient.h"
+#include "Test/Echo/EchoServer.h"
 #include <iostream>
 
 

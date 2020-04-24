@@ -1,8 +1,8 @@
 #include "ClientTest.h"
 #include "../QChannel.h"
 #include "../QNetwork.h"
+#include "../QEventLoop.h"
 #include "../Backend/QBackend.h"
-#include "../Backend/QEventLoop.h"
 
 #ifdef _WIN32
 #include <io.h>

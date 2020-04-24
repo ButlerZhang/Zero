@@ -1,5 +1,5 @@
 #include "QWin32Select.h"
-#include "QEventLoop.h"
+#include "../QEventLoop.h"
 #include "../QLog.h"
 #include "../QTimer.h"
 #include "../QNetwork.h"

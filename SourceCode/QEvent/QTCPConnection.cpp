@@ -1,6 +1,6 @@
 #include "QTCPConnection.h"
 #include "Backend/QBackend.h"
-#include "Backend/QEventLoop.h"
+#include "QEventLoop.h"
 #include "QNetwork.h"
 #include "QChannel.h"
 #include "QLog.h"

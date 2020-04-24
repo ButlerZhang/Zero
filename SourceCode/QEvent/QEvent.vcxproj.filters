@@ -23,13 +23,11 @@
     <ClCompile Include="QSignal.cpp" />
     <ClCompile Include="QChannel.cpp" />
     <ClCompile Include="QTimer.cpp" />
-    <ClCompile Include="Backend\QEventLoop.cpp">
-      <Filter>Backend</Filter>
-    </ClCompile>
     <ClCompile Include="QLog.cpp" />
     <ClCompile Include="QTCPServer.cpp" />
     <ClCompile Include="QTCPClient.cpp" />
     <ClCompile Include="QTCPConnection.cpp" />
+    <ClCompile Include="QEventLoop.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Backend\QBackend.h">
@@ -54,19 +52,17 @@
     <ClInclude Include="QSignal.h" />
     <ClInclude Include="QChannel.h" />
     <ClInclude Include="QTimer.h" />
-    <ClInclude Include="Backend\QEventLoop.h">
-      <Filter>Backend</Filter>
-    </ClInclude>
     <ClInclude Include="QLog.h" />
     <ClInclude Include="QTCPServer.h" />
     <ClInclude Include="QTCPClient.h" />
-    <ClInclude Include="Test\EchoServer.h">
-      <Filter>Test</Filter>
-    </ClInclude>
     <ClInclude Include="QTCPConnection.h" />
-    <ClInclude Include="Test\EchoClient.h">
-      <Filter>Test</Filter>
+    <ClInclude Include="Test\Echo\EchoClient.h">
+      <Filter>Test\Echo</Filter>
     </ClInclude>
+    <ClInclude Include="Test\Echo\EchoServer.h">
+      <Filter>Test\Echo</Filter>
+    </ClInclude>
+    <ClInclude Include="QEventLoop.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Backend">
@@ -74,6 +70,9 @@
     </Filter>
     <Filter Include="Test">
       <UniqueIdentifier>{51dcc772-03b3-4cd7-96d7-8d9203070b61}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Test\Echo">
+      <UniqueIdentifier>{404449e1-d74a-448d-8c81-38c0ac150726}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

@@ -117,10 +117,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\QEvent\Backend\QBackend.h" />
-    <ClInclude Include="..\QEvent\Backend\QEventLoop.h" />
     <ClInclude Include="..\QEvent\Backend\QWin32Select.h" />
     <ClInclude Include="..\QEvent\QChannel.h" />
     <ClInclude Include="..\QEvent\QEventEnum.h" />
+    <ClInclude Include="..\QEvent\QEventLoop.h" />
     <ClInclude Include="..\QEvent\QLibBase.h" />
     <ClInclude Include="..\QEvent\QLog.h" />
     <ClInclude Include="..\QEvent\QMinHeap.h" />
@@ -131,16 +131,16 @@
     <ClInclude Include="..\QEvent\QTCPServer.h" />
     <ClInclude Include="..\QEvent\QTimer.h" />
     <ClInclude Include="..\QEvent\Test\ClientTest.h" />
-    <ClInclude Include="..\QEvent\Test\EchoClient.h" />
-    <ClInclude Include="..\QEvent\Test\EchoServer.h" />
+    <ClInclude Include="..\QEvent\Test\Echo\EchoClient.h" />
+    <ClInclude Include="..\QEvent\Test\Echo\EchoServer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\QEvent\Backend\QBackend.cpp" />
-    <ClCompile Include="..\QEvent\Backend\QEventLoop.cpp" />
     <ClCompile Include="..\QEvent\Backend\QWin32Select.cpp" />
     <ClCompile Include="..\QEvent\main.cpp" />
     <ClCompile Include="..\QEvent\QChannel.cpp" />
     <ClCompile Include="..\QEvent\QEventEnum.cpp" />
+    <ClCompile Include="..\QEvent\QEventLoop.cpp" />
     <ClCompile Include="..\QEvent\QLog.cpp" />
     <ClCompile Include="..\QEvent\QMinHeap.cpp" />
     <ClCompile Include="..\QEvent\QNetwork.cpp" />

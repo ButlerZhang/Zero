@@ -1,6 +1,6 @@
 #pragma once
-#include "../Backend/QEventLoop.h"
-#include "../QTCPServer.h"
+#include "../../QEventLoop.h"
+#include "../../QTCPServer.h"
 
 
 
