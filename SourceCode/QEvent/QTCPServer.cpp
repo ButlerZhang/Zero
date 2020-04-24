@@ -20,6 +20,7 @@ QTCPServer::QTCPServer(QEventLoop &Loop) :m_EventLoop(Loop)
 
 QTCPServer::~QTCPServer()
 {
+    QNetwork::CloseSocket(m_ListenChannel->GetFD());
 }
 
 bool QTCPServer::Start(int Port)
@@ -29,8 +30,8 @@ bool QTCPServer::Start(int Port)
 
 bool QTCPServer::Start(const std::string &BindIP, int Port)
 {
-    static QNetwork Network;
-    if (!Network.Listen(BindIP, Port))
+    QEventFD Socket = QNetwork::CreateSocket();
+    if (Socket < 0 || !QNetwork::Bind(Socket, BindIP, Port) || !QNetwork::Listen(Socket))
     {
         return false;
     }
@@ -38,10 +39,10 @@ bool QTCPServer::Start(const std::string &BindIP, int Port)
     m_BindIP = BindIP;
     m_Port = Port;
 
-    QNetwork::SetSocketNonblocking(Network.GetSocket());
-    QNetwork::SetListenSocketReuseable(Network.GetSocket());
+    QNetwork::SetSocketNonblocking(Socket);
+    QNetwork::SetListenSocketReuseable(Socket);
 
-    m_ListenChannel = std::make_shared<QChannel>(Network.GetSocket());
+    m_ListenChannel = std::make_shared<QChannel>(Socket);
     m_ListenChannel->SetReadCallback(std::bind(&QTCPServer::Callback_Accept, this));
 
     m_EventLoop.GetBackend()->AddEvent(m_ListenChannel);
@@ -67,20 +68,16 @@ void QTCPServer::Callback_Accept()
 {
     g_Log.WriteDebug("QTCPServer::Callback_Accept");
 
-    struct sockaddr_in ClientAddress;
-    socklen_t AddLength = sizeof(ClientAddress);
-    QEventFD ClientFD = accept(m_ListenChannel->GetFD(), (struct sockaddr*)&ClientAddress, &AddLength);
-    g_Log.WriteInfo("Client = %d connected.", ClientFD);
+    int PeerPort = 0;
+    std::string PeerIP;
+    QEventFD ClientFD = QNetwork::Accept(m_ListenChannel->GetFD(), PeerIP, PeerPort);
+    if (ClientFD >= 0)
+    {
+        QNetwork::SetSocketNonblocking(ClientFD);
 
-    int port = ntohs(ClientAddress.sin_port);
-    char str[INET_ADDRSTRLEN];
-    memset(str, 0, INET_ADDRSTRLEN);
-    inet_ntop(AF_INET, &ClientAddress.sin_addr, str, sizeof(str));
-
-    QNetwork::SetSocketNonblocking(ClientFD);
-
-    m_ConnectionMap[ClientFD] = std::make_shared<QTCPConnection>(m_EventLoop, ClientFD);
-    m_ConnectionMap[ClientFD]->SetReadCallback(m_ReadCallback);
-    m_ConnectionMap[ClientFD]->SetPeerIPandPort(str, port);
-    m_ConnectedCallback(*m_ConnectionMap[ClientFD]);
+        m_ConnectionMap[ClientFD] = std::make_shared<QTCPConnection>(m_EventLoop, ClientFD);
+        m_ConnectionMap[ClientFD]->SetPeerIPandPort(PeerIP, PeerPort);
+        m_ConnectionMap[ClientFD]->SetReadCallback(m_ReadCallback);
+        m_ConnectedCallback(*m_ConnectionMap[ClientFD]);
+    }
 }

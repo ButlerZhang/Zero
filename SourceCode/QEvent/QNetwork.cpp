@@ -6,6 +6,7 @@
 #ifdef _WIN32
 #include <io.h>
 #include <winsock.h>
+#include <WS2tcpip.h>
 #else
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -13,101 +14,148 @@
 #include <fcntl.h>
 #endif
 
-
-
-QNetwork::QNetwork()
+void InitSockAddress(struct sockaddr_in &ServerAddress, const std::string &IP, int Port)
 {
-    m_Port = 0;
-    m_Socket = -1;
+    memset(&ServerAddress, 0, sizeof(ServerAddress));
+
+    ServerAddress.sin_family = AF_INET;
+    ServerAddress.sin_port = htons(static_cast<uint16_t>(Port));
+
+    if (!IP.empty())
+    {
+        inet_pton(AF_INET, IP.c_str(), &ServerAddress.sin_addr);
+    }
+    else
+    {
+        ServerAddress.sin_addr.s_addr = htonl(INADDR_ANY);
+    }
 }
 
-QNetwork::~QNetwork()
+
+
+bool QNetwork::Listen(QEventFD Socket)
 {
-    CloseSocket(m_Socket);
-}
-
-bool QNetwork::Listen(const std::string &IP, int Port)
-{
-    m_Socket = socket(PF_INET, SOCK_STREAM, 0);
-    if (m_Socket < 0)
+    if (::listen(Socket, SOMAXCONN) >= 0)
     {
-        WriteSocketErrorLog("Socket");
-        return false;
+        return true;
     }
 
-    struct sockaddr_in BindAddress;
-    InitSockAddress(BindAddress, IP, Port);
-    if (bind(m_Socket, (struct sockaddr*)&BindAddress, sizeof(BindAddress)) < 0)
-    {
-        WriteSocketErrorLog("Bind");
-        return false;
-    }
-
-    if (listen(m_Socket, SOMAXCONN) < 0)
-    {
-        WriteSocketErrorLog("Listen");
-        return false;
-    }
-
-    g_Log.WriteInfo("Network: Start listen, bind IP = %s, port = %d.", IP.c_str(), Port);
-    return true;
-}
-
-bool QNetwork::Connect(const std::string &IP, int Port)
-{
-    m_Socket = socket(PF_INET, SOCK_STREAM, 0);
-    if (m_Socket < 0)
-    {
-        WriteSocketErrorLog("Socket");
-        return false;
-    }
-
-    struct sockaddr_in ServerAddress;
-    InitSockAddress(ServerAddress, IP, Port);
-    if (connect(m_Socket, (struct sockaddr*)&ServerAddress, sizeof(ServerAddress)) < 0)
-    {
-        WriteSocketErrorLog("Connect");
-        return false;
-    }
-
-    g_Log.WriteInfo("Network: Start connect, server IP = %s, port = %d.", IP.c_str(), Port);
-    return true;
-}
-
-void QNetwork::WriteSocketErrorLog(const std::string &Operation)
-{
 #ifdef _WIN32
-    g_Log.WriteError("Network: %s failed, errno = %d.",
-        Operation.c_str(),
+    g_Log.WriteError("Network: Listen failed, errno = %d",
         WSAGetLastError());
 #else
-    g_Log.WriteError("Network: %s failed, errno = %d, msg = %s.",
-        Operation.c_str(),
-        errno,
-        strerror(errno));
+    g_Log.WriteError("Network: Listen failed, errno = %d, msg = %s",
+        errno, strerror(errno));
 #endif // _WIN32
+
+    return false;
+}
+
+QEventFD QNetwork::Accept(QEventFD Socket, std::string &PeerIP, int PeerPort)
+{
+    struct sockaddr_in ClientAddress;
+    socklen_t AddLength = sizeof(ClientAddress);
+    QEventFD ClientFD = ::accept(Socket, (struct sockaddr*)&ClientAddress, &AddLength);
+    if (ClientFD >= 0)
+    {
+        char IPBuffer[INET_ADDRSTRLEN];
+        memset(IPBuffer, 0, INET_ADDRSTRLEN);
+        inet_ntop(AF_INET, &ClientAddress.sin_addr, IPBuffer, sizeof(IPBuffer));
+
+        PeerIP = IPBuffer;
+        PeerPort = ntohs(ClientAddress.sin_port);
+
+        g_Log.WriteDebug("Accept: Client = %d, IP = %s, Port = %d",
+            ClientFD, PeerIP.c_str(), PeerPort);
+
+        return ClientFD;
+    }
+
+#ifdef _WIN32
+    g_Log.WriteError("Network: Accept failed, errno = %d",
+        WSAGetLastError());
+#else
+    g_Log.WriteError("Network: Accept failed, errno = %d, msg = %s",
+        errno, strerror(errno));
+#endif // _WIN32
+
+    return ClientFD;
+}
+
+QEventFD QNetwork::CreateSocket()
+{
+    QEventFD Socket = ::socket(PF_INET, SOCK_STREAM, 0);
+    if (Socket >= 0)
+    {
+        return Socket;
+    }
+
+#ifdef _WIN32
+    g_Log.WriteError("Network: Create socket failed, errno = %d",
+        WSAGetLastError());
+#else
+    g_Log.WriteError("Network: Create socket failed, errno = %d, msg = %s",
+        errno, strerror(errno));
+#endif // _WIN32
+
+    return Socket;
+}
+
+bool QNetwork::Bind(QEventFD Socket, const std::string &IP, int Port)
+{
+    struct sockaddr_in BindAddress;
+    InitSockAddress(BindAddress, IP, Port);
+    if (::bind(Socket, (struct sockaddr*)&BindAddress, sizeof(BindAddress)) >= 0)
+    {
+        return true;
+    }
+
+#ifdef _WIN32
+    g_Log.WriteError("Network: Bind failed, errno = %d",
+        WSAGetLastError());
+#else
+    g_Log.WriteError("Network: Bind failed, errno = %d, msg = %s",
+        errno, strerror(errno));
+#endif // _WIN32
+
+    return false;
+}
+
+bool QNetwork::Connect(QEventFD Socket, const std::string &IP, int Port)
+{
+    struct sockaddr_in ServerAddress;
+    InitSockAddress(ServerAddress, IP, Port);
+    if (::connect(Socket, (struct sockaddr*)&ServerAddress, sizeof(ServerAddress)) >= 0)
+    {
+        return true;
+    }
+
+#ifdef _WIN32
+    g_Log.WriteError("Network: Connect failed, errno = %d",
+        WSAGetLastError());
+#else
+    g_Log.WriteError("Network: Connect failed, errno = %d, msg = %s",
+        errno, strerror(errno));
+#endif // _WIN32
+
+    return false;
 }
 
 bool QNetwork::CloseSocket(QEventFD Socket)
 {
+    if (Socket >= 0)
+    {
 #ifdef _WIN32
-    if (Socket == -1)      //unsigned int64 on windows
-    {
-        return false;
-    }
-
-    ::closesocket(Socket);
+        ::closesocket(Socket);
 #else
-    if (Socket < 0)
-    {
-        return false;
-    }
-
-    close(Socket);
+        close(Socket);
 #endif // _WIN32
 
-    g_Log.WriteDebug("Network: Close socket = %d.", Socket);
-    return true;
+        return true;
+    }
+
+    g_Log.WriteDebug("Network: Close socket failed, socket = %d.", Socket);
+    return false;
 }
 
 bool QNetwork::SetSocketNonblocking(QEventFD Socket)
@@ -267,19 +315,38 @@ bool QNetwork::SocketPair(int Family, int Type, int Protocol, QEventFD FD[2])
 #endif // _WIN32
 }
 
-void QNetwork::InitSockAddress(sockaddr_in &ServerAddress, const std::string &IP, int Port)
+int QNetwork::Send(QEventFD Socket, const char *Data, int Size)
 {
-    memset(&ServerAddress, 0, sizeof(ServerAddress));
-
-    ServerAddress.sin_family = AF_INET;
-    ServerAddress.sin_port = htons(static_cast<uint16_t>(Port));
-
-    if (!IP.empty())
+    int SendSize = static_cast<int>(::send(Socket, Data, Size, 0));
+    if (SendSize == Size)
     {
-        inet_pton(AF_INET, IP.c_str(), &ServerAddress.sin_addr);
+        return true;
     }
-    else
+
+#ifdef _WIN32
+    g_Log.WriteError("Network: Send failed, errno = %d",
+        WSAGetLastError());
+#else
+    g_Log.WriteError("Network: Send failed, errno = %d, msg = %s",
+        errno, strerror(errno));
+#endif // _WIN32
+    return false;
+}
+
+int QNetwork::Recv(QEventFD Socket, char *Buffer, int Size)
+{
+    int RecvSize = static_cast<int>(recv(Socket, Buffer, Size, 0));
+
+    if (RecvSize < 0)
     {
-        ServerAddress.sin_addr.s_addr = htonl(INADDR_ANY);
+#ifdef _WIN32
+        g_Log.WriteError("Network: Recv failed, errno = %d",
+            WSAGetLastError());
+#else
+        g_Log.WriteError("Network: Recv failed, errno = %d, msg = %s",
+            errno, strerror(errno));
+#endif // _WIN32
     }
+
+    return RecvSize;
 }

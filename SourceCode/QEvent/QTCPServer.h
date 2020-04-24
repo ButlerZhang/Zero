@@ -30,7 +30,7 @@ private:
     std::string                                              m_Name;
     std::string                                              m_BindIP;
 
-    ReadCallback                                          m_ReadCallback;
+    ReadCallback                                             m_ReadCallback;
     ConnectedCallback                                        m_ConnectedCallback;
 
     std::shared_ptr<QChannel>                                m_ListenChannel;

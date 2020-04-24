@@ -14,7 +14,7 @@
 
 #ifdef _WIN32
 #include <WinSock2.h>
-typedef SOCKET QEventFD;
+typedef intptr_t QEventFD;
 #else
 typedef int QEventFD;
 #endif

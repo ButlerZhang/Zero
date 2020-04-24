@@ -21,6 +21,7 @@ QTCPConnection::QTCPConnection(QEventLoop &Loop, QEventFD FD) : m_EventLoop(Loop
 
 QTCPConnection::~QTCPConnection()
 {
+    QNetwork::CloseSocket(m_Channel->GetFD());
 }
 
 QEventFD QTCPConnection::GetFD() const
@@ -51,7 +52,7 @@ void QTCPConnection::SetPeerIPandPort(const std::string &IP, int Port)
 
 int QTCPConnection::Send(const std::string &Message) const
 {
-    int SendSize = static_cast<int>(send(m_Channel->GetFD(), Message.c_str(), Message.size(), 0));
+    int SendSize = QNetwork::Send(m_Channel->GetFD(), Message.c_str(), (int)Message.size());
     g_Log.WriteDebug("QTCPConnection::Send, size = %d, msg = %s", SendSize, Message.c_str());
     return SendSize;
 }
@@ -61,7 +62,7 @@ void QTCPConnection::Callback_ChannelRead()
     g_Log.WriteDebug("QTCPConnection::Callback_ChannelRead");
 
     std::vector<char> Buffer(BUFFER_SIZE, 0);
-    int RecvSize = static_cast<int>(recv(m_Channel->GetFD(), &Buffer[0], BUFFER_SIZE - 1, 0));
+    int RecvSize = QNetwork::Recv(m_Channel->GetFD(), &Buffer[0], BUFFER_SIZE - 1);
 
     if (RecvSize > 0)
     {
@@ -89,8 +90,6 @@ void QTCPConnection::Callback_ChannelClose()
     m_Channel->SetReadCallback(nullptr);
     m_Channel->SetWriteCallback(nullptr);
     m_EventLoop.GetBackend()->DelEvent(m_Channel);
-
-    QNetwork::CloseSocket(m_Channel->GetFD());
 }
 
 void QTCPConnection::Callback_ChannelException()
@@ -101,7 +100,6 @@ void QTCPConnection::Callback_ChannelException()
     if (WSAErrno != WSAEWOULDBLOCK)
     {
         //m_EventLoop.DelEvent(Event);
-        QNetwork::CloseSocket(m_Channel->GetFD());
         g_Log.WriteInfo("Client = %d disconnected", m_Channel->GetFD());
     }
 #else

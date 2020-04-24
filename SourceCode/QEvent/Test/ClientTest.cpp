@@ -64,16 +64,16 @@ bool ClientTest::SingleThread(int ClientCount)
     std::vector<QNetwork> NetworkVector(ClientCount, QNetwork());
     for (int Index = 0; Index < ClientCount; Index++)
     {
-        QNetwork& Network = NetworkVector[Index];
-        if (Network.Connect(m_ServerIP, m_Port))
-        {
-            QNetwork::SetSocketNonblocking(Network.GetSocket());
+        //QNetwork& Network = NetworkVector[Index];
+        //if (Network.Connect(m_ServerIP, m_Port))
+        //{
+        //    QNetwork::SetSocketNonblocking(Network.GetSocket());
 
-            g_FD = Network.GetSocket();
-            std::shared_ptr<QChannel> ReceiveEvent = std::make_shared<QChannel>(Network.GetSocket());
-            ReceiveEvent->SetReadCallback(std::bind(&ClientTest::Recevie, this));
-            EventLoop.GetBackend()->AddEvent(ReceiveEvent);
-        }
+        //    g_FD = Network.GetSocket();
+        //    std::shared_ptr<QChannel> ReceiveEvent = std::make_shared<QChannel>(Network.GetSocket());
+        //    ReceiveEvent->SetReadCallback(std::bind(&ClientTest::Recevie, this));
+        //    EventLoop.GetBackend()->AddEvent(ReceiveEvent);
+        //}
     }
 
 #ifdef ENABLE_CMD_INPUT
@@ -91,26 +91,26 @@ bool ClientTest::SingleThread(int ClientCount)
 
 bool ClientTest::SendMsg(int ClientID, QLog &Log)
 {
-    QNetwork MyNetwork;
-    if (!MyNetwork.Connect(m_ServerIP, m_Port))
-    {
-        Log.WriteDebug("Socket = %d connectd server failed.", MyNetwork.GetSocket());
-        return false;
-    }
+    //QNetwork MyNetwork;
+    //if (!MyNetwork.Connect(m_ServerIP, m_Port))
+    //{
+    //    Log.WriteDebug("Socket = %d connectd server failed.", MyNetwork.GetSocket());
+    //    return false;
+    //}
 
-    Log.WriteDebug("Socket = %d connectd server succeed.", MyNetwork.GetSocket());
+    //Log.WriteDebug("Socket = %d connectd server succeed.", MyNetwork.GetSocket());
 
-    char Msg[BUFFER_SIZE];
-    sprintf(Msg, "(ClientID=%d\tSocket=%s)", ClientID, std::to_string(MyNetwork.GetSocket()).c_str());
+    //char Msg[BUFFER_SIZE];
+    //sprintf(Msg, "(ClientID=%d\tSocket=%s)", ClientID, std::to_string(MyNetwork.GetSocket()).c_str());
 
-    while (true)
-    {
-        int SendSize = (int)send(MyNetwork.GetSocket(), Msg, (int)strlen(Msg), 0);
-        Log.WriteInfo("Send size = %d\tmsg = %s", SendSize, Msg);
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-    }
+    //while (true)
+    //{
+    //    QNetwork::Send(MyNetwork.GetSocket(), Msg, (int)strlen(Msg));
+    //    Log.WriteInfo("Send msg = %s", Msg);
+    //    std::this_thread::sleep_for(std::chrono::seconds(1));
+    //}
 
-    //system("pause");
+    ////system("pause");
     return true;
 }
 
@@ -159,17 +159,17 @@ void ClientTest::CallBack_Thread(void *ClientObject, int ClientID)
 
 void ClientTest::Recevie()
 {
-    char Message[BUFFER_SIZE];
-    memset(Message, 0, BUFFER_SIZE);
+    //char Message[BUFFER_SIZE];
+    //memset(Message, 0, BUFFER_SIZE);
 
-    int FD = g_FD;// static_cast<int>(Event.GetFD());
-    int ReadSize = static_cast<int>(read(FD, Message, BUFFER_SIZE));
-    if (ReadSize <= 0)
-    {
-        g_Log.WriteError("Client: Can not read from server.");
-    }
-    else
-    {
-        g_Log.WriteInfo("Client recv msg = %s, size = %d", Message, ReadSize);
-    }
+    //int FD = g_FD;// static_cast<int>(Event.GetFD());
+    //int ReadSize = static_cast<int>(read(FD, Message, BUFFER_SIZE));
+    //if (ReadSize <= 0)
+    //{
+    //    g_Log.WriteError("Client: Can not read from server.");
+    //}
+    //else
+    //{
+    //    g_Log.WriteInfo("Client recv msg = %s, size = %d", Message, ReadSize);
+    //}
 }

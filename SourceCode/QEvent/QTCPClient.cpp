@@ -15,15 +15,15 @@ QTCPClient::~QTCPClient()
 
 bool QTCPClient::Connect(const std::string &ServerIP, int Port)
 {
-    static QNetwork Network;
-    if (!Network.Connect(ServerIP, Port))
+    QEventFD Socket = QNetwork::CreateSocket();
+    if (Socket < 0 || !QNetwork::Connect(Socket, ServerIP, Port))
     {
         return false;
     }
 
-    QNetwork::SetSocketNonblocking(Network.GetSocket());
+    QNetwork::SetSocketNonblocking(Socket);
 
-    m_Connection = std::make_shared<QTCPConnection>(m_EventLoop, Network.GetSocket());
+    m_Connection = std::make_shared<QTCPConnection>(m_EventLoop, Socket);
     m_Connection->SetReadCallback(m_ReadCallback);
     m_Connection->SetPeerIPandPort(ServerIP, Port);
 
