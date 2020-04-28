@@ -21,6 +21,8 @@ public:
     void SetResultEvents(int ResultEvents);
     void SetReadCallback(EventCallback ReadCallback);
     void SetWriteCallback(EventCallback WriteCallback);
+    void SetCloseCallback(EventCallback CloseCallback);
+    void SetErrorCallback(EventCallback ErrorCallback);
 
     inline int GetEvents() const { return m_Events; }
     inline int GetResultEvents() const { return m_ResultEvents; }
@@ -40,6 +42,8 @@ protected:
     QEventFD                                    m_EventFD;
     EventCallback                               m_ReadCallback;
     EventCallback                               m_WriteCallback;
+    EventCallback                               m_CloseCallback;
+    EventCallback                               m_ErrorCallback;
 
     timeval                                     m_Timeout;
     std::shared_ptr<QBackend>                   m_Backend;

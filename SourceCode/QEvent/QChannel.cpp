@@ -10,6 +10,8 @@ QChannel::QChannel(QEventFD EventFD)
     m_EventFD = EventFD;
     m_ReadCallback = nullptr;
     m_WriteCallback = nullptr;
+    m_CloseCallback = nullptr;
+    m_ErrorCallback = nullptr;
 }
 
 QChannel::~QChannel()
@@ -58,11 +60,35 @@ void QChannel::SetResultEvents(int ResultEvents)
 void QChannel::SetReadCallback(EventCallback ReadCallback)
 {
     m_ReadCallback = ReadCallback;
-    m_Events |= QET_READ;
+    if (m_ReadCallback != nullptr)
+    {
+        m_Events |= QET_READ;
+    }
+    else
+    {
+        m_Events &= ~QET_READ;
+    }
 }
 
 void QChannel::SetWriteCallback(EventCallback WriteCallback)
 {
     m_WriteCallback = WriteCallback;
-    m_Events |= QET_WRITE;
+    if (m_WriteCallback != nullptr)
+    {
+        m_Events |= QET_WRITE;
+    }
+    else
+    {
+        m_Events &= ~QET_WRITE;
+    }
+}
+
+void QChannel::SetCloseCallback(EventCallback CloseCallback)
+{
+    m_CloseCallback = CloseCallback;
+}
+
+void QChannel::SetErrorCallback(EventCallback ErrorCallback)
+{
+    m_ErrorCallback = ErrorCallback;
 }
